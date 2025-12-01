@@ -1,0 +1,91 @@
+variables:
+  WEBSITE_NAME: "bianbu-linux-website"
+
+default:
+  image: "harbor.bianbu.xyz/gitlab/node:v2"
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.dc.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+stages:
+  - test
+  - review
+  - release
+
+pages:
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+    BASE_URL: /-/$CI_PROJECT_NAME/-/jobs/$CI_JOB_ID/artifacts/public/
+  script:
+    - echo "Downloading website code..."
+    - git clone --depth 1 --recurse-submodules git@gitlab.dc.com:bianbu/$WEBSITE_NAME.git
+    - cd $WEBSITE_NAME/submodules/$CI_PROJECT_NAME
+    - git pull --rebase origin $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - echo "Download complete."
+    - echo "Compiling the code..."
+    - cd ../..
+    - npm --registry https://nexus.bianbu.xyz/repository/npmproxy/ install --no-strict-ssl
+    - bash prepare.sh
+    - npm run build
+    - echo "Compile complete."
+    - mv build ../public
+  artifacts:
+    paths:
+      - public/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+test-job:
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - echo "Downloading website code..."
+    - git clone --depth 1 --recurse-submodules git@gitlab.dc.com:bianbu/$WEBSITE_NAME.git
+    - cd $WEBSITE_NAME/submodules/$CI_PROJECT_NAME
+    - git checkout $CI_COMMIT_SHORT_SHA
+    - echo "Download complete."
+    - echo "Testing the code whether it can be compiled..."
+    - cd ../..
+    - npm --registry https://nexus.bianbu.xyz/repository/npmproxy/ install --no-strict-ssl
+    - bash prepare.sh
+    - npm run build
+    - echo "Test complete."
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+review-job:
+  stage: review
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - job: test-job
+  trigger:
+    project: bianbu/$WEBSITE_NAME
+    branch: main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+release-job:
+  stage: release
+  variables:
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0
+  script:
+    - 'command -v nc >/dev/null || ( apt-get update -y && apt-get install ncat -y )'
+    - export GIT_SSH_COMMAND='ssh -o ProxyCommand="nc -X connect -x proxy1.dc.com:1080 %h %p" -o StrictHostKeyChecking=no'
+    - git config --global user.name "Bianbu-CI"
+    - git config --global user.email "bianbu-ci@spacemit.com"
+    - git remote add gitee git@gitee.com:bianbu-linux/$CI_PROJECT_NAME.git
+    - git fetch gitee
+    - git checkout gitee/main
+    - git merge --no-ff --no-edit origin/main
+    - git push gitee HEAD:main
+  rules:
+    - if: $CI_COMMIT_TAG
