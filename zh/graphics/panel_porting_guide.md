@@ -528,7 +528,7 @@ if (strcmp("lt8911ext_edp_1080p", priv->panel_name) == 0) {
 
 ## Kernel 屏幕调试
 
-SpacemiT 平台 Display 模块的功能和使用方法参考：[SpacemiT 平台 Display 模块介绍](https://bianbu-linux.spacemit.com/device/peripheral_driver/Display)
+SpacemiT 平台 Display 模块的功能和使用方法参考：[SpacemiT 平台 Display 模块介绍](https://sdk.spacemit.com/device/peripheral_driver/Display)
 
 ### HDMI 配置
 

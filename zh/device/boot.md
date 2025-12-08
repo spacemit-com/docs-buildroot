@@ -478,7 +478,7 @@ K1 平台支持卡量产烧录。通过 **TitanFlash 工具** 可将 SD 卡制�
   - [参考链接 1](https://www.jb51.net/article/271550.htm)
   - [参考链接 2](https://blog.csdn.net/qq_34459334/article/details/140128714)
 
-> 固件镜像的生成方式，请参考文档：[下载和编译](https://bianbu-linux.spacemit.com/source)
+> 固件镜像的生成方式，请参考文档：[下载和编译](https://sdk.spacemit.com/source)
 
 ##### 刷机介质选择
 

@@ -516,7 +516,7 @@ The platform supports **two main methods** for flashing firmware images:
   - [Guide 1](https://www.jb51.net/article/271550.htm)
   - [Guide 2](https://blog.csdn.net/qq_34459334/article/details/140128714)
 
-> For information on how to build the firmware image, see: [Download and Build](https://bianbu-linux.spacemit.com/en/source)
+> For information on how to build the firmware image, see: [Download and Build](https://sdk.spacemit.com/en/source)
 
 ##### Boot Media Selection
 
