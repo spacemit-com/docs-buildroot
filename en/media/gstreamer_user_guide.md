@@ -760,7 +760,7 @@ e="<0,0,1280,720>"
 WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/1000 gst-launch-1.0 filesrc location=/root/3840x2160_24bits_30fps_266p.h265 ! h265parse ! spacemitdec ! fpsdisplaysink video-sink='glsinkbin sink='gtkglsink sync=0''
 ```
 
-- 裸流片源解码，如果使用 spacemit 插件解码失败，需要先排除片源自身的问题。可以尝试以下方法，更多见 [https://bianbu-linux.spacemit.com/media/mpp](https://bianbu-linux.spacemit.com/media/mpp)
+- 裸流片源解码，如果使用 spacemit 插件解码失败，需要先排除片源自身的问题。可以尝试以下方法，更多见 [https://sdk.spacemit.com/media/mpp](https://sdk.spacemit.com/media/mpp)
   - 使用通用的 gstreamer 插件替换 spacemit 解码插件进行调试。
   - 使用 ffplay 解码片源观察是否有问题。
   - 使用 mpp 自带的 demo test 解码片源观察是否有问题。

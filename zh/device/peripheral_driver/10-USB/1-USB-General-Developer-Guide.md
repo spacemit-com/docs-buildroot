@@ -1378,7 +1378,7 @@ USB host 端接入的设备通常会接入系统其他子系统，如 U 盘存�
 
 USB Device 支持通过 Configfs 配置，请参考 Linux 内核文档 `usb/gadget_configfs`，部分功能需要搭配应用层服务程序使用。
 
-此外 SpacemiT 提供了 [Buildroot / usb-gadget 工具 ](https://gitee.com/bianbu-linux/usb-gadget)，其中有使用 Configfs 配置 USB Device 的脚本可供使用和参考，请参阅对应页面的帮助文档和 [USB Gadget 开发指南 ](2-USB-Gadget-Developer-Guide.md)。
+此外 SpacemiT 提供了 [Buildroot / usb-gadget 工具 ](https://gitee.com/spacemit-buildroot/usb-gadget)，其中有使用 Configfs 配置 USB Device 的脚本可供使用和参考，请参阅对应页面的帮助文档和 [USB Gadget 开发指南 ](2-USB-Gadget-Developer-Guide.md)。
 
 如果需要开发自定义协议的 USB Device 模式驱动，可基于 FunctionFS 开发用户态驱动，可参考 Linux 内核文档 `usb/functionfs` 和 Linux 内核源码目录 `tools/usb/ffs-aio-example` 案例。
 

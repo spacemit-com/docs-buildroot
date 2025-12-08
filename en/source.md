@@ -94,7 +94,7 @@ manifests repository defines the `manifest.xml` files for different versions. Th
 
 **Notice**
 
-- Due to Gitee's single repository capacity limitations, the bl-v2.0.y and k1-bl-v2.1.y branches of the linux-6.6 repository have been moved to separate repositories: [linux-6.6-v2.0.y](https://gitee.com/bianbu-linux/linux-6.6-v2.0.y) and [linux-6.6-v2.1.y](https://gitee.com/bianbu-linux/linux-6.6-v2.1.y). If you are using v2.0 or v2.1, you will not be able to repo sync or git pull the linux-6.6 repository and will need to re-download. We apologize for any inconvenience this may cause.
+- Due to Gitee's single repository capacity limitations, the bl-v2.0.y and k1-bl-v2.1.y branches of the linux-6.6 repository have been moved to separate repositories: [linux-6.6-v2.0.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.0.y) and [linux-6.6-v2.1.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.1.y). If you are using v2.0 or v2.1, you will not be able to repo sync or git pull the linux-6.6 repository and will need to re-download. We apologize for any inconvenience this may cause.
 - Github only hosts v2.2 and later versions.
 
 ### Download Code
@@ -106,7 +106,7 @@ For example, to download the code for version 2.2:
 ```shell
 mkdir ~/buildroot-sdk-2.2
 cd ~/buildroot-sdk-2.2
-repo init -u git@gitee.com:bianbu-linux/manifests.git -b main -m k1-bl-v2.2.y.xml
+repo init -u git@gitee.com:spacemit-buildroot/manifests.git -b main -m k1-bl-v2.2.y.xml
 repo sync
 repo start k1-bl-v2.2.y --all
 ```
@@ -190,13 +190,13 @@ The compilation process may require downloading some third-party software packag
 After the compilation is complete, you will see:
 
 ```shell
-Images successfully packed into /home/username/bianbu-linux/output/k1_v2/images/bianbu-linux-k1_v2.zip
+Images successfully packed into /home/username/buildroot-sdk/output/k1_v2/images/buildroot-k1_v2.zip
 
 
 Generating sdcard.img...................................
-INFO: cmd: "mkdir -p "/home/username/bianbu-linux/output/k1_v2/build/genimage.tmp"" (stderr):
-INFO: cmd: "rm -rf "/home/username/bianbu-linux/output/k1_v2/build/genimage.tmp"/*" (stderr):
-INFO: cmd: "mkdir -p "/home/username/bianbu-linux/output/k1_v2/images"" (stderr):
+INFO: cmd: "mkdir -p "/home/username/buildroot-sdk/output/k1_v2/build/genimage.tmp"" (stderr):
+INFO: cmd: "rm -rf "/home/username/buildroot-sdk/output/k1_v2/build/genimage.tmp"/*" (stderr):
+INFO: cmd: "mkdir -p "/home/username/buildroot-sdk/output/k1_v2/images"" (stderr):
 INFO: hdimage(sdcard.img): adding partition 'bootinfo' from 'factory/bootinfo_sd.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'fsbl' (in MBR) from 'factory/FSBL.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'env' (in MBR) from 'env.bin' ...
@@ -211,11 +211,11 @@ INFO: hdimage(sdcard.img): adding partition '[GPT backup]' ...
 INFO: hdimage(sdcard.img): writing GPT
 INFO: hdimage(sdcard.img): writing protective MBR
 INFO: hdimage(sdcard.img): writing MBR
-Successfully generated at /home/username/work/bianbu-linux/output/k1_v2/images/bianbu-linux-k1_v2-sdcard.img
+Successfully generated at /home/username/work/buildroot-sdk/output/k1_v2/images/buildroot-k1_v2-sdcard.img
 ```
 
-- `bianbu-linux-k1_v2.zip` is suitable for use with Titan Flasher. Alternatively, you can unzip it and flash it using Fastboot.
-- `bianbu-linux-k1_v2-sdcard.img` is the sdcard firmware, which can be written to the sdcard using the dd command or [balenaEtcher](https://etcher.balena.io/) after unzipping.
+- `buildroot-k1_v2.zip` is suitable for use with Titan Flasher. Alternatively, you can unzip it and flash it using Fastboot.
+- `buildroot-k1_v2-sdcard.img` is the sdcard firmware, which can be written to the sdcard using the dd command or [balenaEtcher](https://etcher.balena.io/) after unzipping.
 
 > Titan Flasher User Guide: [Flashing Tool User Guide](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
 
@@ -257,9 +257,9 @@ Applying rt-linux-support.patch using patch:
 After the compilation is complete, you will see:
 
 ```shell
-Images successfully packed into /home/username/bianbu-linux/output/k1_rt/images/bianbu-linux-k1_rt.zip
+Images successfully packed into /home/username/buildroot-sdk/output/k1_rt/images/buildroot-k1_rt.zip
 ...
-Successfully generated at /home/username/work/bianbu-linux/output/k1_rt/images/bianbu-linux-k1_rt-sdcard.img
+Successfully generated at /home/username/work/buildroot-sdk/output/k1_rt/images/buildroot-k1_rt-sdcard.img
 ```
 
 ### Configuration

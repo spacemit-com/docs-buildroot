@@ -327,7 +327,7 @@ HD Pro Webcam C920 (usb-xhci-hcd.0.auto-1.3):
 
 ##### MIPI 摄像头使用示例
 
-以下是一些使用 GStreamer 从 MIPI 摄像头以 OV16A10 输出 1080P@NV12 的示例。这些示例假设 spacemitsrc 的 JSON 配置文件已正确设置，具体配置请参考[相机开发指南](https://bianbu-linux.spacemit.com/camera/camera_development_guide)。
+以下是一些使用 GStreamer 从 MIPI 摄像头以 OV16A10 输出 1080P@NV12 的示例。这些示例假设 spacemitsrc 的 JSON 配置文件已正确设置，具体配置请参考[相机开发指南](https://sdk.spacemit.com/camera/camera_development_guide)。
 
 - 采集图像后送显，显示分辨率为 720p。（显示位置暂时没法设定）
 

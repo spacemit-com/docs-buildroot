@@ -30,13 +30,13 @@ your choice (1-3):
 编译完成，可以看到以下输出：
 
 ```shell
-Images successfully packed into /path/to/bianbu-linux/output/k1_plt/images/bianbu-linux-k1_plt.zip
+Images successfully packed into /path/to/buildroot-sdk/output/k1_plt/images/buildroot-k1_plt.zip
 
 
 Generating sdcard.img...................................
-INFO: cmd: "mkdir -p "/path/to/bianbu-linux/output/k1_plt/build/genimage.tmp"" (stderr):
-INFO: cmd: "rm -rf "/path/to/bianbu-linux/output/k1_plt/build/genimage.tmp"/*" (stderr):
-INFO: cmd: "mkdir -p "/path/to/work/bianbu-linux/output/k1_plt/images"" (stderr):
+INFO: cmd: "mkdir -p "/path/to/buildroot-sdk/output/k1_plt/build/genimage.tmp"" (stderr):
+INFO: cmd: "rm -rf "/path/to/buildroot-sdk/output/k1_plt/build/genimage.tmp"/*" (stderr):
+INFO: cmd: "mkdir -p "/path/to/work/buildroot-sdk/output/k1_plt/images"" (stderr):
 INFO: hdimage(sdcard.img): adding partition 'bootinfo' from 'factory/bootinfo_sd.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'fsbl' (in MBR) from 'factory/FSBL.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'env' (in MBR) from 'env.bin' ...
@@ -51,12 +51,12 @@ INFO: hdimage(sdcard.img): adding partition '[GPT backup]' ...
 INFO: hdimage(sdcard.img): writing GPT
 INFO: hdimage(sdcard.img): writing protective MBR
 INFO: hdimage(sdcard.img): writing MBR
-Successfully generated at /path/to/bianbu-linux/output/k1_plt/images/bianbu-linux-k1_plt-sdcard.img
+Successfully generated at /path/to/buildroot-sdk/output/k1_plt/images/buildroot-k1_plt-sdcard.img
 ```
 
 其中：
-- `bianbu-linux-k1_plt.zip` 适用于 Titan Flasher，或者解压后用 fastboot 刷机。
-- `bianbu-linux-k1_plt-sdcard.img` 为 SD 卡固件，解压后可以用 `dd` 命令或者 [balenaEtcher](https://etcher.balena.io/) 写入sdcard。
+- `buildroot-k1_plt.zip` 适用于 Titan Flasher，或者解压后用 fastboot 刷机。
+- `buildroot-k1_plt-sdcard.img` 为 SD 卡固件，解压后可以用 `dd` 命令或者 [balenaEtcher](https://etcher.balena.io/) 写入sdcard。
 
 固件默认用户名：`root`，密码：`bianbu`。
 

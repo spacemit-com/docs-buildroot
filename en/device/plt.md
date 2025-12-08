@@ -30,13 +30,13 @@ Select option `3` and press Enter to start compiling.
 Upon successful compilation, the system generates:
 
 ```shell
-Images successfully packed into /path/to/bianbu-linux/output/k1_plt/images/bianbu-linux-k1_plt.zip
+Images successfully packed into /path/to/buildroot-sdk/output/k1_plt/images/buildroot-k1_plt.zip
 
 
 Generating sdcard.img...................................
-INFO: cmd: "mkdir -p "/path/to/bianbu-linux/output/k1_plt/build/genimage.tmp"" (stderr):
-INFO: cmd: "rm -rf "/path/to/bianbu-linux/output/k1_plt/build/genimage.tmp"/*" (stderr):
-INFO: cmd: "mkdir -p "/path/to/work/bianbu-linux/output/k1_plt/images"" (stderr):
+INFO: cmd: "mkdir -p "/path/to/buildroot-sdk/output/k1_plt/build/genimage.tmp"" (stderr):
+INFO: cmd: "rm -rf "/path/to/buildroot-sdk/output/k1_plt/build/genimage.tmp"/*" (stderr):
+INFO: cmd: "mkdir -p "/path/to/work/buildroot-sdk/output/k1_plt/images"" (stderr):
 INFO: hdimage(sdcard.img): adding partition 'bootinfo' from 'factory/bootinfo_sd.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'fsbl' (in MBR) from 'factory/FSBL.bin' ...
 INFO: hdimage(sdcard.img): adding partition 'env' (in MBR) from 'env.bin' ...
@@ -51,12 +51,12 @@ INFO: hdimage(sdcard.img): adding partition '[GPT backup]' ...
 INFO: hdimage(sdcard.img): writing GPT
 INFO: hdimage(sdcard.img): writing protective MBR
 INFO: hdimage(sdcard.img): writing MBR
-Successfully generated at /path/to/bianbu-linux/output/k1_plt/images/bianbu-linux-k1_plt-sdcard.img
+Successfully generated at /path/to/buildroot-sdk/output/k1_plt/images/buildroot-k1_plt-sdcard.img
 ```
 
 Output files:  
-- `bianbu-linux-k1_plt.zip`: For Titan Flasher or fastboot flashing  
-- `bianbu-linux-k1_plt-sdcard.img`: SD card image (flash using `dd` or [balenaEtcher](https://etcher.balena.io/))  
+- `buildroot-k1_plt.zip`: For Titan Flasher or fastboot flashing  
+- `buildroot-k1_plt-sdcard.img`: SD card image (flash using `dd` or [balenaEtcher](https://etcher.balena.io/))  
 
 Default credentials:  
 - Username: `root`  

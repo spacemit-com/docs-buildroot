@@ -90,7 +90,7 @@ CONFIG_USB_GADGET_DEBUG_FS=y
 
 具体详细的 configfs 配置可以参照概述中提到的内核文档参考资料。
 
-本文档主要基于 [SpacemiT usb-gadget 仓库 ](https://gitee.com/bianbu-linux/usb-gadget) 
+本文档主要基于 [SpacemiT usb-gadget 仓库 ](https://gitee.com/spacemit-buildroot/usb-gadget) 
 提供的 `scripts/gadget-setup.sh` 配置脚本进行讲解，注意切换至最新的发布分支，保证获取最新内容。
 
 请用户在继续阅读本文档的更多章节前，可以打开最新的 `gadget-setup.sh` 脚本源码搭配阅读更易于理解。
@@ -146,7 +146,7 @@ gadget-setup: ERROR: configfs preserved, run gadget-setup resume after conflict 
 **需要打开的配置：** `CONFIG_USB_F_UVC`
 
 UVC 功能是开发板作为摄像头，依赖应用程序 uvc-gadget-new 提供数据源，该程序源码可以在
-[SpacemiT usb-gadget 仓库 ](https://gitee.com/bianbu-linux/usb-gadget) 下载，用户根据自己需求可对源码进行编译、二次开发。
+[SpacemiT usb-gadget 仓库 ](https://gitee.com/spacemit-buildroot/usb-gadget) 下载，用户根据自己需求可对源码进行编译、二次开发。
 
 **帧格式和 USB 带宽介绍：**
 
@@ -826,7 +826,7 @@ SpacemiT 基于 kernel 源码的 tools/usb/ffs-aio-example 目录下的 simple d
   - 基于 [WCID](https://github.com/pbatard/libwdi/wiki/WCID-Devices) 增加 WINUSB 免驱操作系统描述符，让 Windows 能够直接绑定 WINUSB 驱动从而应用层快速验证。
   - 改善打印和增加可读数据。
 
-此代码发布于 [Gitee | SpacemiT Buildroot SDK / usb-gadget](https://gitee.com/bianbu-linux/usb-gadget)
+此代码发布于 [Gitee | SpacemiT Buildroot SDK / usb-gadget](https://gitee.com/spacemit-buildroot/usb-gadget)
 
 把仓库 clone 到装有 bianbu/ubuntu 系统的 K1 开发板中后（为了简化验证过程，此处暂不介绍交叉编译的方法），按以下步骤执行可以跑通 ffs demo。
 

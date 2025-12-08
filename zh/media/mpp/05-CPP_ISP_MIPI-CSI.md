@@ -258,16 +258,16 @@ TODO
 
 ## 4 SENSOR 调试
 
-详见 [相机开发指南](https://bianbu-linux.spacemit.com/camera/camera_development_guide)
+详见 [相机开发指南](https://sdk.spacemit.com/camera/camera_development_guide)
 
 ## 5 ISP 效果调试
 
 ISP 效果调试可能需要使用到的工具包括：调试工具（Tuning Tool）、定标插件（Calibration Plugins）、图像分析工具（VRF viewer），平台调试辅助等。
 
-详见 [ISP PQ 工具用户指南](https://bianbu-linux.spacemit.com/camera/isp_pq_tools_user_guide)
+详见 [ISP PQ 工具用户指南](https://sdk.spacemit.com/camera/isp_pq_tools_user_guide)
 
 ## 6 API 使用说明
 
-这些 API 的详细参数、数据结构、错误码和返回值已在 [ISP API 开发指南](https://bianbu-linux.spacemit.com/camera/isp_api_development_guide) 中进行说明，主要面向以下两类开发者：
+这些 API 的详细参数、数据结构、错误码和返回值已在 [ISP API 开发指南](https://sdk.spacemit.com/camera/isp_api_development_guide) 中进行说明，主要面向以下两类开发者：
 - ISP 效果相关的 tuning 和算法工程师
 - 图像相关功能开发的应用工程师
