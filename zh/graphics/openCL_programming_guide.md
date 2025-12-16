@@ -1,4 +1,6 @@
-# OpenCL编程指南
+sidebar_position: 4
+
+# OpenCL 编程指南
 
 ## 1. 简介
 
