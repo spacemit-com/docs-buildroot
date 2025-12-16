@@ -9,7 +9,7 @@ PINCTRL is the **controller for the PIN module**.
 ### Function Description
 
 ![](static/linux_pinctrl.png)  
- 
+
 The Linux pinctrl module consists of two parts: **pinctrl core** and **pin controller driver**.
 
 1. **pinctrl core** primarily has two functions:
@@ -30,7 +30,6 @@ drivers/pinctrl
 ```
 
 ## Key Features
-
 
 | Feature | Description |
 | :-----| :----|
@@ -135,7 +134,7 @@ Use the macro `K1X_PADCONF` for configuration, with the format **pin_id, mux_mod
 
 Example: Set pin GPIO_00 to the gmac0 rxdv function, disable edge detection, disable pull-up/pull-down, and set the drive strength to 2 (1.8V).
 
-Check the K1 pin multiplexing function list [K1 Pin Multiplex] (https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file). To set GPIO_00 to the gmac0 rxdv function, the function mode needs to be set to 1, that is, MUX_MODE1.
+Check the K1 pin multiplexing function list [K1 Pin Multiplex] (<https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file>). To set GPIO_00 to the gmac0 rxdv function, the function mode needs to be set to 1, that is, MUX_MODE1.
 
 Configure as follows:
 
@@ -308,9 +307,8 @@ Linux defines four standard pin states: **default, init, idle**, and **sleep**. 
 - **sleep**: The pin state when the device is in sleep mode during the PM (Power Management) process, set during suspend.
 - **idle**: The pin state when the device is in runtime suspend, set during pm_runtime_suspend or pm_runtime_idle.
 
-For example, if the gmac0 controller uses pins defined in the **default** state, the gmac controller driver does not need to perform any operations. The kernel framework will handle the setup of the eth0 pins. 
+For example, if the gmac0 controller uses pins defined in the **default** state, the gmac controller driver does not need to perform any operations. The kernel framework will handle the setup of the eth0 pins.
 The DTS configuration is as follows:
-
 
 ```c
 eth0 {
@@ -321,7 +319,7 @@ eth0 {
 
 #### Custom Pin States
 
-Taking the K1 SD card controller as an example, the K1 SD card controller defines three pin states: **default**, **fast**, and **debug**. 
+Taking the K1 SD card controller as an example, the K1 SD card controller defines three pin states: **default**, **fast**, and **debug**.
 
 The definitions and references in the dts are as follows
 
@@ -456,7 +454,7 @@ Used to view the current pin configuration information of the solution. This inc
 ```
 
 ## Testing
- 
+
 Use the `devmem` tool to check the register value associated with a pin:
 
 ```

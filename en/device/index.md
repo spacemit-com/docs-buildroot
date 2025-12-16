@@ -9,7 +9,7 @@ Buildroot Device Development Guide:
 
 - [Device Management](device_management.md)
 - [Solution Management](solution_management.md)
-- [Boot](boot.md)
+- [Boot Development Guidet](boot.md)
 - [Peripheral Drivers](peripheral_driver/index.md)
 - [Standby](standby.md)
 - [Product Line Tool](plt.md)
