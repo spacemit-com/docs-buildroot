@@ -1,3 +1,5 @@
+sidebar_position: 1
+
 # Linux File System Troubleshooting Guide
 
 ## Linux Storage Stack
