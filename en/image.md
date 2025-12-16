@@ -1,8 +1,8 @@
 ---
-sidebar_position: 1.2
+sidebar_position: 2
 ---
 
-# Image
+# Images
 
 We provide images for each released version for you to experience. The default image format for Buildroot is `zip`. It is suitable for Titan Flasher and can also be extracted and flashed using fastboot.
 

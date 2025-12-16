@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Buildroot 1.0更新说明 [已停服]
+# Buildroot 1.0 更新说明 [已停服]
 
 ## Buildroot 1.0 停服公告  
 Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止维护（End of Life）。
@@ -12,7 +12,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 
 建议用户更新Buildroot V2.0版本使用
 
-## v1.0.15更新说明
+## v1.0.15 更新说明
 
 发布日期：2024-9-7
 
@@ -20,7 +20,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 
 - 更新aic8800固件路径
 
-## v1.0.14更新说明
+## v1.0.14 更新说明
 
 发布日期：2024-8-31
 
@@ -36,7 +36,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 更新rcpu固件
 - 优化内核加载模块速度
 
-## v1.0.13更新说明
+## v1.0.13 更新说明
 
 发布日期：2024-8-16
 
@@ -49,7 +49,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】修复频繁开关盖状态异常的问题
 - 【MUSE Book】支持ADB
 
-## v1.0.12更新说明
+## v1.0.12 更新说明
 
 发布日期：2024-8-2
 
@@ -57,7 +57,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 
 - 支持aic8800 WiFi模组
 
-## v1.0.11更新说明
+## v1.0.11 更新说明
 
 发布日期：2024-8-1
 
@@ -73,7 +73,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】修复充电充满后电量显示仅99%的问题
 - 【MUSE Book】修复休眠后唤醒速度到2s内
 
-## v1.0.9更新说明
+## v1.0.9 更新说明
 
 发布日期：2024-7-20
 
@@ -85,7 +85,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】修复充电充满后电量显示仅99%的问题
 - 【MUSE Book】修复休眠后低概率立即唤醒，及休眠功耗异常（高）的问题
 
-## v1.0.8更新说明
+## v1.0.8 更新说明
 
 发布日期：2024-7-16
 
@@ -96,7 +96,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 修改个别场景休眠唤醒后声音异常问题
 - 【MUSE Card】支持MUSE Card
 
-## v1.0.7更新说明
+## v1.0.7 更新说明
 
 发布日期：2024-7-11
 
@@ -114,7 +114,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】修复u-boot无法在线升级的问题
 - 【MUSE Book】修复启动logo低概率闪烁的问题
 
-## v1.0.5更新说明
+## v1.0.5 更新说明
 
 发布日期：2024-6-28
 
@@ -138,7 +138,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】优化eDP屏初始化速度
 - 【MUSE Book】优化eDP屏背光亮度曲线
 
-## v1.0.3更新说明
+## v1.0.3 更新说明
 
 发布日期：2024-6-19
 
@@ -159,7 +159,7 @@ Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止
 - 【MUSE Book】更新产测工具
 - 【MUSE Book】修复获取不到显示器EDID问题
 
-## v1.0更新说明
+## v1.0 更新说明
 
 发布日期：2024-5-30
 

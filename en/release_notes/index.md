@@ -1,11 +1,12 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 slug: /release_notes
 ---
 
 # Release Notes
 
-Below are the release notes for various versions of Buildroot:
+This section documents the release notes for supported Buildroot versions, including long-term support (LTS) releases.  
+For details on deprecated and archived versions, refer to the release history.
 
-- [Buildroot 2.2 Release Notes](bl-v2.2.y.md) [LTS]
-- [Historical versions](history/index.md)
+- [Buildroot v2.2 Release Notes](bl-v2.2.y.md) *(LTS)*
+- [Release History](history/index.md)

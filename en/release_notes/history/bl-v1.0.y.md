@@ -5,11 +5,11 @@ sidebar_position: 1
 # Buildroot 1.0 Release Notes [End of Life]
 
 ## Buildroot 1.0 End of Life Announcement
- Buildroot V1.0, which was built on linux-6.1.Please note that Buildroot V1.0 is no longer maintained and has reached its End of Life (EOL).
+ Buildroot V1.0, which was built on linux-6.1. Please note that Buildroot V1.0 is no longer maintained and has reached its End of Life (EOL).
  
 Buildroot 1.0 End of Life (EOL) Time: 2024/12/31
 
-Please refer to the document for the Buildroot V2.0 upgrade
+Please refer to the document for the Buildroot v2.0 upgrade
 
 ## v1.0.15 release note
 
