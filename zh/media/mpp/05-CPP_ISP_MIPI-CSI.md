@@ -1,3 +1,5 @@
+sidebar_position: 5
+
 # CPP & ISP & MIPI-CSI
 
 K1 的 CPP、ISP 和 MIPI-CSI 模块基于标准 V4L2 接口实现，且提供了完整的测试程序供参考。

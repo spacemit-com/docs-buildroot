@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 1
 slug: /media/mpp
 ---
 
@@ -30,4 +30,4 @@ slug: /media/mpp
 - [MPP](02-MPP.md)
 - [VPU](03-VPU.md)
 - [JPU](04-JPU.md)
-- [CPP&ISP&MIPI-CSI](05-CPP_ISP_MIPI-CSI.md)
+- [CPP & ISP & MIPI-CSI](05-CPP_ISP_MIPI-CSI.md)

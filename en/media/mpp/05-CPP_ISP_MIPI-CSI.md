@@ -1,3 +1,5 @@
+sidebar_position: 5
+
 # CPP & ISP & MIPI-CSI
 
 K1 的 CPP&ISP&MIPI-CSI 是基于标准的 V4L2 接口实现，并提供了完整的测试程序供参考。
