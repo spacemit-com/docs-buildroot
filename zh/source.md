@@ -1,10 +1,10 @@
 ---
-sidebar_position: 1.5
+sidebar_position: 3
 ---
 
 # 源码
 
-本文档介绍SDK源码的开发环境、下载和编译方式。
+本文档介绍 SDK 源码的开发环境、下载和编译方式。
 
 ## 开发环境
 
@@ -28,7 +28,7 @@ sidebar_position: 1.5
 
 ### 安装依赖
 
-Buildroot 2.2.7或之后的版本默认支持在容器里编译，因此只需要[安装Docker CE](https://docs.docker.com/engine/install/)。
+Buildroot 2.2.7或之后的版本默认支持在容器里编译，因此只需要[安装 Docker CE](https://docs.docker.com/engine/install/)。
 
 如果直接在主机上编译，按以下指南安装依赖
 
@@ -52,11 +52,14 @@ sudo pip3 install pyyaml
 
 Buildroot代码托管在 Gitee 和 Github 上，包含若干个仓库，使用 repo 管理，下载前需：
 
-1. 如果从 Gitee 下载，先参考[这篇文档](https://gitee.com/help/articles/4191)设置 SSH Keys；如果从 Github 下载，先参考[这篇文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)设置 SSH Keys。
+1. 下载
+   - 如果从 Gitee 下载，先参考 [这篇文档](https://gitee.com/help/articles/4191) 设置 SSH Keys
+   - 如果从 Github 下载，先参考 [这篇文档](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) 设置 SSH Keys
 
 2. 安装 repo
 
-   如果您能访问 Google，请参考[这篇文档](https://gerrit.googlesource.com/git-repo/+/refs/heads/main/README.md#install)安装；否则参考[Git Repo 镜像使用帮助](https://mirrors.tuna.tsinghua.edu.cn/help/git-repo/)安装。
+   - 如果可访问 Google，请参考 [这篇文档](https://gerrit.googlesource.com/git-repo/+/refs/heads/main/README.md#install) 安装
+   - 也可参考 [Git Repo 镜像使用帮助](https://mirrors.tuna.tsinghua.edu.cn/help/git-repo/) 安装。
 
    要求 repo 版本 >= 2.41，否则下载过程会异常。
 
@@ -81,18 +84,18 @@ Bug reports: https://issues.gerritcodereview.com/issues/new?component=1370071
 
 ### 版本分支
 
-manifests 仓库的 main 分支定义了不同版本的 manifest.xml，xml 文件指定了各仓库的路径和分支。
+manifests 仓库的 main 分支定义了不同版本的 `manifest.xml`，xml 文件指定了各仓库的路径和分支。
 
-| 版本 | manifest.xml | 分支 |
+| 版本 | `manifest.xml` | 分支 |
 | ---- | ------------- | ------------ |
-| v1.0 | bl-v1.0.y.xml | bl-v1.0.y    |
-| v2.0 | bl-v2.0.y.xml | bl-v2.0.y    |
-| v2.1 | k1-bl-v2.1.y.xml | k1-bl-v2.1.y |
-| v2.2 | k1-bl-v2.2.y.xml | k1-bl-v2.2.y |
+| v1.0 | `bl-v1.0.y.xml` | `bl-v1.0.y`    |
+| v2.0 | `bl-v2.0.y.xml` | `bl-v2.0.y`    |
+| v2.1 | `k1-bl-v2.1.y.xml` | `k1-bl-v2.1.y` |
+| v2.2 | `k1-bl-v2.2.y.xml` | `k1-bl-v2.2.y` |
 
 **注意事项：**
 
-- 由于 Gitee 单仓库容量限制，linux-6.6 仓库的 bl-v2.0.y 和 k1-bl-v2.1.y 分支分别被移动 [linux-6.6-v2.0.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.0.y) 和 [linux-6.6-v2.1.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.1.y) 仓库，如果您在使用 v2.0 或 v2.1，将无法 repo sync 或 git pull linux-6.6 仓库，只能重新下载，给您造成的不便，敬请原谅。
+- 由于 Gitee 单仓库容量限制，linux-6.6 仓库的 `bl-v2.0.y` 和 `k1-bl-v2.1.y` 分支分别被移动 [linux-6.6-v2.0.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.0.y) 和 [linux-6.6-v2.1.y](https://gitee.com/spacemit-buildroot/linux-6.6-v2.1.y) 仓库，如果您在使用 v2.0 或 v2.1，将无法 repo sync 或 git pull linux-6.6 仓库，只能重新下载，给您造成的不便，敬请原谅。
 - Github 只托管了 v2.2 及以后的版本。
 
 ### 下载代码
@@ -119,9 +122,9 @@ repo sync
 repo start k1-bl-v2.2.y --all
 ```
 
-如需下载其他分支，通过 `-m` 指定不同的 manifest.xml 即可。
+如需下载其他分支，通过 `-m` 指定不同的 `manifest.xml` 即可。
 
-下载完源码，推荐提前下载buildroot依赖的第三方软件包，并在团队内部分发，避免主服务器网络拥塞。
+下载完源码，推荐提前下载 buildroot 依赖的第三方软件包，并在团队内部分发，避免主服务器网络拥塞。
 
 ```shell
 wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
@@ -130,13 +133,13 @@ wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
 ## 目录结构
 
 ```shell
-├── bsp-src               # 存放linux kernel、uboot、opensbi源码
+├── bsp-src               # 存放 linux kernel、uboot、opensbi 源码
 │   ├── linux-6.6
 │   ├── opensbi
 │   └── uboot-2022.10
-├── buildroot             # buildroot主目录
-├── buildroot-ext         # 客制化扩展，包含board、configs、package、patches子目录
-├── Makefile              # 顶层Makefile
+├── buildroot             # buildroot 主目录
+├── buildroot-ext         # 客制化扩展，包含 board、configs、package、patches 子目录
+├── Makefile              # 顶层 Makefile
 ├── package-src           # 本地展开的应用或库源码目录
 │   ├── ai-support
 │   ├── drm-test
@@ -176,7 +179,7 @@ your choice (1-5):
 
 ```
 
-编译Buildroot 2.x版本，输入`5`，然后回车即开始编译。
+编译 Buildroot 2.x 版本，输入 `5`，然后回车即开始编译。
 
 注意：自Buildroot 2.2.7 开始
 

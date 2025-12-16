@@ -1,8 +1,8 @@
 ---
-sidebar_position: 1.5
+sidebar_position: 3
 ---
 
-# Source
+# Source Code
 
 This document provides an overview of the development environment, as well as instructions for downloading and compiling the SDK source code.
 
@@ -52,11 +52,15 @@ sudo pip3 install pyyaml
 
 The Buildroot code is hosted on Gitee and Github, consists of multiple repositories managed using `repo`. Before downloading, you need to:
 
-1. If downloading from Gitee, please refer to [this document](https://gitee.com/help/articles/4191) to set up SSH Keys first; if downloading from Github, please refer to [this document](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to set up SSH Keys first.
+1. Download
+
+  - If downloading from Gitee, please refer to [this document](https://gitee.com/help/articles/4191) to set up SSH Keys first
+  - If downloading from Github, please refer to [this document](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to set up SSH Keys first
 
 2. Install repo
 
-   If you have access to Google, please refer to [this document](https://gerrit.googlesource.com/git-repo/+/refs/heads/main/README.md#install) for installation; otherwise, refer to [Git Repo Mirror Usage Guide](https://mirrors.tuna.tsinghua.edu.cn/help/git-repo/) for installation.
+   - If you have access to Google, please refer to [this document](https://gerrit.googlesource.com/git-repo/+/refs/heads/main/README.md#install) for installation
+   - Or refer to [Git Repo Mirror Usage Guide](https://mirrors.tuna.tsinghua.edu.cn/help/git-repo/) for installation.
 
    The repo version must be >= 2.41, otherwise the download process may fail.
 
@@ -85,12 +89,12 @@ If the version does not meet the requirement, or if the source is not the Tsingh
 
 manifests repository defines the `manifest.xml` files for different versions. The xml files specify the paths and branches of each repository.
 
-| Version | manifest.xml | Branch |
+| Version | `manifest.xml` | Branch |
 | ------- | ------------- | ------ |
-| v1.0    | bl-v1.0.y.xml | bl-v1.0.y |
-| v2.0    | bl-v2.0.y.xml | bl-v2.0.y |
-| v2.1    | k1-bl-v2.1.y.xml | k1-bl-v2.1.y |
-| v2.2    | k1-bl-v2.2.y.xml | k1-bl-v2.2.y |
+| v1.0    | `bl-v1.0.y.xml` | `bl-v1.0.y` |
+| v2.0    | `bl-v2.0.y.xml` | `bl-v2.0.y` |
+| v2.1    | `k1-bl-v2.1.y.xml` | `k1-bl-v2.1.y` |
+| v2.2    | `k1-bl-v2.2.y.xml` | `k1-bl-v2.2.y` |
 
 **Notice**
 

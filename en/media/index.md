@@ -3,7 +3,7 @@ sidebar_position: 7
 slug: /media
 ---
 
-# Media
+# Multimedia
 
 Multimedia-related development guides:
 
