@@ -1,3 +1,5 @@
+sidebar_position: 1
+
 # Linux 文件系统排查指南
 
 ## Linux 存储堆栈
