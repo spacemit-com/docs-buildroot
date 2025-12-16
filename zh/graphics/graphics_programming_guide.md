@@ -1,3 +1,5 @@
+sidebar_position: 3
+
 # 图形编程指南
 
 ## OpenGL ES 编程指南

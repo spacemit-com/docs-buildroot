@@ -1,3 +1,5 @@
+sidebar_position: 5
+
 # SpacemiT Display Panel Driver Use Cases
 
 This document describes the use cases and debugging methods for MIPI and HDMI screen drivers on the SpacemiT K1 platform in both **U-Boot** and the **Linux Kernel**.

@@ -1,3 +1,5 @@
+sidebar_position: 4
+
 # OpenCL Programming Guide
 
 ## 1. Introduction

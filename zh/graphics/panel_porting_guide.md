@@ -1,3 +1,5 @@
+sidebar_position: 5
+
 # SpacemiT 屏幕调试文档
 
 本文介绍 SpacemiT K1 平台 Uboot 和 Kernel 的 MIPI 与 HDMI 屏幕驱动用例和调试方法。

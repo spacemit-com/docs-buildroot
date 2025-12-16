@@ -1,3 +1,5 @@
+sidebar_position: 1
+
 # Adapting AMD Graphics Cards on the K1 Platform
 
 This document provides guidance for developers adapting AMD graphics cards for the **K1 platform**, using the **Radeon HD7350** as an example. It outlines key modifications to the Linux kernel and explains the rationale behind each change.

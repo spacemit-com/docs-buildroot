@@ -1,3 +1,5 @@
+sidebar_position: 3
+
 # Graphics Programming Guide
 
 ## OpenGL ES Programming Guide
