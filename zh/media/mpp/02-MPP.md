@@ -1,3 +1,5 @@
+sidebar_position: 2
+
 # MPP
 
 **MPP (Multimedia Processing Platform，多媒体处理平台)** 属于自研操作系统 **Bianbu** 的一部分，

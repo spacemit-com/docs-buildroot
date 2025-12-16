@@ -1,3 +1,5 @@
+sidebar_position: 2
+
 # Gstreamer 用户使用指南
 
 ## GStreamer 介绍
