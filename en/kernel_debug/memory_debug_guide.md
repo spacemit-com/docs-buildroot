@@ -2,6 +2,8 @@ sidebar_position: 3
 
 # Linux 内存调试指南
 
+> English Version is coming soon...
+
 ## 整体内存情况
 
 这些工具用于快速评估内存压力和性能瓶颈。

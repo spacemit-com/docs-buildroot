@@ -2,6 +2,8 @@ sidebar_position: 4
 
 # Linux 内存预留指南
 
+> English Version is coming soon...
+
 ## 内存预留概览
 
 Linux 内核的内存预留可以大致分为两类：

@@ -2,6 +2,8 @@ sidebar_position: 3
 
 # VPU
 
+> English Version is coming soon...
+
 VPU（Video Processing Unit，视频处理单元）具有视频编解码功能的硬件，能够提高编解码效率并减少 CPU 负荷。K1 的 VPU 基于标准 V4L2 框架实现，支持 H.264/HEVC/VP8/VP9/MJPEG/MPEG4 等格式的解码和 H.264/HEVC/VP8/VP9/MJPEG 等格式的编码，并提供了完整的测试程序供参考。
 
 ## 1 规格

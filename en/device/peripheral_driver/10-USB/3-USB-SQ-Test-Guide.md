@@ -1,7 +1,10 @@
+sidebar_position: 3
+
 # USB 信号质量测试指南
 
-## USB 2.0 测试指南
+> English version is coming soon...
 
+## USB 2.0 测试指南
 
 完整的 USB 2.0 电气信号质量测试内容可以在 USB-IF 官网中找到：
 

@@ -2,6 +2,8 @@ sidebar_position: 2
 
 # Gstreamer 用户使用指南
 
+> English Version is coming soon...
+
 ## Revision History
 
 | Revision | Date      | Author | Description   |

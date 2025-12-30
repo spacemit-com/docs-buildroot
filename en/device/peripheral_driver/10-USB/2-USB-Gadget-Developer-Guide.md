@@ -1,5 +1,8 @@
+sidebar_position: 2
 
 # USB Gadget 开发指南
+
+> English version is coming soon...
 
 适用范围： SpacemiT Linux 6.1, SpacemiT Linux 6.6
 
