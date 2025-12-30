@@ -1,3 +1,5 @@
+sidebar_position: 1
+
 # USB
 
 USB Functionality and Usage Guide.

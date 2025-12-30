@@ -84,3 +84,4 @@ SpacemiT K1 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 其他驱动
 
 - [CRYPTO](18-CRYPTO.md)
+- [WDT](23-WDT.md)

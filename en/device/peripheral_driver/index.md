@@ -77,3 +77,4 @@ Third-Party Peripheral Drivers
 
 Other Drivers
 - [CRYPTO](18-CRYPTO.md)
+- [WTD](23-WDT.md)

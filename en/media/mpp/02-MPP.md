@@ -2,6 +2,8 @@ sidebar_position: 2
 
 # MPP
 
+> English Version is coming soon...
+
 MPP(Multimedia Processing Platform，多媒体处理平台)属于自研操作系统 Bianbu，其目的是封装多平台硬件编解码的使用差异，提供统一的 API 供开发者使用。
 
 ## 1. 模块介绍

@@ -2,6 +2,8 @@ sidebar_position: 2
 
 # Linux DMA-BUF 调试指南
 
+> English Version is coming soon...
+
 ## 简介
 
 DMA-BUF  是 Linux 内核为解决一个核心问题而设计的基础设施：如何在不同设备驱动、子系统之间高效、安全地共享大量内存缓冲区。DMA-BUF 出现之前，每个需要共享内存的驱动（如图形驱动、视频编解码器、摄像头驱动等）都有自己私有的共享机制，这导致了大量的重复开发和兼容性问题。

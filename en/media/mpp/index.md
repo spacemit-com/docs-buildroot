@@ -5,6 +5,8 @@ slug: /media/mpp
 
 # 多媒体开发指南
 
+> English Version is coming soon...
+
 介绍文档编写目的、使用范围和相关人员。
 
 ## 编写目的

@@ -2,6 +2,8 @@ sidebar_position: 1
 
 # 多媒体整体框架
 
+> English Version is coming soon...
+
 ## 框架层次图及说明
 
 ![](static/M5mAbw911oDOp2xFEtHc2lNnned.png)
