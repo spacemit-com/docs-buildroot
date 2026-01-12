@@ -64,6 +64,7 @@ System Basic Drivers
 - [Clock](16-Clock.md)  
 - [DMA](21-DMA.md)
 - [RTC](rtc.md)
+- [DDR](ddr.md)
 
 Power Subsystem Drivers
 - [Thermal](thermal.md)  
