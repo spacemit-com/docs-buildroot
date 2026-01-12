@@ -68,6 +68,7 @@ SpacemiT K1 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [Clock](16-Clock.md)  
 - [DMA](21-DMA.md)
 - [RTC](rtc.md)
+- [DDR](ddr.md)
 
 功耗子系统驱动
 
