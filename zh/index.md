@@ -1,6 +1,6 @@
 # Buildroot
 
-- [简介](intro.md)
+- [简介](root_overview.md)
 - [镜像](image.md)
 - [源码](source.md)
 - [更新说明](./release_notes/index.md)
