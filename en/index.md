@@ -1,6 +1,6 @@
 # Buildroot
 
-- [Introduction](intro.md)
+- [Introduction](root_overview.md)
 - [Images](image.md)
 - [Source Code](source.md)
 - [Release Notes](./release_notes/index.md)
