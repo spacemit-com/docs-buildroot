@@ -1,82 +1,80 @@
 # WDT
 
-> English version is coming soon...
+This document introduces the basic principles, configuration methods, and debugging procedures of the WDT (Watchdog Timer).
 
-本文介绍 WDT（看门狗）的基本原理、配置方法以及调试方式。
+## Module Overview
 
-## 模块介绍  
+The **WDT (Watchdog Timer)** controller is a hardware component used to monitor the normal operation of the system.
 
-**WDT（watchdog，看门狗）控制器**是一种监控系统正常运行的电器元件。
+After configuring a timeout value and enabling the watchdog, the system must periodically “feed” the watchdog within the specified time window.
+If the watchdog is not fed within the timeout period (for example, when the system hangs or becomes unresponsive), the watchdog will trigger a reset signal to reset the **K1 chip**.
 
-在配置超时时间并启用看门狗后，系统需要在规定时间内定期“喂狗”。
-如果在超时时间内未进行喂狗（例如系统死机或异常卡死），看门狗将触发复位信号，从而对 K1 芯片进行系统复位。
-
-### 功能说明 
+## Functional Description
 
 ![wdt](static/WDT.png)
 
-内核通过 **WDT 框架接口** 将看门狗驱动注册到 **WDT 框架**和**应用层**，并生成设备节点 `/dev/watchdog0`。  
+The Linux kernel registers the watchdog driver with the **WDT framework** and the **User Space** through the WDT framework interfaces, and creates the device node `/dev/watchdog0`.
 
-用户层程序可通过对该设备节点执行 `open()` 和 `ioctl()` 操作，实现以下功能：
+User-space applications can interact with this device node using `open()` and `ioctl()` operations to perform the following actions:
 
-- 启用 / 关闭看门狗
-- 设置超时时间
-- 执行喂狗操作
+- Enable / disable the watchdog
+- Configure the timeout value
+- Feed the watchdog
 
-### 源码结构介绍
+## Source Code Structure
 
-WDT 控制器驱动代码位于内核目录 `drivers/watchdog` 下：
+The WDT controller driver source code is located in the kernel directory `drivers/watchdog`:
 
 ```bash
 drivers/watchdog
-|--watchdog_core.c        #内核 WDT 框架接口代码
-|--watchdog_dev.c         #内核 WDT 框架注册字符设备到用户层代码
-|--k1x_wdt.c              #K1 WDT 驱动  
-```  
+|-- watchdog_core.c     # Kernel WDT framework interface
+|-- watchdog_dev.c      # Character device registration for user space
+|-- k1x_wdt.c           # K1 WDT driver implementation
+```
 
-## 关键特性  
+## Key Features
 
-- 超时可产生复位信号
-- 最高可设置 **255s** 超时时间
+- Timeout-triggered system reset
+- Maximum configurable timeout: **255 seconds**
 
-## 配置介绍
+## Configuration
 
-WDT 的使用主要涉及两部分配置：
+Using the WDT requires configuration in two areas:
 
-- **内核 CONFIG 配置**
-- **设备树（DTS）配置**
+- **Kernel CONFIG options**
+- **Device Tree (DTS) configuration**
 
-### 内核 CONFIG 配置
+## Kernel CONFIG Configuration
 
-#### 启用 Watchdog 框架
+### Enable the Watchdog Framework
 
-`CONFIG_WATCHDOG` 为内核平台 WDT 框架提供支持, 用于启用 内核的 WDT 框架。
-在使用 K1 WDT 驱动时，该选项必须设置为 `y`。
+`CONFIG_WATCHDOG` enables the Linux kernel Watchdog framework.
+This option **must be set to `y`** when using the K1 WDT driver.
 
-```css
+```text
 Symbol: WATCHDOG [=y]
 Device Drivers
       -> Watchdog Timer Support (WATCHDOG [=y])
 ```
 
-#### 启用 SpacemiT K1 WDT 驱动
+### Enable the SpacemiT K1 WDT Driver
 
-在启用 WDT 框架后，需要将 `CONFIG_SPACEMIT_WATCHDOG` 设置为 `y`，以支持 K1 的 WDT 驱动。
+After enabling the Watchdog framework, set `CONFIG_SPACEMIT_WATCHDOG` to `y` to enable support for the K1 WDT driver.
 
-```css
+```text
 Symbol: SPACEMIT_WATCHDOG [=y]
       -> Spacemit-k1x SoC Watchdog (SPACEMIT_WATCHDOG [=y])
 ```
 
-### DTS 配置
+## Device Tree (DTS) Configuration
 
-#### DTSI 配置示例
+### DTSI Configuration Example
 
-在 `dtsi` 文件中定义 WDT 控制器的寄存器地址、时钟和复位资源。
-通常情况下，该部分**无需修改**。
+In the `dtsi` file, the WDT controller’s register base addresses, clock, and reset resources are defined.
+In most cases, **no modification is required**.
 
-> 注意：
-> 若未配置 `spa,wdt-disabled` 属性，WDT 驱动在加载时将自动启用看门狗，并使用 `hrtimer` 定时进行喂狗。
+> **Note:**
+> If the property `spa,wdt-disabled` is not specified, the WDT driver will automatically enable the watchdog when loaded and will use an `hrtimer` to periodically feed the watchdog.
 
 ```dts
 watchdog: watchdog@d4080000 {
@@ -84,7 +82,7 @@ watchdog: watchdog@d4080000 {
     clocks = <&ccu CLK_WDT>;
     resets = <&reset RESET_WDT>;
     reg = <0x0 0xd4080000 0x0 0xff>,
-    <0x0 0xd4050000 0x0 0x1024>;
+          <0x0 0xd4050000 0x0 0x1024>;
     interrupts = <35>;
     interrupt-parent = <&intc>;
     spa,wdt-disabled;
@@ -92,70 +90,73 @@ watchdog: watchdog@d4080000 {
 };
 ```
 
-#### DTS 配置示例
+### DTS Enable Example
 
-DTS 完整配置，如下所示
+The complete DTS configuration to enable the watchdog is shown below:
 
 ```dts
- &watchdog {
-     status = "okay";
- };
+&watchdog {
+    status = "okay";
+};
 ```
 
-## 接口说明
+## Interface Description
 
-### API 介绍
+### API Overview
 
-Linux 内核主要实现了将 watchdog 注册为字符设备，将设备文件节点提供给应用层使用。
-常用的 `file_operations` 中接包括：
+The Linux kernel registers the watchdog as a character device and exposes the device node to user space.
 
-- 此接口实现了支持用户层打开 watchdog 节点
+Commonly used interfaces in `file_operations` include:
 
-   ```
-   static int watchdog_open(struct inode *inode, struct file *file)
-   ```
+- This interface allows user-space applications to open the watchdog device node:
 
-- 该接口通过不同的 `cmd` 实现以下功能：
-  - 启用 / 关闭看门狗
-  - 设置 / 获取超时时间
-  - 执行喂狗操作
+```c
+static int watchdog_open(struct inode *inode, struct file *file)
+```
 
-   ```
-   static long watchdog_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-   ```
+- This interface implements the following functions through different `cmd` values:
 
-## Debug 说明
+  - Enable / disable the watchdog
+  - Set / get the timeout value
+  - Feed the watchdog
 
-由于内核 watchdog 框架将看门狗驱动注册成字符设备提供给应用层，测试要用户自行实现一个 watchdog 应用，示例如下：
+```c
+static long watchdog_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+```
 
-基于 **Buildroot 系统** 验证
+## Debugging
+
+Since the watchdog driver is exposed to user space as a character device, debugging requires a user-space watchdog test application.
+
+The following example is verified on a **Buildroot system**:
 
 ```sh
 fd = open("/dev/watchdog", O_WRONLY);
-#打开 WD T节点
+# Open the WDT device node
 
 flags = WDIOS_ENABLECARD;
 ret = ioctl(fd, WDIOC_SETOPTIONS, &flags);
-#使能看门狗设备
+# Enable the watchdog
 
 flags = WDIOS_DISABLECARD;
 ret = ioctl(fd, WDIOC_SETOPTIONS, &flags);
-#关闭看门狗设备
+# Disable the watchdog
 
 ret = ioctl(fd, WDIOC_GETTIMEOUT, &flags);
-#获取看门狗当前超时时间
+# Get the current watchdog timeout
 
-flag=超市时间
+flags = timeout;
 ret = ioctl(fd, WDIOC_SETTIMEOUT, &flags);
-#设置看门狗超时时间
+# Set the watchdog timeout
 ```
 
-## 测试说明
+## Testing
 
-可通过以下方式验证 WDT 功能：
-- 正常喂狗：系统持续运行，不发生复位
-- 停止喂狗：超过超时时间后，系统触发复位
+The WDT functionality can be verified as follows:
+
+- **Normal feeding**: the system continues running without reset
+- **No feeding**: the system triggers a reset after the timeout expires
 
 ## FAQ
 
-（待补充）
+(TBD)
