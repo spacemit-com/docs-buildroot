@@ -2,98 +2,160 @@ sidebar_position: 2
 
 # USB Gadget 开发指南
 
-> English version is coming soon...
+适用范围：
 
-适用范围： SpacemiT Linux 6.1, SpacemiT Linux 6.6
+- SpacemiT Linux 6.1
+- SpacemiT Linux 6.6
 
 ## Linux USB Gadget API 框架
 
 ### 概述
 
-USB Linux Gadget 功能使得开发板可以作为一个 USB 外设通过 USB 接口接入到 USB 主机。
+Linux USB Gadget 机制使开发板能够以 USB 外设（Device） 的身份，通过 USB 接口连接到 USB 主机。
 
-如使开发板作为一个 U 盘， USB 网卡， USB 串口等设备。
+通过 USB Gadget，开发板可以被主机识别为多种常见 USB 外设，例如：
 
-我们生活中把手机通过 USB 连接到 PC 上，可以传输数据、 ADB 调试、共享网络等功能，就是基于 USB Linux Gadget 实现。
+- USB U 盘
+- USB 网卡
+- USB 串口
+
+在日常使用中，手机通过 USB 连接到 PC 后实现的数据传输、ADB 调试、USB 网络共享等功能，本质上也都是基于 Linux USB Gadget 框架实现的。
 
 ![](../static/USB/usbg-framework.png)
 
-USB Device 角色驱动框架自底向上可以分为以下几个层次：  
-- **USB Device Controller Driver：** 这是 USB Device 角色控制器驱动层，负责初始化控制器硬件及进行底层数据收发操作。  
-- **UDC Core：** 这是核心层，负责抽象出 USB Device 层次和基于 usb_request 的传输，并提供接口供上下交互使用。  
-- **Composite Layer：** 为了让单个 Linux 终端作为 Gadget 时方便支持多个接口从而实现单个物理设备作为 USB 多功能外设， Linux USB Gadget 框架依据 USB2.0 ECN Interface Association Descriptor(IAD) 实现了 Composite Driver 中间层，从而上层只需要实现 function 驱动即可，用户可以自由组合这些 functions 形成一个多功能设备。 Composite layer 支持用户空间通过 configfs 配置，或者 legacy 驱动硬编码组合好的 Functions，我们下文都是基于 configfs 配置方法进行说明，不建议再使用 legacy 驱动。  
-- **Function Driver：** 这是 USB Device 功能层，负责实现 USB Device 模式的功能驱动，对接内核其他框架（如存储、 V4L2 、网络等）。  
-- **Configfs API：** configfs 是 Linux 内核中一个通过让用户创建、编辑目录结构和文件来配置内核功能的子系统， USB Gadget API 框架中，用户主要通过操作 configfs 的 usb_gadget 子目录下的目录结构、属性文件来进行 function driver、 USB 协议相关元信息配置（图中省去）。更多信息可以参考内核中的 Linux USB gadget configured through configfs 文档。
-- **Userspace：** 大部分 USB gadget function 都依赖应用层的配置或与 Linux 的其他子系统的 API 交互，如网卡 gadget 需要用户完成网络配置， U 盘 gadget 需要用户完成块设备或文件系统配置（框图中省去这部分子系统的部分）。部分 USB gadget function 还需要应用层的服务才能够正常工作，如 ADB (Android Debug Bridge) 功能、 MTP 功能等。
+从底向上，USB Device 驱动框架可划分为以下几个层次：  
 
-这些层次结构共同构成了 Linux 系统中 USB 子系统的框架，确保了 USB 模块系统中的正常运行和数据传输。
+- **USB Device Controller (UDC) Driver**
+  该层为 USB Device 控制器驱动，负责初始化控制器硬件及进行底层数据收发操作。  
+
+- **UDC Core**
+  对 USB Device 层进行抽象，基于 `usb_request` 机制完成数据传输，并向上、下层提供统一接口。
+
+- **Composite Layer**  
+
+  为支持单个 Linux 设备在 Gadget 模式下同时提供多个 USB 接口（即一个物理设备呈现为多功能 USB 外设），Linux USB Gadget 框架基于 USB 2.0 ECN Interface Association Descriptor（IAD） 实现了 Composite Driver 中间层。
+  在该机制下：
+  - 上层只需实现独立的 Function Driver
+  - 用户可自由组合多个 function，形成多功能 USB 设备
+  - 支持两种配置方式：
+    - 用户空间通过 ConfigFS 配置（推荐）
+    - Legacy 驱动硬编码组合好的 Functions（不推荐）
+  
+  本文后续内容均基于 **ConfigFS 配置方式** 进行说明，不建议继续使用 legacy 驱动。
+
+- **Function Driver**
+  此为 USB Device 功能层，负责实现 USB Device 模式的功能驱动，对接内核其他框架，如
+  - 存储
+  - V4L2
+  - 网络
+  
+- **ConfigFs API**
+  ConfigFs 是 Linux 内核中一个通过让用户创建、编辑目录结构和文件来配置内核功能的子系统。
+  在 USB Gadget API 框架中，用户主要通过操作 `configfs` 的 `usb_gadget` 子目录下的目录结构、属性文件来进行 Function Driver、 USB 协议相关元信息配置（框图中省略了该部分）。
+  
+  更多信息可以参考内核文档 [Linux USB gadget configured through configfs | The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/usb/gadget_configfs.html)。
+
+- **Userspace**
+  大部分 USB gadget function 都依赖此层（即 应用层）的配置或与 Linux 的其他子系统的 API 交互，例如：
+  - 网卡 gadget：需要用户完成网络配置
+  - U 盘 gadget：需要用户完成块设备或文件系统配置
+  
+  （框图中省略了该部分）
+  
+  部分 USB gadget function 还需要应用层的服务才能够正常工作，例如：
+  - ADB (Android Debug Bridge) 功能
+  - MTP 功能
+
+这些层次结构共同构成了 Linux 系统中 USB 子系统的框架，确保了 USB Device 模块系统中的正常运行和数据传输。
 
 内核文档参考资料：
-- [Linux USB gadget configured through configfs | The Linux Kernel documentation ](https://www.kernel.org/doc/html/latest/usb/gadget_configfs.html)：简要介绍了如何使用 configfs 进行 gadget 配置。
-- [Linux USB Gadget Testing | The Linux Kernel documentation ](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html)：该文档介绍了各个 function 的 configfs 属性的介绍和简要的测试方法介绍。
 
+- [Linux USB gadget configured through configfs | The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/usb/gadget_configfs.html)：简要介绍了如何使用 ConfigFs 进行 USB Gadget 配置。
+- [Linux USB Gadget Testing | The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html)：该文档介绍各类 function 的 ConfigFs 属性说明和简要测试方法。
 
 ### Kernel menuconfig 配置
 
-这里仅介绍 Linux USB Gadget 相关的配置，板级 DTS、 USB IP 驱动的配置请参考 BSP 外设驱动开发文档的 USB 相关章节。
+本节仅介绍 Linux USB Gadget 相关的配置。
+对于板级 DTS、 USB IP 驱动的配置，请参考 BSP 外设驱动开发文档的 USB 相关章节。
 
-首先，要打开 `USB_CONFIGFS` 配置，从而用户可以使用 Configfs 配置启用 function driver。
-打开后， `USB_CONFIGFS` 的子菜单下就会展示出各个 `USB_CONFIGFS_` 前缀开头的 Function Driver 的配置可供启用。
+#### 启用 ConfigFS Gadget 支持
 
-```
-Location:
-  -> Device Drivers
-    -> USB support (USB_SUPPORT)
-        -> USB Gadget Support (USB_GADGET)
-        -> USB Gadget functions configurable through configfs (USB_CONFIGFS)
-            -> Abstract Control Model (CDC ACM) (CONFIG_USB_F_ACM)
-            -> Network Control Model (CONFIG_USB_F_NCM)
-            -> RNDIS (CONFIG_USB_F_RNDIS)
-            -> Mass storage (CONFIG_USB_F_MASS_STORAGE)
-            -> Function filesystem (FunctionFS) (CONFIG_USB_F_FS)
-            -> USB Webcam function (CONFIG_USB_F_UVC)
-            -> HID function (CONFIG_USB_F_HID)
-            -> USB Gadget Target Fabric (CONFIG_USB_F_TCM)
-```
+- 首先，要打开 `USB_CONFIGFS` 配置，从而用户可以使用 ConfigFs 配置启用 Function Driver。
 
-这里仅列举了一些比较常用的 Function Driver 的 menuconfig，用户配置打开时注意下也同时把相应依赖 Depends on 的 menuconfig 打开即可 .
+- 启用后， `USB_CONFIGFS` 的子菜单下就会展示出各个 `USB_CONFIGFS_` 前缀开头的 Function Driver 的配置可供启用。
 
-更多具体的驱动，可以到 menuconfig 的 help 或者内核的 drivers/usb/gadget/function/ 目录查看，目录的 `u_` 前缀的文件
-是服务于 `f_` 前缀的 function driver 的 Utility 的意思。
+   ```bash
+   Location:
+     -> Device Drivers
+       -> USB support (USB_SUPPORT)
+          -> USB Gadget Support (USB_GADGET)
+          -> USB Gadget functions configurable through configfs (USB_CONFIGFS)
+             -> Abstract Control Model (CDC ACM) (CONFIG_USB_F_ACM)
+             -> Network Control Model (CONFIG_USB_F_NCM)
+             -> RNDIS (CONFIG_USB_F_RNDIS)
+             -> Mass storage (CONFIG_USB_F_MASS_STORAGE)
+             -> Function filesystem (FunctionFS) (CONFIG_USB_F_FS)
+             -> USB Webcam function (CONFIG_USB_F_UVC)
+             -> HID function (CONFIG_USB_F_HID)
+             -> USB Gadget Target Fabric (CONFIG_USB_F_TCM)
+   ```
 
-用户如果需要联合应用层和内核一起调试，可以打开以下内核配置选项，打开后，将会有更多打印信息，方便定位报错的原因等，这些选项都是默认关闭的：
+以上仅列举了部分常用 Function Driver 的 menuconfig，用户配置打开时注意下也同时把相应依赖 **Depends on** 的 menuconfig 打开。
 
-```
+更多具体的驱动：
+
+- 可查看 menuconfig 的 help
+- 或者直接参考内核源码目录 `drivers/usb/gadget/function/`。其中，目录中以 `u_` 前缀命名的文件为 Utility 模块，用于为以 `f_` 前缀命名的 Function Driver 提供通用支持。
+
+#### Gadget 调试相关配置（可选）
+
+用户如果需要联合应用层和内核一起调试，可以打开以下内核配置选项。
+开启后将输出更丰富的调试信息，便于问题定位（默认均为关闭）：
+
+```bash
 CONFIG_USB_GADGET_DEBUG=y
 CONFIG_USB_GADGET_VERBOSE=y
 CONFIG_USB_GADGET_DEBUG_FILES=y
 CONFIG_USB_GADGET_DEBUG_FS=y
 ```
 
+#### 关于 Precomposed Gadget 配置
+
 其他的相关的 menuconfig 配置项用户可自行探索，如 `USB Gadget precomposed configurations` 下可以配置
-开机自动配置的 function driver，默认选取第一个 UDC，只是灵活性和调试便利程度不如我们通过 configfs API 进行配置，
-通常不建议打开，这会使得 Bianbu 系统中自带的开机自启的 ADB 服务无法正常工作。
+开机自动配置的 function driver，默认选取第一个 UDC，只是灵活性和调试便利程度不如我们通过 ConfigFs API 进行配置，
+通常不建议启用该选项，这会使得 Bianbu 系统中自带的开机自启的 ADB 服务无法正常工作。
 
 ### FunctionFS
 
-如果用户需要在内核已有的功能之外，开发自定义端点配置、协议的 USB Gadget function driver，可以基于 FunctionFS 开发。
+如果用户需要在内核已有的功能之外，需要实现 **自定义端点配置**、**协议的 USB Gadget function driver**，可以基于 FunctionFS 进行开发。
 
-介绍以下 FunctionFS, 不同于其他确定的特定功能的 Function Driver, FunctionFS 实现
-了一套灵活的 User mode file system API 机制供用户自定义 USB 协议使用。
-通过 FunctionFS 驱动，用户可以实现应用层的 Function Driver，通过应用程序提供 USB 
-描述符、端点配置、数据传输。我们熟悉的
-手机上的 **ADB(Android Debug bridge)**， **MTP(Media Transfer protocol)** 都是基于 FunctionFS 实现的。
+与其他固定功能的 Function Driver 不同，FunctionFS 提供了一套灵活的 **User mode file system API**，允许用户在应用层实现 USB 协议逻辑，包括：
 
-内核中提供了一套简单 bulk 传输 demo，源文件位于 kernel 源码的 tools/usb/ffs-aio-example 目录下。
-用户在跑通 demo 的基础上，可以定制修改该 demo 实现自己的自定义协议传输。
+- USB 描述符
+- 端点配置
+- 数据传输处理
 
-本文会介绍基于 FunctionFS 的 ADB function、 MTP function 以及用户自定义协议的 demo。 
+我们熟悉的手机上的 **ADB(Android Debug bridge)**， **MTP(Media Transfer protocol)** 都是基于 FunctionFS 实现的。
+
+内核中提供了一套简单基于 bulk 传输的 demo，源文件位于 Kernel 源码的目录下
+
+```bash
+tools/usb/ffs-aio-example
+```
+
+用户可在跑通该 demo 的基础上，进行定制修改，以实现自己的 USB 协议和数据传输逻辑。
+
+本文后续将介绍：
+
+- 基于 FunctionFS 的 ADB Function
+- MTP Function
+- 用户自定义协议的示例实现
 
 ## USB Gadget 功能配置
 
 具体详细的 configfs 配置可以参照概述中提到的内核文档参考资料。
 
-本文档主要基于 [SpacemiT usb-gadget 仓库 ](https://gitee.com/spacemit-buildroot/usb-gadget) 
+本文档主要基于 [SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget)
 提供的 `scripts/gadget-setup.sh` 配置脚本进行讲解，注意切换至最新的发布分支，保证获取最新内容。
 
 请用户在继续阅读本文档的更多章节前，可以打开最新的 `gadget-setup.sh` 脚本源码搭配阅读更易于理解。
@@ -113,6 +175,7 @@ spacemit， VID/PID 序列号和 USB 厂商、产品名称字符串均在脚本�
 
 每个 /sys/kernel/config/usb_gadget 下的 gadget 实例，启用时都会绑定一个 UDC,
 使用脚本配置特定功能后，可以在 configfs 中发现对应 UDC 已经被绑定：
+
 ```
 # 举例：使用 K1 的 USB3.0 控制器作为 UDC
 /sys/kernel/config # cat usb_gadget/spacemit/UDC
@@ -123,6 +186,7 @@ c0a00000.dwc3
 （即 K1 的下载 USB0 口对应的控制器）。
 
 如果使用脚本时发现第一个 UDC 被占用，可以使用下面命令关闭系统的 ADB 服务解除占用：
+
 ```
 # Buildroot
 ~ # /etc/init.d/S50adb-setup stop
@@ -131,6 +195,7 @@ c0a00000.dwc3
 ```
 
 gadget-setup 运行时也会检查 UDC 占用情况，扫描到目标 UDC 被占用后，会打印 `ERROR: Your udc is occupied by...`
+
 ```
 ~ # gadget-setup ncm
 gadget-setup: Selected function ncm
@@ -143,13 +208,14 @@ gadget-setup: ERROR: configfs preserved, run gadget-setup resume after conflict 
 ### UVC (USB Video Class)
 
 **相关的参考资料**
+
 - [USB Video Class v1.5 document set](https://www.usb.org/document-library/video-class-v15-document-set)
 - [Linux UVC Gadget Driver Document](https://docs.kernel.org/6.16/usb/gadget_uvc.html)
 
 **需要打开的配置：** `CONFIG_USB_F_UVC`
 
 UVC 功能是开发板作为摄像头，依赖应用程序 uvc-gadget-new 提供数据源，该程序源码可以在
-[SpacemiT usb-gadget 仓库 ](https://gitee.com/spacemit-buildroot/usb-gadget) 下载，用户根据自己需求可对源码进行编译、二次开发。
+[SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget) 下载，用户根据自己需求可对源码进行编译、二次开发。
 
 **帧格式和 USB 带宽介绍：**
 
@@ -160,6 +226,7 @@ USB2.0 HighSpeed 同步传输最大带宽可以通过 configfs 中的 `streaming
 USB3.0 SuperSpeed 同步传输最大带宽为 351.5625MBps，可以通过 configfs 中的 `streaming_maxpacket` 和 `streaming_maxburst` 调整。 `streaming_maxburst` 可选 1 到 15 。
 
 configfs 中可配置的影响最大带宽的参数有：
+
 - `streaming_interval`： 配置同步传输端点描述符中的 `bInterval`， 1..255 ，越小最大带宽越大。
 - `streaming_maxpacket`： 配置同步传输端点描述符中的 `wMaxPacketSize`，可选 1024/2048/3072 ，越大带宽越大。
 - `streaming_maxburst`： 配置同步传输端点描述符中的 `bMaxBurst`， 1..15 ，越大最大带宽越大，仅限 USB3.0 有效。
@@ -191,15 +258,17 @@ configfs 中可配置的影响最大带宽的参数有：
 1. 使用专用 uvc 脚本（推荐），支持更多 uvc 配置，方便用户定制分辨率（详情和更多参数用法请查看
 脚本源文件），
 独立 USB PID：
+
 ```
-$ uvc-gadget-setup.sh start
-$ uvc-gadget-new spacemit_webcam/functions/uvc.0
+uvc-gadget-setup.sh start
+uvc-gadget-new spacemit_webcam/functions/uvc.0
 ```
 
 1. 使用 composite gadget 脚本，内置常用分辨率，支持 uvc 与其他功能同时使用。
+
 ```
-$ gadget-setup.sh uvc
-$ uvc-gadget-new spacemit/functions/uvc.0
+gadget-setup.sh uvc
+uvc-gadget-new spacemit/functions/uvc.0
 ```
 
 用户也可以根据实际产品需求自己定制 gadget-setup 脚本。
@@ -239,14 +308,16 @@ $ uvc-gadget-new spacemit/functions/uvc.0
 首先，配置中的分辨率要匹配数据源摄像头的 V4L2 的数据规格，主要是帧格式（含编码格式、图像大小、帧率）、
 数据缓冲区大小。
 
-用户需要在 `uvc-gadget-setup.sh` 中的 `setup_custom_profile()` 
+用户需要在 `uvc-gadget-setup.sh` 中的 `setup_custom_profile()`
 中参照已有注册方式注册数据源摄像头的实际参数。
 
 然后，跑以下命令：
+
 ```
-$ uvc-gadget-setup.sh start custom
-$ uvc-gadget-new spacemit_webcam/functions/uvc.0 -d /dev/videoX 
+uvc-gadget-setup.sh start custom
+uvc-gadget-new spacemit_webcam/functions/uvc.0 -d /dev/videoX 
 ```
+
 注意其中 videoX 的 X 要替换为用户真实的摄像头在 K1 开发板上的 video 设备节点的第一个，
 如 video17 。
 
@@ -269,6 +340,7 @@ Failed to import buffers on sink: Invalid argument (22)
 
 然后，编辑 `~/.uvcg_config` 配置文件，使得对应编码 + 分辨率（需要脚本中已配置了相应的格式）指代的帧格式映射到
 自定义的 `dwMaxVideoFrameBufferSize`，填入上面报错的 256000 ：
+
 ```
 ~ # cat ~/.uvcg_config
 # .uvcg_config for spacemit-uvcg, config line format:
@@ -279,6 +351,7 @@ mjpeg 1280 720 25600
 
 该逻辑在 `uvc-gadget-setup.sh` 脚本中的 `add_uvc_fmt_resolution()` 实现。
 以这里为例， 25600 最终会被写入到以下这个路径的配置属性文件中：
+
 ```
 /sys/kernel/config/usb_gadget/spacemit_webcam/functions/uvc.0/streaming/mjpeg/m/720p/dwMaxVideoFrameBufferSize
 ```
@@ -290,6 +363,7 @@ mjpeg 1280 720 25600
 ### UAC (USB Audio Class)
 
 **相关的参考资料**
+
 - [USB Audio Class v1.0](https://www.usb.org/sites/default/files/audio10.pdf)
 - [USB Audio Class Rev 2.0](https://www.usb.org/document-library/audio-devices-rev-20-and-adopters-agreement)
 - [ALSA Project](http://www.alsa-project.org/)
@@ -317,6 +391,7 @@ UAC 功能是开发板作为声卡，上层需要 `alsa-utils` 应用程序管�
 其中 ALSA Audio Device 可以使用开发板的接口接入模拟耳机或 USB 耳机（支持录音）或其他音频设备。
 
 在开发板 Bianbu 系统上首先需要安装 `alsa-utils`：
+
 - Bianbu 使用 apt 安装 `alsa-utils` 软件包。
 - Buildroot 系统启用 `BR2_PACKAGE_ALSA_UTILS` 和其他相关配置。
 
@@ -335,6 +410,7 @@ UAC 功能是开发板作为声卡，上层需要 `alsa-utils` 应用程序管�
 
 - UAC2.0 在 Windows 10 PC 上的音频设备名称是 Source/Sink
 - UAC1.0/UAC2.0 在 Linux PC 上的音频设备名称是 USB Gadget 的 Product String
+
     ```
     root@M1-MUSE-BOOK:~# aplay -l
     **** PLAYBACK Hardware Device List ****
@@ -382,6 +458,7 @@ UAC 功能是开发板作为声卡，上层需要 `alsa-utils` 应用程序管�
     如这里 "2,0" 是我们的 UAC1Gadget 音频设备，"0,0" 是我们的耳机。
 
 3. K1 开发板执行以下命令即可从 "2,0"(UAC1Gadget) 录制，并且播放到 "0,0"(H180 Plus 耳机 )：
+
     ```
     arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
     ```
@@ -417,6 +494,7 @@ Linux 桌面系统各发行版图形界面并不一致，
 这里简要介绍 Linux PC 命令行播放音频到 K1 开发板，并且使用 K1 开发板上的另一个耳机设备收听：
 
 1. 通过  `aplay -l` 找到 K1 开发板模拟的 UAC 设备，如这里是 hw:1,0 。
+
     ```
     root@mbook:~# aplay -l
     **** PLAYBACK Hardware Device List ****
@@ -424,13 +502,17 @@ Linux 桌面系统各发行版图形界面并不一致，
         subdevice: 0/1
         subdevice #0
     ```
+
 2. 下载一个 wav 音频文件重命名为 test.wav。
 3. 系统图形界面不要绑定 K1 开发板模拟的 UAC 设备，否则会出现报错。
 4. Linux PC 上使用 aplay 命令播放 test.wav 到 UAC gadget:
+
     ```
     root@mbook:~# aplay test.wav -c 2 -r 48000 -D plughw:1,0
     ```
+
 5. K1 开发板执行以下命令即可从 "2,0"(UAC1Gadget) 录制，并且播放到 aplay -l 列出的 "0,0" 设备：
+
     ```
     arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
     ```
@@ -447,11 +529,12 @@ Linux 桌面系统各发行版图形界面并不一致，
 3. 下载一个 wav 音频文件重命名为 test.wav。
 
 4. K1 开发板上执行以下命令进行播放（ hw:2,0 要根据 aplay -l 中找到对应的 UAC1Gadget）
-    
+
     ```
     root@spacemit-k1-x-deb1-board:~/ffs# aplay test.wav -c 2 -r 48000 -D plughw:2,0
     正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
     ```
+
     如果出现报错：“ aplay: pcm_write:2146: 写入错误：输入 / 输出错误，可以尝试先打开 Windows 录音软件，
     开始录制再回到 K1 开发板执行 aplay 播放命令。
 
@@ -472,15 +555,18 @@ Linux 使用命令行 arecord 命令录制音频为 wav 文件的命令步骤如
 
 1. 通过  `arecord -l` 找到 K1 开发板模拟的 UAC 设备的 card、 device id 。
 2. 系统图形界面不要绑定 K1 开发板模拟的 UAC 设备，否则会出现报错。
-4. 执行 arecord 命令进行录制到 record.wav 文件：
+3. 执行 arecord 命令进行录制到 record.wav 文件：
+
     ```
     arecord -f dat -c 2 -D hw:1,0 -t wav -d 20 record.wav
     ```
+
     介绍其中参数的含义，
     - `-f dat` 是常用格式缩写（ arecord -h 可以看到帮助）
     - `-D hw:1,0` 要替换为第一步找到的设备对应值。
     - `-d 20` 是录制 20 秒。
-5. K1 开发板执行命令开始播放音频（具体参数的值需要参考前面的介绍，特别是 hw:2,0 要替换为实际 UAC1Gadget 对应的值）：
+4. K1 开发板执行命令开始播放音频（具体参数的值需要参考前面的介绍，特别是 hw:2,0 要替换为实际 UAC1Gadget 对应的值）：
+
    ```
    root@spacemit-k1-x-deb1-board:~/ffs# aplay test.wav -c 2 -r 48000 -D plughw:2,0
     正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
@@ -490,7 +576,7 @@ Linux 使用命令行 arecord 命令录制音频为 wav 文件的命令步骤如
 
 UAC 有一些可配置的参数，脚本中进行了部分配置。
 
-用户可参阅 UAC 规范、脚本源码和 [Linux USB Gadget Testing - UAC2 ](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html#uac2-function) 等资料做二次开发。
+用户可参阅 UAC 规范、脚本源码和 [Linux USB Gadget Testing - UAC2](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html#uac2-function) 等资料做二次开发。
 
 ### ACM (CDC-ACM: Communication Device Class - Abstract Control Model)
 
@@ -513,14 +599,14 @@ Linux 下可以使用 picocom、 minicom 工具或者命令行的 echo/cat 命�
 `/dev/ttyACM*`。
 
 Windows 下可以使用常用的串口工具如 SecureCRT、 WindTerm 等通信，串口对应的 COM 序号
-可以通过设备管理器或者 [USBTreeView](https://www.uwe-sieber.de/usbtreeview_e.html) 
+可以通过设备管理器或者 [USBTreeView](https://www.uwe-sieber.de/usbtreeview_e.html)
 查看。
 
 ### ADB (Android Debug Bridge)
 
 **需要打开的配置：** `CONFIG_USB_F_FS`, `CONFIG_NET` 相关网络配置（上层应用程序依赖网络）。
 
-Android 调试桥（ ADB）是一种多功能命令行工具，可让您与设备进行通信，使用 ADB Shell 
+Android 调试桥（ ADB）是一种多功能命令行工具，可让您与设备进行通信，使用 ADB Shell
 在设备上运行各种命令，上传下载文件、
 重启、进入刷机模式等。 ADB 支持 USB 传输和网络传输。
 
@@ -568,7 +654,7 @@ List of devices attached
 
 解决办法是，编辑 /etc/udev/rules.d/51-android.rules，加入这一行：
 
-``` 
+```
 $ sudo vi /etc/udev/rules.d/51-android.rules
 SUBSYSTEM=="usb", ATTR{idVendor}=="361c", ATTR{idProduct}=="0008", MODE="0666", GROUP="plugdev"
 ```
@@ -576,7 +662,7 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="361c", ATTR{idProduct}=="0008", MODE="0666", 
 然后重新加载 udev rule:
 
 ```
-$ sudo udevadm control --reload-rules
+sudo udevadm control --reload-rules
 ```
 
 Windows 系统中， SpacemiT 开发板的 adb 驱动会在安装 titan 刷机工具时一并安装。
@@ -584,6 +670,7 @@ Windows 系统中， SpacemiT 开发板的 adb 驱动会在安装 titan 刷机�
 ### MTP (Media Transfer Protocol)
 
 **相关的 USB Spec:**
+
 - [Media Transfer Protocol v.1.1 Spec](https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement)
 
 **需要打开的配置：** `CONFIG_USB_F_FS`。
@@ -593,9 +680,10 @@ MTP 是媒体文件传输协议，目前 USB-IF 维护。广泛应用于手机�
 对比 Mass Storage 的一旦挂载后手机就无法访问对应块设备或镜像的文件系统， MTP 可以让手机和 PC 同时访问对应文件系统，使用更加便捷。
 
 前面已经提到， MTP function 也是基于 FunctionFS 实现的，因此需要应用层服务程序。我们这里将采用 [umtp-responder](https://github.com/viveris/uMTP-Responder) 作为我们的服务程序，这是一个轻量级的 MTP 服务器，在开发板上， Buildroot和 Bianbu 都可以直接使用：
+
 - Buildroot 通过 `CONFIG_BR2_PACKAGE_UMTPRD` 启用编译即可使用；
 - Bianbu 中通过 apt 安装 `umtp-responder` 软件包安装即可使用；
-- 其他 OS，可以从 [Github 的源码 ](https://github.com/viveris/uMTP-Responder) 自行构建即可。
+- 其他 OS，可以从 [Github 的源码](https://github.com/viveris/uMTP-Responder) 自行构建即可。
 
 `gadget-setup.sh` 中已经集成基于 umtp-responder 的 MTP function 配置，按照上面步骤安装完成后，执行：
 
@@ -629,14 +717,16 @@ storage "/var/lib/umtp" "shared folder" "rw"
 当 PC 往该目录读写文件时，会实时在开发板本机观察到更新 , 反之亦然。
 
 通常用户对 MTP Gadget 的参数有定制需求，请用户参考以下资料帮助理解如何定制：
--  `gadget-setup.sh` 脚本中如何对 `umtp-responder` 进行配置。
--  `umtp-responder` 项目的 `README`。
+
+- `gadget-setup.sh` 脚本中如何对 `umtp-responder` 进行配置。
+- `umtp-responder` 项目的 `README`。
 - `umtp-responder` 安装后的默认配置文件 `/etc/umtprd/umtprd.conf`，其中可以定制产品名称、配置 PC 可访问的本机存储路径和权限。
 - MTP 协议设计规范。
 
 ### Mass Storage (BOT 协议 , f_mass_storage)
 
 **相关的 USB Spec:**
+
 - [USB Mass Storage Class - Bulk-Only Transport](https://www.usb.org/sites/default/files/usbmassbulk_10.pdf)
 
 **需要打开的配置：** `CONFIG_USB_F_MASS_STORAGE`
@@ -681,9 +771,11 @@ gadget-setup.sh uas
 **需要打开的配置：** `CONFIG_USB_F_RNDIS`, `CONFIG_NET` 等网络子系统相关配置。
 
 作为一个网卡设备。 RNDIS 是微软的专利协议。微软的相关文档参考：
+
 - [Introduction to Remote NDIS (RNDIS) | Microsoft](https://learn.microsoft.com/en-us/windows-hardware/drivers/network/remote-ndis--rndis-2)
 
 运行以下命令拉起 rndis gadget：
+
 ```
 gadget-setup.sh rndis
 ```
@@ -697,13 +789,16 @@ gadget-setup.sh dhcp
 就会自动为网卡配置 ip 地址，并且支持给 PC 通过 DHCP 协议分配 IP 地址，具体请查看脚本实现。
 
 #### PC 共享互联网给开发板
+
 本节内容为，对于无直接网络环境只有 RNDIS USB Gadget 连接的开发板，
 把 Windows 访问互联网的能力共享给开发板，使得开发板访问互联网。
 
 1. 执行命令：
+
     ```bash
     gadget-setup rndis
     ```
+
 2. 打开 Windows 网络与共享中心
 3. 打开共享网络配置选择一个连接了外网的网络，如 WIFI、有线网络
 4. 右键点击属性，
@@ -712,8 +807,8 @@ gadget-setup.sh dhcp
 
     ![share](../static/USB/usbg-rndis-share.png)
 
-1. 点击确定。
-2. 开发板执行 udhcpc -i usb0 获取 Windows 为其分配的 IP 地址。
+7. 点击确定。
+8. 开发板执行 udhcpc -i usb0 获取 Windows 为其分配的 IP 地址。
 
 Windows 还可以基于网桥，请参考相关 Windows 官方手册。
 
@@ -722,6 +817,7 @@ Windows 还可以基于网桥，请参考相关 Windows 官方手册。
 ### NCM (CDC-NCM: Communication Device Class - Network Control Model)
 
 **相关的 USB Spec:**
+
 - [USB CDC-Subclass Specifications For NCM](https://www.usb.org/sites/default/files/NCM11.pdf)
 
 **需要打开的配置：** `CONFIG_USB_F_NCM`, `CONFIG_NET` 等网络子系统相关配置。
@@ -748,9 +844,10 @@ gadget-setup.sh dhcp
 **需要打开的配置：** `CONFIG_USB_F_HID`
 
 **USB HID 相关文档：**
-- [HID 类协议介绍描述 ](https://www.usb.org/sites/default/files/hid1_11.pdf)
-- [HID Usage Page keycode 对照表 ](https://www.usb.org/sites/default/files/hut1_4.pdf)
-- [USB-IF Report Desc 生成工具 ](https://www.usb.org/document-library/hid-descriptor-tool)
+
+- [HID 类协议介绍描述](https://www.usb.org/sites/default/files/hid1_11.pdf)
+- [HID Usage Page keycode 对照表](https://www.usb.org/sites/default/files/hut1_4.pdf)
+- [USB-IF Report Desc 生成工具](https://www.usb.org/document-library/hid-descriptor-tool)
 
 HID 是人体工学设备， HID Gadget 通常用于模拟键盘鼠标、游戏手柄、音量媒体控制设备，
 有时候也会利用 HID 免驱特性用于传输小数据量数据。
@@ -766,12 +863,13 @@ gadget-setup.sh hid
 执行脚本后， gadget 端会生成 /dev/hidg0 节点。后续用户通过这个节点和上位机进行通信，比如用户要发送鼠标键盘模拟数据，
 就要往这个设备节点写入数据，写入的数据格式遵守 HID report_desc。
 
-**模拟键盘鼠标** 场景的细节可以参考 [ 这个内核文档 ](https://www.kernel.org/doc/html/latest/usb/gadget_hid.html)。不过要注意的是这个文档第一步讲解的是传统的基于 g_hid 做的，我们目前用的是 configfs 的配置方法（从 Configuration with configfs 章节开始），用户可以参考第一步其中的 report_desc。文档中实现了一个上报数据的 app 是 hid_gadget_test，在 gadget 端运行他，然后输入相关内容， gadget 就会给上位机报告用户所需要上报的键盘鼠标输入数据了。
+**模拟键盘鼠标** 场景的细节可以参考 [这个内核文档](https://www.kernel.org/doc/html/latest/usb/gadget_hid.html)。不过要注意的是这个文档第一步讲解的是传统的基于 g_hid 做的，我们目前用的是 configfs 的配置方法（从 Configuration with configfs 章节开始），用户可以参考第一步其中的 report_desc。文档中实现了一个上报数据的 app 是 hid_gadget_test，在 gadget 端运行他，然后输入相关内容， gadget 就会给上位机报告用户所需要上报的键盘鼠标输入数据了。
 
 除此之外最简单是测试 IO 方法可以使用 python 和 cat/hexdump 工具（不完整处理和解析 HID report 格式）：
 
 1. 这里以 PC 发， Device 收举例，开发板 linux 系统下是打开 open 一个字符节点 read， Shell 中我们这里演示用 cat 不断读取，
 通过 hexdump 解析数据打印出来：
+
 ```
 cat /dev/hidg0 | hexdump -C
 ```
@@ -782,7 +880,8 @@ cat /dev/hidg0 | hexdump -C
 pip install hidapi  # Windows/Linux 通用
 ```
 
-4. PC 使用 python 通过 HID 协议向设备发送 hello world：
+1. PC 使用 python 通过 HID 协议向设备发送 hello world：
+
 ```python
 import hid
 
@@ -826,50 +925,58 @@ PC 脚本执行后，实测截图如下 (gadget 端 ):
 SpacemiT 基于 kernel 源码的 tools/usb/ffs-aio-example 目录下的 simple device_app 提供了
 一版修改过的 app：
 
-  - 基于 [WCID](https://github.com/pbatard/libwdi/wiki/WCID-Devices) 增加 WINUSB 免驱操作系统描述符，让 Windows 能够直接绑定 WINUSB 驱动从而应用层快速验证。
-  - 改善打印和增加可读数据。
+- 基于 [WCID](https://github.com/pbatard/libwdi/wiki/WCID-Devices) 增加 WINUSB 免驱操作系统描述符，让 Windows 能够直接绑定 WINUSB 驱动从而应用层快速验证。
+- 改善打印和增加可读数据。
 
 此代码发布于 [Gitee | SpacemiT Buildroot SDK/usb-gadget](https://gitee.com/spacemit-buildroot/usb-gadget)
 
 把仓库 clone 到装有 bianbu/ubuntu 系统的 K1 开发板中后（为了简化验证过程，此处暂不介绍交叉编译的方法），按以下步骤执行可以跑通 ffs demo。
 
 1. 首先在 Bianbu OS 上安装 libaio-dev 包，执行命令：
+
 ```
 sudo apt update && apt install libaio-dev
 ```
+
 2. 编译设备服务应用，依次执行命令：
+
 ```
 make
 make install
 ```
-命令执行完成后，名为 demod 的二进制文件将被添加到 /usr/bin/ 目录下。 
 
-3. 拉起 gadget 设备，由于 Bianbu 系统内置的 adb ffs 服务会占用 UDC 资源，需先停止该服务，执行命令：
+命令执行完成后，名为 demod 的二进制文件将被添加到 /usr/bin/ 目录下。
+
+1. 拉起 gadget 设备，由于 Bianbu 系统内置的 adb ffs 服务会占用 UDC 资源，需先停止该服务，执行命令：
+
 ```
 systemctl stop adbd
 ```
+
 随后执行命令拉起 ffs-demo gadget：
+
 ```
 bash ffs-setup.sh start
 ```
 
-4. 将 USB 线连接到 PC 主机，此时会看到一个名为 “ K1 AIO” 的新 USB 设备；在 Windows PC 上，
+1. 将 USB 线连接到 PC 主机，此时会看到一个名为 “ K1 AIO” 的新 USB 设备；在 Windows PC 上，
 可以通过设备管理器查看到。在 Linux PC 上，可以通过 lsusb 查看到。
 ![alt text](../static/USB/usbg-ffs-windows-dm.png)
 
-5. 链接到 Linux 主机上，可使用 tools/usb/ffs-aio-example/ 目录下的 host_app 与该 ffs 批量传输演示 gadget 设备通信。
+2. 链接到 Linux 主机上，可使用 tools/usb/ffs-aio-example/ 目录下的 host_app 与该 ffs 批量传输演示 gadget 设备通信。
 具体过程很简单，（ 1 ）修改 host_app 中的 PID VID 匹配 ffs-setup.sh 中的 PID、 VID，然后在 Linux Host PC 上安装 libaio-dev 依赖，然后编译后执行这里省略。
 
-6. 链接到 Windows 主机上，可使用基于 WINUSB 和 libusb 的用户态应用（例如 host_demo.py Python 脚本）进行通信。
+3. 链接到 Windows 主机上，可使用基于 WINUSB 和 libusb 的用户态应用（例如 host_demo.py Python 脚本）进行通信。
 这里简要介绍 host_demo.py Python 脚本，该脚本不限制操作系统。这里以 Windows 为例，
 
     (a) 若未安装 pyusb，需先执行 `pip install pyusb` 命令安装。
 
-    (b) 为 Windows 系统安装 libusb 后端（可从 https://libusb.info/ 下载）； 
+    (b) 为 Windows 系统安装 libusb 后端（可从 <https://libusb.info/> 下载）；
 
     (c) 将 python 脚本中的 libusb 后端路径替换为实际的 libusb-1.0.dll 路径；
 
     (d) 使用 python3 运行该脚本。
+
     ```
     #### host 端执行输出 ####
     C:/ffs-demo> python ./host_demo.py
@@ -882,19 +989,20 @@ bash ffs-setup.sh start
     ev=in; ret=8192
     submit: in
     ```
+
 7. 清理 gadget 设备并恢复 Bianbu 系统内置的 adb 服务，执行命令：
+
 ```
 bash ffs-setup.sh stop
 # 使用 systemctl start adbd 恢复 bianbu 系统自带的 adb 服务。
 ```
-
 
 ## USB 复合设备（ USB Composite Device）
 
 我们前面提到，为了让单个 Linux 终端作为 Gadget 时方便支持多个接口从而实现单个物理设备
 作为 USB 多功能外设， Linux USB Gadget 框架依据
 USB2.0 ECN Interface Association Descriptor(IAD) 实现了 Composite Driver 中间层，
-从而上层只需要实现 function 驱动即可，用户可以自由组合这些 functions 形成一个多功能设备。 
+从而上层只需要实现 function 驱动即可，用户可以自由组合这些 functions 形成一个多功能设备。
 
 gadget-setup.sh 脚本已经提供了同时枚举为多个 USB Function 的支持，只需要使用逗号分隔
 多个 function 即可：
@@ -903,18 +1011,20 @@ gadget-setup.sh 脚本已经提供了同时枚举为多个 USB Function 的支�
 举例： rndis + adb：
 gadget-setup.sh rndis,adb
 ```
+
 需要注意的是， gadget-setup.sh 中，多功能的添加顺序是固定的，并不是按照逗号分隔列表的顺序添加
 function，因此端点的序号也是依据脚本中的固定顺序确定的，用户有指定端点号顺序的需求可以
 直接定制修改脚本。
 
 实现逻辑：`gadget-setup.sh` 脚本的 `glink()` 函数会分别调用各个 function 的
-link 配置，把配置添加到 config 中，最终内核驱动会根据多个 function 的这个 link 
+link 配置，把配置添加到 config 中，最终内核驱动会根据多个 function 的这个 link
 调用的顺序依次分配端点号，如：
 
 ```
 ln -s /sys/kernel/config/usb_gadget/spacemit/functions/rndis.0 /sys/kernel/config/usb_gadget/spacemit/configs/c.1
 ln -s /sys/kernel/config/usb_gadget/spacemit/functions/ncm.0 /sys/kernel/config/usb_gadget/spacemit/configs/c.1
 ```
+
 这种情况就会先给 rndis interface 的端点分配端点号，再为 ncm interface 的端点分配端点号。
 
 如果使用 `gadget-setup` 脚本，用户可以调整 `glink()` 函数中的排列顺序来控制端点号分配的顺序：
@@ -922,23 +1032,25 @@ ln -s /sys/kernel/config/usb_gadget/spacemit/functions/ncm.0 /sys/kernel/config/
 ```
 glink()
 {
-	[ $MSC  = okay ] && msc_link
-	[ $UAS  = okay ] && uas_link
-	[ $RNDIS  = okay ] && rndis_link
-	[ $NCM  = okay ] && ncm_link
-	[ $ADB  = okay ] && adb_link
-	[ $MTP  = okay ] && adb_link
-	[ $FFS  = okay ] && ffs_link
-	[ $UVC  = okay ] && uvc_link
-	[ $HID  = okay ] && hid_link
-	[ $ACM  = okay ] && hid_link
+ [ $MSC  = okay ] && msc_link
+ [ $UAS  = okay ] && uas_link
+ [ $RNDIS  = okay ] && rndis_link
+ [ $NCM  = okay ] && ncm_link
+ [ $ADB  = okay ] && adb_link
+ [ $MTP  = okay ] && adb_link
+ [ $FFS  = okay ] && ffs_link
+ [ $UVC  = okay ] && uvc_link
+ [ $HID  = okay ] && hid_link
+ [ $ACM  = okay ] && hid_link
 }
 ```
 
 如果采用自己开发的脚本，把 function link 到 `configs/c.1` 目录的顺序按需求调整即可。
 
 ## 用户指定选用特定 UDC
+
 由于当前硬件平台可能有多个支持 device 的 usb 控制器（ udc），可以用以下命令查看可用的 udc：
+
 ```
 ~ # ls /sys/class/udc/
 c0900100.udc   c0980100.udc1  c0a00000.dwc3
@@ -956,4 +1068,5 @@ USB_UDC_IDX=2 uvc-gadget-setup.sh ...
 USB_UDC=c0a00000.dwc3 gadget-setup.sh ...
 USB_UDC=c0a00000.dwc3 uvc-gadget-setup.sh ...
 ```
+
 其中 ... 省略了脚本的其他参数。
