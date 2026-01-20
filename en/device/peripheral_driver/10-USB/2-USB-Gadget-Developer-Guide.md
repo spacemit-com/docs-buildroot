@@ -153,50 +153,75 @@ tools/usb/ffs-aio-example
 
 ## USB Gadget 功能配置
 
-具体详细的 configfs 配置可以参照概述中提到的内核文档参考资料。
+具体详细的 configfs 配置可以参照前文[概述](#概述)中列出的内核官方文档。
 
-本文档主要基于 [SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget)
-提供的 `scripts/gadget-setup.sh` 配置脚本进行讲解，注意切换至最新的发布分支，保证获取最新内容。
+本文不再逐项展开所有 ConfigFS 属性，而是结合 **[SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget)** 提供的 `scripts/gadget-setup.sh` 配置脚本进行讲解。
 
-请用户在继续阅读本文档的更多章节前，可以打开最新的 `gadget-setup.sh` 脚本源码搭配阅读更易于理解。
+> **注意：** 请在使用前切换至 **最新发布分支**，以确保获取最新的脚本与功能支持。
 
-脚本采用模块化配置多 function。把每个 function 的 configfs 配置分为 _config，
-_link，_unlink，_clean 部分。该仓库的主要作用是帮助用户快速跑通 demo。
+为便于理解后续章节内容，建议在阅读本文时 **同时打开并对照阅读最新版本的 `scripts/gadget-setup.sh` 脚本源码**。
 
-具体细节的 configfs 配置可查看脚本代码，可根据需求摘取删减内容定制开发。
+对于每一个 Function，其 ConfigFS 配置逻辑被划分为以下几个部分：
+
+- `_config`
+- `_link`
+- `_unlink`
+- `_clean`
+
+该仓库的主要目标是帮助用户 **快速跑通 Demo**。
 
 ### 概述
 
-在开发板的系统中执行 gadget-setup.sh 脚本可以完成 USB 功能的配置，基本使用方法可以
-执行命令 gadget-setup.sh help 查看。
+在开发板系统中执行 `gadget-setup.sh` 脚本即可完成 USB Gadget 功能配置。
+脚本的基本使用方法可通过以下命令查看：
 
-gadget-setup.sh 脚本配置的 gadget 实例名称为
-spacemit， VID/PID 序列号和 USB 厂商、产品名称字符串均在脚本中配置，用户有需要可以进行定制修改（但是需要注意这是需要向 USB-IF 购买后分配的）。
-
-每个 /sys/kernel/config/usb_gadget 下的 gadget 实例，启用时都会绑定一个 UDC,
-使用脚本配置特定功能后，可以在 configfs 中发现对应 UDC 已经被绑定：
-
+```bash
+gadget-setup.sh help
 ```
+
+`gadget-setup.sh` 默认创建的 Gadget 实例名称为 **spacemit**。
+脚本中已配置以下 USB 相关信息：
+
+- VID / PID 序列号
+- USB 厂商字符串
+- USB 产品字符串
+
+如有需要，用户可以对上述信息进行修改。
+> **注意：** 需向 USB-IF 购买后分配的。
+
+#### UDC 绑定说明
+
+在 `/sys/kernel/config/usb_gadget/` 目录下，每一个 Gadget 实例在启用时都需要绑定一个 **UDC**。
+
+当通过脚本成功配置并启用特定功能后，可以在 ConfigFS 中看到对应的 UDC 已被绑定。例如：
+
+```bash
 # 举例：使用 K1 的 USB3.0 控制器作为 UDC
 /sys/kernel/config # cat usb_gadget/spacemit/UDC
 c0a00000.dwc3
 ```
 
-注意 Buildroot和Bianbu都系统自带了 ADB，默认在第一个 UDC 上加载
-（即 K1 的下载 USB0 口对应的控制器）。
+#### ADB 与 UDC 占用说明
 
-如果使用脚本时发现第一个 UDC 被占用，可以使用下面命令关闭系统的 ADB 服务解除占用：
+注意 **Buildroot** 和 **Bianbu** 都系统自带了 **ADB**，默认在第一个 UDC 上加载
+（即 K1 下载口 USB0 对应的 USB 控制器）。
 
-```
+如果使用脚本 `gadget-setup.sh` 时发现第一个 UDC 被占用，可以使用下面命令关闭系统的 ADB 服务解除占用：
+
+```bash
 # Buildroot
 ~ # /etc/init.d/S50adb-setup stop
+
 # Bianbu 使用 systemctl 关闭 adbd 服务
 ~ # systemctl stop adbd
 ```
 
-gadget-setup 运行时也会检查 UDC 占用情况，扫描到目标 UDC 被占用后，会打印 `ERROR: Your udc is occupied by...`
+#### UDC 冲突检测
 
-```
+`gadget-setup.sh` 在运行过程中会自动检测 UDC 的占用情况。
+如果扫描到目标 UDC 已被占用，脚本将打印错误信息并停止配置流程，例如：
+
+```bash
 ~ # gadget-setup ncm
 gadget-setup: Selected function ncm
 ....
@@ -212,26 +237,37 @@ gadget-setup: ERROR: configfs preserved, run gadget-setup resume after conflict 
 - [USB Video Class v1.5 document set](https://www.usb.org/document-library/video-class-v15-document-set)
 - [Linux UVC Gadget Driver Document](https://docs.kernel.org/6.16/usb/gadget_uvc.html)
 
-**需要打开的配置：** `CONFIG_USB_F_UVC`
+**需启用的配置项：** `CONFIG_USB_F_UVC`
 
-UVC 功能是开发板作为摄像头，依赖应用程序 uvc-gadget-new 提供数据源，该程序源码可以在
-[SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget) 下载，用户根据自己需求可对源码进行编译、二次开发。
+UVC 功能是使开发板以 USB 摄像头 的形式对外提供视频流。它依赖应用程序 `uvc-gadget-new` 提供数据源。该程序源码可以在 [SpacemiT usb-gadget 仓库](https://gitee.com/spacemit-buildroot/usb-gadget) 下载。用户可根据实际需求对源码进行编译或二次开发。
 
-**帧格式和 USB 带宽介绍：**
+#### 帧格式与 USB 带宽说明
 
-UVC 协议采用 USB 的同步传输，由于 USB 总线需要保障同步传输的带宽稳定占用，必须留出带宽供其他非同步传输的设备使用，因此同步传输无法占用所有总线带宽，存在最大可用带宽限制。
+UVC 协议采用 **USB 的同步传输**，由于 USB 总线需要保障同步传输的带宽稳定占用，必须留出带宽供其他非同步传输的设备使用，因此同步传输无法占用所有总线带宽，存在最大可用带宽限制。
 
-USB2.0 HighSpeed 同步传输最大带宽可以通过 configfs 中的 `streaming_maxpacket` 调整，可选： 1024 ， 2048 ， 3072 ，这决定了 USB 总线上对该同步传输一个微帧最多传输多少数据，对应的最大带宽为分别为 7.8125MBps， 15.625MBps， 23.4375MBps。
+**USB2.0 HighSpeed** 模式下，同步传输最大带宽可以通过 ConfigFS 参数  `streaming_maxpacket` 调整。
 
-USB3.0 SuperSpeed 同步传输最大带宽为 351.5625MBps，可以通过 configfs 中的 `streaming_maxpacket` 和 `streaming_maxburst` 调整。 `streaming_maxburst` 可选 1 到 15 。
+- 可选值：1024，2048，3072
+- 这决定了 USB 总线上对该同步传输一个微帧最多可传输的数据量，对应的最大带宽为分别为 7.8125MBps， 15.625MBps， 23.4375MBps。
 
-configfs 中可配置的影响最大带宽的参数有：
+**USB3.0 SuperSpeed** 模式下，同步传输最大带宽为 351.5625MBps，可以通过 ConfigFS 参数 `streaming_maxpacket` 和 `streaming_maxburst` 调整。 `streaming_maxburst` 可选 1 到 15 。
 
-- `streaming_interval`： 配置同步传输端点描述符中的 `bInterval`， 1..255 ，越小最大带宽越大。
-- `streaming_maxpacket`： 配置同步传输端点描述符中的 `wMaxPacketSize`，可选 1024/2048/3072 ，越大带宽越大。
-- `streaming_maxburst`： 配置同步传输端点描述符中的 `bMaxBurst`， 1..15 ，越大最大带宽越大，仅限 USB3.0 有效。
+以下 ConfigFS 参数会直接影响 UVC 同步传输的最大可用带宽：
 
-这里给出常见的 YUV 格式数据的带宽需求， MJPEG 由于有压缩，会比 YUV 带宽需求小很多，使得 USB2.0 也可以传输全高清、 4K 格式。
+- **`streaming_interval`**
+  配置同步传输端点描述符中的 `bInterval`，取值范围 1..255
+  数值越小，最大带宽越大。
+
+- **`streaming_maxpacket`**
+  配置同步传输端点描述符中的 `wMaxPacketSize`，可选 1024 / 2048 / 3072
+  数值越大，带宽越大。
+
+- **`streaming_maxburst`**
+  配置同步传输端点描述符中的 `bMaxBurst`，取值范围 1..15
+  数值越大，最大带宽越大，仅在 USB 3.0 下生效。
+
+下表给出了常见 **YUV 格式** 的带宽需求。
+**MJPEG** 由于采用压缩编码，其带宽需求显著低于 YUV，使得 USB 2.0 也可以支持全高清甚至 4K 分辨率。
 
 | 格式（ YUV）      | 长 | 宽 | 帧率  | 带宽 (MBps)      |
 |------------------|---------|--------|------|---------------|
@@ -251,33 +287,43 @@ configfs 中可配置的影响最大带宽的参数有：
 | 1080p@60         | 1080    | 1920   | 60   | 237.3046875   |
 | 4k@30            | 3840    | 2160   | 20   | 316.40625     |
 
-**首先介绍测试图案 demo 配置方法：**
+#### 测试图案 Demo 配置
 
-板子做 usb device， UVC 配置可选用两种方法：
+开发板作为 USB Device 进行 UVC 测试时，UVC 配置可采用以下两种方式：
 
-1. 使用专用 uvc 脚本（推荐），支持更多 uvc 配置，方便用户定制分辨率（详情和更多参数用法请查看
-脚本源文件），
-独立 USB PID：
+1. **使用专用 UVC 脚本（推荐）**
 
-```
-uvc-gadget-setup.sh start
-uvc-gadget-new spacemit_webcam/functions/uvc.0
-```
+   该方式支持更丰富的 UVC 配置，便于用户自定义分辨率和帧格式。
+   详细参数说明请参考脚本源码。
 
-1. 使用 composite gadget 脚本，内置常用分辨率，支持 uvc 与其他功能同时使用。
+   独立 USB PID，配置方式如下：
 
-```
-gadget-setup.sh uvc
-uvc-gadget-new spacemit/functions/uvc.0
-```
+   ```
+   uvc-gadget-setup.sh start
+   uvc-gadget-new spacemit_webcam/functions/uvc.0
+   ```
 
-用户也可以根据实际产品需求自己定制 gadget-setup 脚本。
+2. 使用 Composite Gadget 脚本
 
-随后接入 PC，打开常用的摄像头软件（如 Windows 下 potplayer,amcap， Linux 下 guvcview），
-即可看到彩色图案：
+   该方式内置常用分辨率，支持 UVC 与其他 USB 功能同时使用：
+
+   ```
+   gadget-setup.sh uvc
+   uvc-gadget-new spacemit/functions/uvc.0
+   ```
+
+用户也可根据产品需求自行定制 `gadget-setup.sh` 脚本。
+
+将开发板接入 PC 后，使用常见摄像头软件即可看到测试图案，例如：
+
+- Windows：PotPlayer、AMCap
+- Linux：guvcview
+
 ![alt text](../static/USB/usbg-uvc-potplayer.jpg)
 
-**再介绍如何把真实摄像头的数据流通过 V4L2 框架接入到 uvc gadget 中**，视频图像的数据流如下字符画所示：
+#### 真实摄像头数据通过 V4L2 接入 UVC Gadget
+
+视频图像的数据流如下字符画所示：
 
 ```
 +------------------+       +------------------+
@@ -305,58 +351,69 @@ uvc-gadget-new spacemit/functions/uvc.0
                                          Act As a Camera
 ```
 
-首先，配置中的分辨率要匹配数据源摄像头的 V4L2 的数据规格，主要是帧格式（含编码格式、图像大小、帧率）、
-数据缓冲区大小。
+首先配置如下：
 
-用户需要在 `uvc-gadget-setup.sh` 中的 `setup_custom_profile()`
-中参照已有注册方式注册数据源摄像头的实际参数。
+1. **分辨率与格式匹配**
+   UVC 配置中的帧格式必须与数据源摄像头在 V4L2 中支持的格式一致，包括：
 
-然后，跑以下命令：
+   - 编码格式
+   - 分辨率
+   - 帧率
+   - 数据缓冲区大小
+
+2. **注册自定义 Profile**
+   在 `uvc-gadget-setup.sh` 的 `setup_custom_profile()` 中，参照已有方式注册真实摄像头参数。
+
+然后启动命令示例：
 
 ```
 uvc-gadget-setup.sh start custom
 uvc-gadget-new spacemit_webcam/functions/uvc.0 -d /dev/videoX 
 ```
 
-注意其中 videoX 的 X 要替换为用户真实的摄像头在 K1 开发板上的 video 设备节点的第一个，
-如 video17 。
+**注意：** `videoX` 中的 `X` 需要替换为 **真实摄像头在 K1 开发板上对应的 V4L2 视频节点编号**。
+若同一摄像头注册了多个 `/dev/video*` 设备节点，通常应选择该摄像头对应的第一个（编号最小的）视频节点，例如 `/dev/video17`。
 
-此时如果顺利，上位机打开摄像头选择对应帧格式（必须是真实摄像头支持的帧格式）默认参数就可以
-出图。
+此时若系统工作正常，在上位机打开摄像头应用后，选择该摄像头实际支持的帧格式，保持其余参数为默认值，即可正常显示视频画面。
 
-大部分情况，我们会发现数据源 Camera 的 V4L2 数据缓冲区大小
-和 USB Gadget 脚本配置的 `dwMaxVideoFrameSize` 的 Default 值不对等，
-从而会出现如下报错：
+在大多数情况下，会发现数据源 Camera 在 V4L2 框架下分配的视频缓冲区大小，与 USB Gadget 脚本中配置的 `dwMaxVideoFrameSize` 默认值不一致，从而导致如下错误信息。
 
 ```
 /dev/video17: buffer 0 too small (460800 bytes required, 256000 bytes available).
 Failed to import buffers on sink: Invalid argument (22)
 ```
 
-这主要是由于 MJPG 等压缩编码的灵活性使得 `dwMaxVideoFrameSize` 会因摄像头、特定帧格式而异。
+这主要是由于 MJPG 等压缩编码具有较高的灵活性，使得 `dwMaxVideoFrameSize` 会随着不同摄像头及具体帧格式而变化。
 
-此时我们需要记录 `available` 的数据大小，这里是 256000 （ 460800 是根据特定帧格式脚本自己
-计算的默认值）。
+当出现前述报错时
 
-然后，编辑 `~/.uvcg_config` 配置文件，使得对应编码 + 分辨率（需要脚本中已配置了相应的格式）指代的帧格式映射到
-自定义的 `dwMaxVideoFrameBufferSize`，填入上面报错的 256000 ：
+1. **记录实际可用的帧大小**
+   需记录 `available` 的数据大小。
+   在本例中，该值为 256000。（需要注意的是：460800 是脚本根据所选帧格式自动计算得到的 默认值）。
 
-```
-~ # cat ~/.uvcg_config
-# .uvcg_config for spacemit-uvcg, config line format:
-#     <format:[mjpeg]> <width> <height> <dwMaxVideoFrameBufferSize>
-# e.g. mjpeg 640 360 251733
-mjpeg 1280 720 25600
-```
+2. **配置自定义 `dwMaxVideoFrameBufferSize`**
+   编辑 `~/.uvcg_config` 配置文件，使得对应编码 + 分辨率（前提是脚本中已配置并启用了该格式）指代的帧格式映射到自定义的 `dwMaxVideoFrameBufferSize`，填入上面报错的 256000。
+   示例如下：
 
-该逻辑在 `uvc-gadget-setup.sh` 脚本中的 `add_uvc_fmt_resolution()` 实现。
-以这里为例， 25600 最终会被写入到以下这个路径的配置属性文件中：
+   ```
+   ~ # cat ~/.uvcg_config
+   # .uvcg_config for spacemit-uvcg, config line format:
+   #     <format:[mjpeg]> <width> <height> <dwMaxVideoFrameBufferSize>
+   # e.g. mjpeg 640 360 251733
+   mjpeg 1280 720 25600
+   ```
 
-```
-/sys/kernel/config/usb_gadget/spacemit_webcam/functions/uvc.0/streaming/mjpeg/m/720p/dwMaxVideoFrameBufferSize
-```
+3. **配置在脚本中的生效机制**
+   上述配置的解析与应用逻辑，位于 `uvc-gadget-setup.sh` 脚本中的 `add_uvc_fmt_resolution()` 函数。
 
-配置完成后再重新执行上面的启动脚本和 UVC APP 的命令即可。
+   在本示例中，25600 最终会被写入到以下路径的配置属性文件中：
+
+    ```
+   /sys/kernel/config/usb_gadget/spacemit_webcam/functions/uvc.0/streaming/mjpeg/m/720p/dwMaxVideoFrameBufferSize
+   ```
+
+4. **重新启动**
+   配置完成后再重新执行上面的启动脚本和 UVC APP 的命令即可。
 
 最终量产方案可以定制脚本来适配， `uvc-gadget-setup` 主要目的是提供一个方便反复调试的脚本。
 
@@ -368,43 +425,72 @@ mjpeg 1280 720 25600
 - [USB Audio Class Rev 2.0](https://www.usb.org/document-library/audio-devices-rev-20-and-adopters-agreement)
 - [ALSA Project](http://www.alsa-project.org/)
 
-**需要打开的配置：** `CONFIG_USB_F_UAC1`, `CONFIG_USB_F_UAC2`
+**需启动配置项：**
 
-UAC 功能是开发板作为声卡，上层需要 `alsa-utils` 应用程序管理音频，建议在 Bianbu 下调试。
+- `CONFIG_USB_F_UAC1`
+- `CONFIG_USB_F_UAC2`
 
 内核中有两个驱动，分别是 UAC 1.0 和 UAC 2.0 。
 
-从 USB 规范上看， UAC2.0 主要是在
-采样精度、最大带宽、控制接口、时钟同步等进行了优化，更多具体信息可以参阅上面给出的资料。
+**使用前提与运行环境说明**
 
-从兼容性的角度看， Linux 内核目前支持的 UAC 1.0 和 UAC 2.0 Gadget，在不同平台和
-不同功能的兼容性不一致。
+- UAC Gadget 的工作模式是：开发板作为 USB 声卡
+- 上层需要配合 `alsa-utils` 工具使用
+- 推荐在 Bianbu 系统 下进行调试
 
-如在 Windows 操作系统上， UAC2.0 的兼容性存在问题，无法支持
-音量调节等； macOS 和 Linux 的兼容性更好。
+**UAC 1.0 与 UAC 2.0 的差异与兼容性说明**
+从 USB 规范角度看：
 
+- **UAC 2.0** 相比 UAC 1.0 在以下方面进行了增强：
+  - 更高的采样精度
+  - 更大的可用带宽
+  - 更完善的控制接口
+  - 更灵活的时钟同步机制
+- 详细差异可参考前述 USB 官方规范文档
+
+从实际系统兼容性角度看：
+
+- Linux 内核同时支持 UAC 1.0 与 UAC 2.0 Gadget
+- 不同主机操作系统对 UAC 版本的支持存在差异：
+
+  - **Windows**：UAC 2.0 兼容性相对较差，部分功能（如音量调节）不可用
+  - **macOS / Linux**：对 UAC 2.0 支持较好
+
+**系统连接**
 下文中提到的配置，都基于下图的连接关系进行：
 
     ALSA Audio Device -----> K1 Development Board ----USB----> Linux/Windows PC 
                                 (UAC Gadget)                      USB Host
 
-其中 ALSA Audio Device 可以使用开发板的接口接入模拟耳机或 USB 耳机（支持录音）或其他音频设备。
+其中 ALSA Audio Device 可以使用开发板接口接入, 例如：
 
-在开发板 Bianbu 系统上首先需要安装 `alsa-utils`：
+- 模拟耳机
+- USB 耳机（支持录音）
+- 其他音频设备
 
-- Bianbu 使用 apt 安装 `alsa-utils` 软件包。
-- Buildroot 系统启用 `BR2_PACKAGE_ALSA_UTILS` 和其他相关配置。
+**依赖安装**
+在开发板系统中需要安装 `alsa-utils`：
 
-`gadget-setup` 脚本已集成了 UAC 功能，首先根据需求执行以下命令拉起 UAC Gadget：
+- **Bianbu 系统**
+  - 使用 `apt` 安装 `alsa-utils`
+- **Buildroot 系统**
+  - 启用 `BR2_PACKAGE_ALSA_UTILS`
+  - 并确保相关 ALSA 依赖配置已打开
+  
+**启动 UAC Gadget**
+`gadget-setup` 脚本已集成了 UAC 功能。
+首先根据需求执行以下命令拉起 UAC Gadget：
 
+```
     # 使用 UAC 1.0
     gadget-setup.sh uac1
     # 使用 UAC 2.0
     gadget-setup.sh uac2
+```
 
-执行后，通过 USB 连接到 PC， PC 即可看到音频设备。
+执行后，通过 USB 线将开发板连接至 PC， PC 侧即可识别到新的音频设备。
 
-- UAC1.0 在 Windows 10 ( 本文档采用 21H2) 的设备名称是 AC— Interface
+- UAC1.0 在 Windows 10 (本文档基于 21H2) 的设备名称是 AC— Interface
 
   ![usbg-uac1-wi](../static/USB/usbg-uac1-win.png)
 
@@ -419,7 +505,10 @@ UAC 功能是开发板作为声卡，上层需要 `alsa-utils` 应用程序管�
         subdevice #0
     ```
 
-接下来分别介绍 UAC Gadget 的主要功能：播放和录音。
+下文将分别介绍 UAC Gadget 的两类核心功能：
+
+- **音频播放**
+- **音频录制**
 
 **Windows PC 播放音频到 UAC gadget**
 
@@ -938,7 +1027,7 @@ SpacemiT 基于 kernel 源码的 tools/usb/ffs-aio-example 目录下的 simple d
 sudo apt update && apt install libaio-dev
 ```
 
-2. 编译设备服务应用，依次执行命令：
+1. 编译设备服务应用，依次执行命令：
 
 ```
 make
@@ -990,7 +1079,7 @@ bash ffs-setup.sh start
     submit: in
     ```
 
-7. 清理 gadget 设备并恢复 Bianbu 系统内置的 adb 服务，执行命令：
+4. 清理 gadget 设备并恢复 Bianbu 系统内置的 adb 服务，执行命令：
 
 ```
 bash ffs-setup.sh stop
