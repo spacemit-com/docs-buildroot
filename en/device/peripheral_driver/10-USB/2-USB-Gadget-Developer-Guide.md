@@ -838,26 +838,43 @@ ACM Gadget 启动完成后，主机与开发板两端通过各自识别到的串
 
 ### ADB (Android Debug Bridge)
 
-**需要打开的配置：** `CONFIG_USB_F_FS`, `CONFIG_NET` 相关网络配置（上层应用程序依赖网络）。
+#### 功能概述
 
-Android 调试桥（ ADB）是一种多功能命令行工具，可让您与设备进行通信，使用 ADB Shell
-在设备上运行各种命令，上传下载文件、
-重启、进入刷机模式等。 ADB 支持 USB 传输和网络传输。
+ADB（Android Debug Bridge）是一种多功能命令行工具，用于与设备进行通信。通过 ADB，用户可以：
 
-`gadget-setup.sh` 通用脚本集成了 ADB 功能，是基于 FunctionFS 实现的，此外需要上层应用
-adbd 才能正常运行。
+- 使用 ADB Shell 在设备上执行命令
+- 在主机与设备之间上传 / 下载文件
+- 重启设备或进入刷机（fastboot）模式
+- 通过 USB 或网络方式进行连接
 
-Buildroot 中可以通过 `BR2_PACKAGE_ANDROID_TOOLS_ADBD` 启用 adbd 服务程序的编译，
-Bianbu 中可以通过 apt 命令行工具安装 `android-tools` 包。
+**需启用的核配置项：**
 
-注： Bianbu/Buildroot 有默认集成 adb 功能， gadget-setup.sh 不能和系统集成的同时使用。
-可以通过查看 `/sys/kernel/config/usb_gadget` 中的目录找到不同的 usb gadget 实例。
+- `CONFIG_USB_F_FS`
+- `CONFIG_NET` - 相关网络配置（ADB 上层应用程序依赖网络）。
 
-下面介绍使用 `gadget-setup.sh` 脚本配置 adb 功能的步骤：
+#### ADB Gadget 实现说明
 
-```
+`gadget-setup.sh` 通用脚本中已集成 ADB 功能，其实现方式为 **FunctionFS**。
+
+除内核支持外，还需要上层应用 **adbd** 才能正常工作：
+- **Buildroot**
+  - 启用 `BR2_PACKAGE_ANDROID_TOOLS_ADBD` 以编译 adbd 服务程序
+- **Bianbu**
+  - 通过 `apt` 安装 `android-tools` 软件包
+
+> **注意**
+> Bianbu / Buildroot 系统中可能已默认集成 adb 功能。
+> 系统自带的 ADB 与 `gadget-setup.sh` **不能同时使用**。
+> 可通过查看 `/sys/kernel/config/usb_gadget` 目录下的不同 USB Gadget 实例进行区分。
+
+#### 使用 `gadget-setup.sh` 配置 ADB
+
+使用 `gadget-setup.sh` 脚本配置 adb 功能的步骤如下：
+
+```bash
 # 配置 adb
 gadget-setup.sh adb
+
 # 停止 adb
 gadget-setup.sh stop
 ```
@@ -867,16 +884,25 @@ ADB 的用法简要介绍：
 PC 可以通过官方途径下载 adb 软件包 [platform-tools](https://adbdownload.com/)，
 下载解压后，并且把 bin 目录加入到系统 PATH 环境变量里面去。
 
-基本的 adb 命令：
+#### PC 端 ADB 工具准备
 
-```
+- PC 端需安装官方 ADB 工具包 **[platform-tools](https://adbdownload.com/)**
+- 下载解压后，将其 `bin` 目录加入系统 `PATH` 环境变量里
+
+#### 常用 ADB 命令示例
+
+```bash
 # 把 PC 的文件推送到开发板：
 adb push C:/xxx.yyy /home/bianbu/
+
 # 把开发板的文件拉取到 PC：
 adb pull /home/bianbu/remote_file C:/
+
 # 进入刷机模式 ：
 adb reboot fastboot
 ```
+
+#### Linux PC 常见权限问题
 
 Ubuntu(Linux) PC 上的 adb 命令行工具工具可能会出现以下报错：
 
@@ -886,20 +912,29 @@ List of devices attached
 735ec889dec8 no permissions(user in plugdev group;are your udev rules wrong?);see [http://developer.android.com/tools/device.html]usb:3-3.3 transport_id:1
 ```
 
-解决办法是，编辑 /etc/udev/rules.d/51-android.rules，加入这一行：
+**解决步骤**
 
-```
-$ sudo vi /etc/udev/rules.d/51-android.rules
-SUBSYSTEM=="usb", ATTR{idVendor}=="361c", ATTR{idProduct}=="0008", MODE="0666", GROUP="plugdev"
-```
+1. 编辑 udev 规则文件：
 
-然后重新加载 udev rule:
+   ```bash
+   sudo vi /etc/udev/rules.d/51-android.rules
+   ```
 
-```
-sudo udevadm control --reload-rules
-```
+2. 添加以下内容：
 
-Windows 系统中， SpacemiT 开发板的 adb 驱动会在安装 titan 刷机工具时一并安装。
+   ```text
+   SUBSYSTEM=="usb", ATTR{idVendor}=="361c", ATTR{idProduct}=="0008", MODE="0666", GROUP="plugdev"
+   ```
+
+3. 重新加载 udev 规则：
+
+   ```bash
+   sudo udevadm control --reload-rules
+   ```
+
+#### Windows 系统说明
+
+在 Windows 系统中，SpacemiT 开发板所需的 ADB 驱动会在安装 **Titan 刷机工具** 时一并安装，无需额外配置。
 
 ### MTP (Media Transfer Protocol)
 
