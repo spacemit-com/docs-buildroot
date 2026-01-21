@@ -510,13 +510,27 @@ Failed to import buffers on sink: Invalid argument (22)
 - **音频播放**
 - **音频录制**
 
-**Windows PC 播放音频到 UAC gadget**
+#### Windows PC 播放音频到 UAC Gadget
 
-1. 任务栏找到音量图标，右键打开声音设置，先配置播放设备为我们的 UAC Gadget（根据上文的介绍找到对应名称的设备）：
+本节说明如何在 **Windows 主机播放音频**，并由 **K1 开发板上的 UAC Gadget 接收音频数据**，再通过本地音频设备进行回放。
+
+1. **Windows 侧配置播放设备**
+
+   在 Windows 任务栏中找到音量图标，右键进入 **声音设置**，将系统播放设备切换为对应的 **UAC Gadget 设备**。
+  （设备名称根据前文 UAC 版本说明选择，例如 *AC-Interface* 或 *Source / Sink*）
 
     ![usbg-uac-win-settings](../static/USB/usbg-uac-win-settings-out.png)
 
-2. 在作为 UAC Gadget 的 K1 开发板命令行执行 `aplay -l` 命令和 `arecord -l` 命令：
+2. **K1 开发板侧确认音频设备编号**
+
+   在UAC Gadget 的 K1 开发板上，分别执行以下命令查看当前系统中的音频播放与录制设备：
+
+   ```bash
+   aplay -l
+   arecord -l
+   ```
+
+   示例如下：
 
     ```
     root@spacemit-k1-x-deb1-board:~# aplay -l
@@ -530,6 +544,7 @@ Failed to import buffers on sink: Invalid argument (22)
     card 2: UAC1Gadget [UAC1_Gadget], device 0: UAC1_PCM [UAC1_PCM]
     子设备 : 1/1
     子设备 #0: subdevice #0
+
     root@spacemit-k1-x-deb1-board:~# arecord -l
     **** CAPTURE 硬體裝置清單 ****
     card 0: C [H180 Plus (Type C)], device 0: USB Audio [USB Audio]
@@ -543,16 +558,27 @@ Failed to import buffers on sink: Invalid argument (22)
     子设备 #0: subdevice #0
     ```
 
-    这里记录 card x, device y 数字。后续我们会使用它们来建立录制和播放管道，
-    如这里 "2,0" 是我们的 UAC1Gadget 音频设备，"0,0" 是我们的耳机。
+   在上述输出中，请记录各音频设备对应的 `card x, device y` 编号。用于唯一标识 ALSA 音频设备，后续通过 `hw:x,y` 指定录制源与播放设备，例如 `hw:2,0` 为 UAC1Gadget，`hw:0,0` 为耳机。
+   后续在构建音频录制与播放管道时，将通过 `hw:x,y` 的形式显式指定音频设备。
+   例如，在本示例中：
+   - `hw:2,0` 表示 **UAC1Gadget 音频设备**（来自 USB Host 的音频流）
+   - `hw:0,0` 表示 **本地耳机设备（H180 Plus）**
 
-3. K1 开发板执行以下命令即可从 "2,0"(UAC1Gadget) 录制，并且播放到 "0,0"(H180 Plus 耳机 )：
+3. **建立录制与播放管道**
+
+   K1 开发板执行以下命令：
 
     ```
     arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
     ```
 
-    可能会出现报错：
+    该命令实现的功能为：
+
+   - 从 **UAC Gadget（hw:2,0）** 录制音频数据
+   - 并将音频数据实时播放到 **本地耳机（hw:0,0）**
+
+4. **常见报错及规避方法**
+    执行上述命令时，可能会遇到如下错误：
 
     ```
     root@spacemit-k1-x-deb1-board:~# arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
@@ -560,16 +586,20 @@ Failed to import buffers on sink: Invalid argument (22)
     音乐打开错误： 设备或资源忙
     ```
 
-    这是因为目前 UAC Gadget 驱动和 ALSA 交互实现上细节导致音频设备状态不匹配导致的。
+   该问题是由于 **UAC Gadget 驱动与 ALSA 之间的设备状态切换不一致** 引起的。
 
-    我们可以以下操作进行规避， Windows 会操作设备让 Gadget 端的音频设备进入 Capture 状态：
+   可通过以下方式规避：
 
-    (1) 切换播放设备后，先开始在对应设备（如 UAC1 是 AC-Interface）播放音乐，再重新在 K1 执行命令。
+   - 在 Windows 侧切换播放设备后，**先在该设备（如 UAC1 对应的 AC-Interface）开始播放音频**，然后再回到 K1 重新执行命令。
+   - 若仍然报错：
+     - 在 Windows 侧先切换到其他声卡播放音频
+     - 再切换回 UAC Gadget 对应的设备（如 UAC1 对应的 AC-Interface）
 
-    (2) 如果 (1) 后执行上面的命令还是报错，先切换到其他声卡，播放音乐再切换到对应设备（如 UAC1 是 AC-Interface）。
+   上述操作会触发 Windows 重新初始化音频流，使 Gadget 端音频设备进入正确的 **Capture 状态**。
 
-    此时再执行命令， K1 开发板上就会正常开始从 `hw:2,0` 设备（ UAC1Gadget）录制，
-    并且播放到 `hw:0,0` 设备（ H180 Plus 耳机）：
+5. **正常运行**
+    若设备状态正确，执行命令将看到如下输出， 即
+    - K1 开发板上会正常开始从 `hw:2,0` 设备（ UAC1Gadget）录制，并且播放到 `hw:0,0` 设备（ H180 Plus 耳机）
 
     ```
     root@spacemit-k1-x-deb1-board:~# arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
@@ -577,68 +607,132 @@ Failed to import buffers on sink: Invalid argument (22)
     正在播放 原始資料 'stdin' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
     ```
 
-**Linux PC 播放音频到 UAC gadget**
+#### Linux PC 播放音频到 UAC Gadget
 
-Linux 桌面系统各发行版图形界面并不一致，
-这里简要介绍 Linux PC 命令行播放音频到 K1 开发板，并且使用 K1 开发板上的另一个耳机设备收听：
+本节说明如何在 **Linux PC（USB Host）侧通过命令行播放音频**，
+并由 **K1 开发板上的 UAC Gadget 接收音频数据**，再通过 **K1 本地耳机设备**进行回放。
 
-1. 通过  `aplay -l` 找到 K1 开发板模拟的 UAC 设备，如这里是 hw:1,0 。
+> 由于不同 Linux 发行版的桌面环境差异较大，以下流程**统一采用命令行方式**。
 
-    ```
+1. **Linux PC 侧确认 UAC Gadget 设备编号**
+
+   在 Linux PC 上执行以下命令，找到 K1 开发板模拟的 UAC 设备（即，当前可用的音频播放设备）：
+
+   ```bash
+   aplay -l
+   ```
+
+   示例如下：
+
+   ```
     root@mbook:~# aplay -l
     **** PLAYBACK Hardware Device List ****
     card 1: Device [SpacemiT Composite Device], device 0: USB Audio [USB Audio]
         subdevice: 0/1
         subdevice #0
-    ```
+   ```
 
-2. 下载一个 wav 音频文件重命名为 test.wav。
-3. 系统图形界面不要绑定 K1 开发板模拟的 UAC 设备，否则会出现报错。
-4. Linux PC 上使用 aplay 命令播放 test.wav 到 UAC gadget:
+   记录对应的 **ALSA 设备编号**，例如：
+   - `hw:1,0`：Linux PC 识别到的 **UAC Gadget 音频设备**
+
+   该编号将在后续播放命令中使用。
+
+2. **准备测试音频文件**
+   在 Linux PC 上准备一个 WAV 格式音频文件，并重命名为 `test.wav`。
+   > 该文件将作为 Host → Gadget 的音频数据源。
+
+3. **确保桌面环境未占用 UAC 设备**
+
+   在 Linux PC 的**图形桌面音频设置中**，**不要将系统默认输出设备绑定到 K1 开发板模拟的 UAC 设备**。否则会出现报错。
+
+4. **Linux PC 侧播放音频到 UAC Gadget**
+
+   Linux PC 上使用 `aplay` 命令播放 `test.wav` 发送到 UAC Gadget:
 
     ```
     root@mbook:~# aplay test.wav -c 2 -r 48000 -D plughw:1,0
     ```
 
-5. K1 开发板执行以下命令即可从 "2,0"(UAC1Gadget) 录制，并且播放到 aplay -l 列出的 "0,0" 设备：
+5. **K1 开发板侧建立录制与播放管道**
+
+   在 K1 开发板上执行以下命令，可从 **UAC Gadget 音频设备（hw:2,0）** 接收并录制来自主机的音频数据，并将其**实时转发并播放**到通过 `aplay -l` 识别的 **本地音频输出设备（hw:0,0）**。
 
     ```
     arecord -f dat -t raw -D hw:2,0 | aplay -f dat -D hw:0,0
     ```
 
-**Windows PC 从 UAC gadget 录制音频**
+#### Windows PC 从 UAC Gadget 录制音频
 
-1. 任务栏找到音量图标，右键打开声音设置，先配置录音设备为我们的 UAC Gadget（根据上文的介绍找到对应名称的设备）：
+本节说明如何将 **K1 开发板上的音频数据** 通过 **UAC Gadget** 发送到 **Windows PC**，并在 Windows 侧使用录音软件进行采集与验证。
+
+1. **Windows 侧配置录音设备**
+
+   在 Windows 任务栏中找到音量图标，右键进入 **声音设置**，将系统 **录音设备** 设置为对应的 **UAC Gadget 设备**。
+   （设备名称根据前文 UAC 版本说明选择，例如 *AC-Interface* 或 *Source / Sink*）
 
     ![usbg-uac-win-settings](../static/USB/usbg-uac-win-settings-in.png)
 
-2. 务必在 1. 的 Windows 设置页面进入 -> 设备属性 -> 更多设备属性 -> 高级 -> 信号增强，取消勾选“启用音频增强”：
+2. **关闭 Windows 音频增强功能**
+
+   在步骤 1 的设备设置页面中，依次进入：
+
+   **设备属性 → 更多设备属性 → 高级 → 信号增强**
+
+   取消勾选 **“启用音频增强”**。
+
     ![alt text](../static/USB/usbg-uac-record-win.png)
 
-3. 下载一个 wav 音频文件重命名为 test.wav。
+3. **准备测试音频文件**
 
-4. K1 开发板上执行以下命令进行播放（ hw:2,0 要根据 aplay -l 中找到对应的 UAC1Gadget）
+   在 K1 开发板上准备一个 WAV 格式音频文件，并命名为 `test.wav`。
 
-    ```
+4. **K1 开发板侧向 UAC Gadget 播放音频**
+
+   在 K1 开发板上执行以下命令，通过 UAC Gadget 向 Windows 发送音频数据：
+
+    ```bash
     root@spacemit-k1-x-deb1-board:~/ffs# aplay test.wav -c 2 -r 48000 -D plughw:2,0
+
+    # 正常情况下会看到类似输出
     正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
     ```
 
-    如果出现报错：“ aplay: pcm_write:2146: 写入错误：输入 / 输出错误，可以尝试先打开 Windows 录音软件，
-    开始录制再回到 K1 开发板执行 aplay 播放命令。
+    其中：
+    - `hw:2,0` 需根据 `aplay -l` 的输出，替换为 **UAC Gadget 对应的设备编号**
 
-5. 打开 Windows 录音软件，开始录制。
+    若出现如下错误：
 
-6. 如果录制的音频有问题，请检查 Windows 的“音频增强” 功能是否关闭。
+   ```text
+   aplay: pcm_write:2146: 写入错误：输入 / 输出错误
+   ```
 
-**Linux PC 从 UAC gadget 录制音频**
+   可按以下步骤处理：
+   - 先在 Windows 侧打开录音软件
+   - 点击 **开始录制**
+   - 再回到 K1 开发板重新执行 `aplay` 播放命令
 
-此功能 Linux PC 图形界面操作和 Windows PC 步骤类似。
+5. **Windows 侧开始录音**
 
-只是不同于 Windows 需要注意关闭 “音频增强” 功能， Linux PC 需要注意录音音量大小。
+   在 Windows 上打开任意录音软件，并开始录制。
 
-部分 Linux 发行版的录音音量要设置为 50 才是正常音量，大于 50 会进行放大，
-此时可能会导致 UAC gadget 发送的音频数据发生失真。
+   此时应能够录制到来自 K1 开发板播放的音频内容。
+
+6. **异常音频排查建议**
+   若录制结果异常（无声音、失真等），请优先确认：
+
+   - Windows 侧 **“音频增强”** 功能已关闭
+   - 当前录音设备确实为 UAC Gadget
+   - K1 侧 `aplay` 使用的设备编号正确
+
+#### Linux PC 从 UAC gadget 录制音频
+
+本节说明如何在 **Linux PC** 上，通过 **UAC Gadget** 录制来自 **K1 开发板** 的音频数据，并保存为 WAV 文件。
+
+整体流程与 Windows 类似，但 Linux 侧需要重点关注 **录音音量设置**。
+- 与 Windows 不同，Linux 无需关闭**音频增强**功能
+- **必须关注录音音量大小**：
+  - 部分 Linux 发行版中，录音音量设置为 **50** 时为正常增益
+  - **大于 50 会进行放大**，可能导致 UAC Gadget 发送的音频数据失真
 
 Linux 使用命令行 arecord 命令录制音频为 wav 文件的命令步骤如下：
 
