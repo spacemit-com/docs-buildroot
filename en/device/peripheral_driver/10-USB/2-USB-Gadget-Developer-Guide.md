@@ -857,6 +857,7 @@ ADB（Android Debug Bridge）是一种多功能命令行工具，用于与设备
 `gadget-setup.sh` 通用脚本中已集成 ADB 功能，其实现方式为 **FunctionFS**。
 
 除内核支持外，还需要上层应用 **adbd** 才能正常工作：
+
 - **Buildroot**
   - 启用 `BR2_PACKAGE_ANDROID_TOOLS_ADBD` 以编译 adbd 服务程序
 - **Bianbu**
@@ -938,21 +939,38 @@ List of devices attached
 
 ### MTP (Media Transfer Protocol)
 
-**相关的 USB Spec:**
+**相关的 USB 规范：** [Media Transfer Protocol v.1.1 Spec](https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement)
 
-- [Media Transfer Protocol v.1.1 Spec](https://www.usb.org/document-library/media-transfer-protocol-v11-spec-and-mtp-v11-adopters-agreement)
+#### 功能概述
 
-**需要打开的配置：** `CONFIG_USB_F_FS`。
+MTP（Media Transfer Protocol）是由 USB-IF 维护的一种媒体文件传输协议，广泛应用于手机、相机等设备与 PC 之间的文件传输场景。
 
-MTP 是媒体文件传输协议，目前 USB-IF 维护。广泛应用于手机、相机与电脑的文件传输中，如手机通过 USB 接入电脑后可以查看相册就是使用 MTP。
+典型使用场景为：
+手机通过 USB 连接 PC 后，PC 可直接访问手机中的相册、视频等内容，即基于 MTP 实现。
 
-对比 Mass Storage 的一旦挂载后手机就无法访问对应块设备或镜像的文件系统， MTP 可以让手机和 PC 同时访问对应文件系统，使用更加便捷。
+**与 Mass Storage 的区别**
 
-前面已经提到， MTP function 也是基于 FunctionFS 实现的，因此需要应用层服务程序。我们这里将采用 [umtp-responder](https://github.com/viveris/uMTP-Responder) 作为我们的服务程序，这是一个轻量级的 MTP 服务器，在开发板上， Buildroot和 Bianbu 都可以直接使用：
+- **Mass Storage**
+  块设备或镜像一旦被 PC 挂载，设备端（如，手机）无法再访问该文件系统
+- **MTP**
+  PC 与设备端（如，手机）可同时访问同一文件系统，使用更便捷。
 
-- Buildroot 通过 `CONFIG_BR2_PACKAGE_UMTPRD` 启用编译即可使用；
-- Bianbu 中通过 apt 安装 `umtp-responder` 软件包安装即可使用；
-- 其他 OS，可以从 [Github 的源码](https://github.com/viveris/uMTP-Responder) 自行构建即可。
+**需启用内核配置项：** `CONFIG_USB_F_FS`
+
+#### MTP 服务程序选择
+
+MTP Function 基于 **FunctionFS** 实现，因此还需要配合应用层服务程序使用。
+
+本文采用 [umtp-responder](https://github.com/viveris/uMTP-Responder) 作为我们的服务程序，这是一个轻量级的 MTP 服务器，在开发板上， Buildroot和 Bianbu 都可以直接使用。
+
+不同系统的使用方式如下：
+- **Buildroot** 
+  通过 `CONFIG_BR2_PACKAGE_UMTPRD` 启用编译即可使用；
+- **Bianbu** 
+  通过 `apt` 安装 `umtp-responder` 软件包安装即可使用；
+- **其他 OS**
+  从 [Github 源码](https://github.com/viveris/uMTP-Responder) 自行构建即可。
+
 
 `gadget-setup.sh` 中已经集成基于 umtp-responder 的 MTP function 配置，按照上面步骤安装完成后，执行：
 
