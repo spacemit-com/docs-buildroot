@@ -729,6 +729,7 @@ Failed to import buffers on sink: Invalid argument (22)
 本节说明如何在 **Linux PC** 上，通过 **UAC Gadget** 录制来自 **K1 开发板** 的音频数据，并保存为 WAV 文件。
 
 整体流程与 Windows 类似，但 Linux 侧需要重点关注 **录音音量设置**。
+
 - 与 Windows 不同，Linux 无需关闭**音频增强**功能
 - **必须关注录音音量大小**：
   - 部分 Linux 发行版中，录音音量设置为 **50** 时为正常增益
@@ -736,54 +737,104 @@ Failed to import buffers on sink: Invalid argument (22)
 
 Linux 使用命令行 arecord 命令录制音频为 wav 文件的命令步骤如下：
 
-1. 通过  `arecord -l` 找到 K1 开发板模拟的 UAC 设备的 card、 device id 。
-2. 系统图形界面不要绑定 K1 开发板模拟的 UAC 设备，否则会出现报错。
-3. 执行 arecord 命令进行录制到 record.wav 文件：
+1. **确认 UAC Gadget 设备编号**
 
-    ```
-    arecord -f dat -c 2 -D hw:1,0 -t wav -d 20 record.wav
-    ```
+   在 Linux PC 上执行：
 
-    介绍其中参数的含义，
-    - `-f dat` 是常用格式缩写（ arecord -h 可以看到帮助）
-    - `-D hw:1,0` 要替换为第一步找到的设备对应值。
-    - `-d 20` 是录制 20 秒。
-4. K1 开发板执行命令开始播放音频（具体参数的值需要参考前面的介绍，特别是 hw:2,0 要替换为实际 UAC1Gadget 对应的值）：
+   ```bash
+   arecord -l
+   ```
+
+   从输出中找到 **K1 开发板模拟的 UAC 设备**，并记录对应的：
+
+   - `card x`
+   - `device y`
+
+   后续命令中将使用 `hw:x,y` 形式指定该设备。
+
+2. **确保系统未占用 UAC 设备**
+
+   请确认 **Linux 图形界面音频系统未绑定或占用** K1 开发板模拟的 UAC 设备，否则会出现报错。
+
+3. **使用 arecord 录制音频**
+
+   执行以下命令，将来自 UAC Gadget 的音频录制为 `record.wav`：
+
+   ```bash
+   arecord -f dat -c 2 -D hw:1,0 -t wav -d 20 record.wav
+   ```
+
+   参数说明：
+   - `-f dat`
+     常用音频格式缩写（可通过 `arecord -h` 查看完整帮助说明）
+   - `-D hw:1,0`
+     替换为步骤 1 中查到的 UAC Gadget 设备编号
+   - `-d 20`
+     录制时长为 20 秒
+
+4. **K1 开发板侧播放音频**
+
+K1 开发板执行命令开始播放音频（具体参数的值需要参考前面的介绍，特别是 hw:2,0 要替换为实际 UAC1Gadget 对应的值）：
+
+   在 K1 开发板上执行以下命令，通过 UAC Gadget 向 Linux PC 发送音频数据 （具体参数的值需要参考前面的介绍，特别是 `hw:2,0` 需根据 K1 侧 `aplay -l` 的输出，替换为 **UAC1Gadget 实际对应的设备编号**）：
 
    ```
    root@spacemit-k1-x-deb1-board:~/ffs# aplay test.wav -c 2 -r 48000 -D plughw:2,0
-    正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
+
+   # 正常情况下将看到：
+   正在播放 WAVE 'test.wav' : Signed 16 bit Little Endian, 频率 48000Hz， Stereo
    ```
 
-**参数配置和二次开发**
+#### 参数配置与二次开发
 
-UAC 有一些可配置的参数，脚本中进行了部分配置。
+UAC 支持部分参数配置，当前脚本中已对其中一部分进行了设置。
 
-用户可参阅 UAC 规范、脚本源码和 [Linux USB Gadget Testing - UAC2](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html#uac2-function) 等资料做二次开发。
+如需进行二次开发，可参考以下资料：
+
+- UAC 相关规范
+- 脚本源码实现
+- Linux 官方文档：[Linux USB Gadget Testing – UAC2](https://www.kernel.org/doc/html/latest/usb/gadget-testing.html#uac2-function)
 
 ### ACM (CDC-ACM: Communication Device Class - Abstract Control Model)
 
-**需要打开的配置：** CONFIG_USB_F_ACM
+#### 功能概述
 
-ACM 是一类 USB 串口协议，即开发板作为一个串口设备，模拟串口设备，可以进行串口 Tx/Rx 传输。
+ACM 是一种 USB 串口设备类协议。启用后，开发板将以 **USB 串口设备（Virtual COM Port）** 的形式呈现，实现标准串口的 Tx / Rx 数据通信。
 
-启用 ACM 功能后，会在应用层生成 TTY 设备节点， Host 枚举开发板时也会枚举为串口设备，
-两端可以通过操作串口设备节点进行通信。
+启用 ACM 后：
 
-使用也非常简单，运行 gadget 脚本拉起串口 gadget 后，
+- 开发板侧 Linux 系统会生成对应的 TTY 设备节点
+- 主机（Host）枚举开发板时，会将其识别为串口设备
+- 双方通过各自的串口设备节点进行数据通信
+
+**需启用的核配置项：** `CONFIG_USB_F_ACM`
+
+#### 启动 ACM Gadget
+
+通过 gadget 脚本拉起 ACM 功能：
 
 ```bash
 gadget-setup.sh acm
 ```
 
-gadget board 这边的 Linux 中会在 /dev 下生成 `ttyGS*` 块设备节点，通常是 `/dev/ttyGS0` 。
+#### 设备节点说明
 
-Linux 下可以使用 picocom、 minicom 工具或者命令行的 echo/cat 命令， Linux PC 下通常生成的设备节点名称前缀为
-`/dev/ttyACM*`。
+- **Gadget（开发板）侧**
+   启动成功后，系统会在 `/dev` 目录下生成 `ttyGS*` 块设备节点，通常是 `/dev/ttyGS0` 。
 
-Windows 下可以使用常用的串口工具如 SecureCRT、 WindTerm 等通信，串口对应的 COM 序号
-可以通过设备管理器或者 [USBTreeView](https://www.uwe-sieber.de/usbtreeview_e.html)
-查看。
+- **Host（PC）侧**
+  - **Linux PC**
+    - 设备节点名称前缀通常为：`/dev/ttyACM*`
+    - 可使用 `picocom`、`minicom` 等串口工具，或通过 命令行的 `echo` / `cat` 进行简单通信
+
+  - **Windows PC**
+    - 设备会枚举为 COM 串口
+    - 可使用 SecureCRT、WindTerm 等串口工具进行通信
+    - 对应的 COM 端口号可通过设备管理器或者 [USBTreeView](https://www.uwe-sieber.de/usbtreeview_e.html) 查看
+
+#### 使用说明
+
+ACM Gadget 启动完成后，主机与开发板两端通过各自识别到的串口设备节点，即可进行标准串口通信。
 
 ### ADB (Android Debug Bridge)
 
