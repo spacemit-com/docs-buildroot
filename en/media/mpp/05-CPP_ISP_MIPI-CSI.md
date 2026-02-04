@@ -2,36 +2,46 @@ sidebar_position: 5
 
 # CPP & ISP & MIPI-CSI
 
-> English Version is coming soon...
+K1 的 CPP、ISP 和 MIPI-CSI 模块基于标准 V4L2 接口实现，且提供了完整的测试程序供参考。
 
-K1 的 CPP&ISP&MIPI-CSI 是基于标准的 V4L2 接口实现，并提供了完整的测试程序供参考。
+## 1 规格介绍
 
-## 1 规格
+### MIPI CSI (CSI-2 V1.1) 4 lane (x2)
 
-**MIPI CSI (CSI-2 V1.1) 4lane (x2)**
+- 支持多种 Lane 组合模式：
+  - 4 Lane + 4 Lane
+  - 4 Lane + 2 Lane
+  - 4 Lane + 4 Lane + 2 Lane（支持三路传感器）
+- DPHY V1.1，最高速率可达 1.5 Gbps/lane
+- 支持 RAW8/RAW10/RAW12/RAW14 格式，以及传统的 YUV420 8-bit 输入格式
 
-- 4 Lane + 4 Lane mode
-- 4 Lane + 2 Lane mode
-- 4 Lane + 4 Lane + 2 Lane mode（triple sensor）
-- DPHY V1.1，Up to 1.5Gbps/lane
-- Support RAW8/RAW10/RAW12/RAW14 and legacy yuv420 8-bit、yuv420 8-bit input foramt
+### ISP（图像信号处理器）
 
-**ISP 介绍**：图像信号处理器，用于处理传感器输出的图像信号，经过一系列数字图像处理算法达到预期的图像效果处理。包括坏点校正、镜头阴影校正、降噪、相位补偿与矫正、背光补偿、色彩增强等处理。
+ISP 用于处理传感器输出的图像信号，通过一系列数字图像处理算法，实现坏点校正、镜头阴影校正、降噪、相位补偿与矫正、背光补偿、色彩增强等图像优化。
+- 支持双路 pipeline（时分复用），可同时处理两路图像流，来源可为传感器或 DDR 读取
+- 每路 pipeline 输出最大图像分辨率为 1920x1080
+- 两路 pipeline 同时工作时：
+  - 不开启 PDAF（相位对焦），最大输入图像尺寸为 4748x8188
+  - 开启 PDAF，最大输入图像尺寸为 3264x8188
+- 单路 pipeline 工作时：
+  - 不开启 PDAF，最大输入尺寸为 9496x8188
+  - 开启 PDAF，最大输入尺寸为 6528x8188
+- 输入宽度和高度均需为 4 的倍数
 
-- 支持两路 pipeline（时分复用），能同时处理两路 stream，stream 的来源可以是 sensor 或者从 ddr 读取。
-- 每路 pipeline 输出的最大图像为 1920x1080。
-- 两路 pipeline 同时工作时，每个 pipeline 在没有开启 PDAF（相位对焦）时输入的图像最大 size 为 4748x8188；在开启 PDAF 时输入的图像最大 size 为 3264x8188。
-- 只有一路 pipeline 工作时，在没有开启 PDAF（相位对焦）时输入的图像最大 size 为 9496x8188；在开启 PDAF 时输入的图像最大 size 为 6528x8188。
-- 输入宽高都需要是 4 的倍数。
+### CPP（图像后处理模块）
 
-**CPP 介绍**：图像后处理模块，用于离线处理 ISP 输出的 NV12，金字塔式多层分时处理，主要功能包括：镜头畸变矫正、空域和时域降噪、频域降噪、边沿增强等。
+CPP 主要负责离线处理 ISP 输出的 NV12 数据，采用金字塔式多层分时处理，功能包括镜头畸变校正、空域与时域降噪、频域降噪、边缘增强等。
 
-- 输入支持 NV12_DWT 格式、输出支持 NV12_DWT、FBC_DWT 格式数据。NV12_DWT 格式 Buffer 是由标准的 NV12 Buffer 和 ASR 私有的 DWT Buffer 组成。
-- 图像支持的最大高度：3136
-- 图像支持的最大宽度：4224
-- 图像支持的最小高度：288
-- 图像支持的最小宽度：480
-- 输入、输出 size 一致
+- 支持输入格式：NV12_DWT
+- 支持输出格式：NV12\DWT、FBC_DWT
+  （NV12_DWT 格式由标准 NV12 Buffer 和 ASR 私有 DWT Buffer 组成）
+- 支持的最大图像尺寸：
+  - 宽度：4224
+  - 高度：3136
+- 支持的最小图像尺寸：
+  - 宽度：480
+  - 高度：288
+- 输入输出尺寸需保持一致
 
 ## 2 流程框图
 
@@ -45,17 +55,25 @@ sensor –> VI_DEV -> ISP_FW –> VI_CHN -> DDR -> CPP
 
 编写代码时，需要先配置 sensor, VI, ISP, CPP 各个模块，注册各个模块 buffer 回调，然后依次 streamon ISP 和 sensor。sensor 开始出流后，ISP 图像处理过程中会发生中断，各模块进行中断处理后调用模块回调处理 buffer；当程序退出时，建议先停止 vi，再停止 sensor，再依次执行 CPP, ISP, VI 的反初始化配置，并释放使用的 buffer。软件流程图如下：
 
+**开发流程概述：**
+
+1. **初始化配置**：依次配置 Sensor、VI、ISP、CPP 模块。
+2. **注册回调**：为各模块注册 buffer 回调函数。
+3. **启动流程**：依次 streamon ISP 与 Sensor。
+4. **数据流转**：
+   - Sensor 开始出流后，ISP 图像处理会触发中断。
+   - 各模块在中断处理后调用对应的 buffer 回调。
+   - 用户在回调中获取 buffer 数据，并将处理完成的 buffer 重新 queue 回模块。
+5. **退出流程**：建议先停止 VI，再停止 Sensor，最后依次执行 CPP、ISP、VI 的反初始化，并释放所有 buffer。
+
+**ISP online 整体流程图**
 ![](static/OEBwb8QzxoIrKBxEcoqcsywknFe.png)
 
-Figure - 5 ISP online 整体流程图
+**Buffer 轮转：**
 
-**buffer 轮转：**
-
-streamon 之前，准备好输入输出 buffer，并将输出 buffer queue 进各个模块 buffer list，
-
-streamon 之后，输出 buffer list ready 之后调用各个模块对应的 buffer callback，
-
-buffer callback 由用户实现，负责获取 buffer 数据并将 done buffer 再次 queue 入模块。
+- streamon 前：准备输入与输出 buffer，并将输出 buffer queue 到模块 buffer list 中。
+- streamon 后：输出 buffer list 就绪时触发模块的 buffer callback。
+- 回调函数：由用户实现，负责数据处理并将已完成的 buffer 重新 queue。
 
 ### 2.2 ISP offline 整体流程
 
@@ -65,19 +83,26 @@ ISP offline 时模块连接如下：
 DDR -> VI_DEV -> ISP_FW –> VI_CHN -> DDR -> CPP
 ```
 
-跟 ISP online 相比，ISP 从 DDR 读取输入数据，所以除了数据源配置和 buffer 回调方面有所差异，其他部分流程基本一样。下图展示的是 offline 模式下的 ISP capture mode 流程：
+**与 ISP online 模式的主要区别：**
+- 数据源来自 DDR（非 Sensor 实时采集）。
+- 数据输入、buffer 回调的配置方式不同。
+
+其他流程与 Online 模式基本一致。
+
+**Offline Capture Mode 流程图：**
 
 ![](static/PEhLbGTjconnrpx2ZvBcBkUenoh.png)
 
 ## 3 测试程序使用说明
 
-k1x-cam 是一套用于测试验证 K1 芯片的 MIPI CSI + ASR ISP/CPP 功能的程序集，也可以作为客户开发自己的应用程序（需要熟悉了解 API 的使用说明）的参考。
+`k1x-cam` 是一套用于测试和验证 **K1 芯片的 MIPI CSI + ASR ISP/CPP** 功能的工具集。
+除了用于功能验证，也可作为客户在开发自定义应用（需要直接对接 ISP/CPP API）时的参考实现。
 
 ### 3.1 安装说明
 
 #### 3.1.1 Bianbu 桌面系统
 
-源中已经集成了 k1x-cam，直接使用 apt 命令来安装即可。
+软件源已集成 `k1x-cam`，直接使用 `apt` 命令来安装即可。
 
 ```shell
 sudo apt update
@@ -90,14 +115,14 @@ TODO
 
 ### 3.2 使用说明
 
-k1x-cam 的测试程序集中主要包含下面几个测试程序：
+`k1x-cam` 的测试程序集中主要包含以下测试程序：
 
-- **cam-test**：用于单路 pipeline，双路 pipeline，单 raw pipeline，单 cpp 处理等测试验证
-- **cam_sensors_test**：用于简单的 sensor detect -> init -> stream on 流程调试验证
+- **`cam-test`**：用于单路 pipeline，双路 pipeline，单 raw pipeline，单 CPP 处理等测试验证
+- **`cam_sensors_test`**：简单验证 Sensor 的检测、初始化与 stream on 流程。
 
-#### 3.2.1 cam-test
+#### 3.2.1 `cam-test`
 
-一些基本用法
+基本用法示例：
 
 ```shell
 使用实例：cam-test <file.json>
@@ -145,7 +170,7 @@ k1x-cam 的测试程序集中主要包含下面几个测试程序：
 
 #### 3.2.2 JSON 参数说明
 
-以 sdktest_main_aux.json 为例进行说明：
+以 `sdktest_main_aux.json` 为例进行说明：
 
 ```shell
 {
@@ -219,31 +244,32 @@ k1x-cam 的测试程序集中主要包含下面几个测试程序：
 
 ```
 
-json 参数更详细的作用，可以分析 config.c 和 online_pipeline_test.c/main.c 的具体应用场景。
+关于 json 参数更详细的作用，可分析 `config.c` 和 `online_pipeline_test.c/main.c` 的具体应用场景。
 
-#### 3.2.3 cam_sensors_test
+#### 3.2.3 `cam_sensors_test`
 
-一些基本用法
+基本用法示例：
 
 ```shell
 使用示例：cam_sensors_test [devId] [sensors_name]
 
 ```
 
-输入执行命令后，在交互终端输入 s 字符后进行开流动作，如果没有报错。可以验证流程 sensor detect -> init -> stream on 基本正常。
+输入执行命令后，在交互终端输入 `s` 字符后进行开流动作。
+如果程序没有报错，说明以下流程基本正常 sensor detect -> init -> stream on。
 
 ## 4 SENSOR 调试
 
-详见“K1 Camera 快速启动指南”。
+详见 [相机开发指南](/en/camera/camera_development_guide.md)
 
 ## 5 ISP 效果调试
 
 ISP 效果调试可能需要使用到的工具包括：调试工具（Tuning Tool）、定标插件（Calibration Plugins）、图像分析工具（VRF viewer），平台调试辅助等。
 
-详见“K1 ISP 效果调试指南”。
+详见 [ISP PQ 工具用户指南](/en/camera/isp_pq_tools_user_guide.md)
 
 ## 6 API 使用说明
 
-描述的 API 都是 ISP SDK 面向应用的，分为系统控制 API、图像效果设置 API 和 tuning 相关的 API，详细解释了相关的参数数据结构、错误码和返回值。主要面向 ISP 效果相关的 tuning 和算法工程师，以及图像相关相关的 setting 功能开发的应用工程师。
-
-详见“K1 ISP API 开发指南”。
+这些 API 的详细参数、数据结构、错误码和返回值已在 [ISP API 开发指南](/en/camera/isp_api_development_guide.md)中进行说明，主要面向以下两类开发者：
+- ISP 效果相关的 tuning 和算法工程师
+- 图像相关功能开发的应用工程师

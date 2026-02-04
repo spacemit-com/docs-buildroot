@@ -100,7 +100,7 @@ Set the pins corresponding to the GPIOs used in the solution to the GPIO functio
 
 Use the `pinctrl-single,gpio-range` property for setting. If there is a continuous range of pin numbers with the same configuration, they are configured as a group.
 
-Refer to [Pin Configuration Parameters](01-PINCTRL.md) for pin configuration parameters.
+Refer to Section [Pin Configuration Parameters](01-PINCTRL.md) for pin configuration parameters.
 
 
 For example:

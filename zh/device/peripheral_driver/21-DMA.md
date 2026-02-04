@@ -80,7 +80,7 @@ DMA 的使用方法是 **选择一个通道** 并 **指定起始地址和目标�
 - 为具体设备（如 UART）配置 DMA 支持
 
 #### DMA 控制器配置示例
-s
+
 可参考 Linux 源码中的 `arch/riscv/boot/dts/spacemit/k1-x.dtsi` 文件，里面已包含完整的 DMA 控制器节点配置。示例如下：
 
 ```dts

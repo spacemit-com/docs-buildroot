@@ -99,7 +99,7 @@ K1 开发板的 USB2.0 OTG 控制器在 Device 模式下，可通过 Linux Debug
 USB_UDC=c0a00000.dwc3 gadget-setup.sh hid
 ```
 
-具体的该脚本介绍可参考 [ USB Gadget 开发指南 ](2-USB-Gadget-Developer-Guide.md)
+具体的该脚本介绍可参考 [USB Gadget 开发指南](2-USB-Gadget-Developer-Guide.md)
 
 ##### 上位机使用 xHCI Electrical Test Tool 配置测试波形
 

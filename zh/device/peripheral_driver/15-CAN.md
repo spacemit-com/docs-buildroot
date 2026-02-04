@@ -201,36 +201,34 @@ cansend格式：cansend can-dev id#data
 
 3. 查看 CAN 设备是否加载成功
 
-```shell
-# ifconfig -a
-can0      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
-          NOARP  MTU:16  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:10 
-          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-          Interrupt:77 
+   ```shell
+   # ifconfig -a
+   can0      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
+             NOARP  MTU:16  Metric:1
+             RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+             TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+             collisions:0 txqueuelen:10 
+             RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+             Interrupt:77 
 
-can1      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
-          inet addr:169.254.185.103  Mask:255.255.0.0
-          UP RUNNING NOARP  MTU:72  Metric:1
-          RX packets:4226044 errors:1411370 dropped:0 overruns:0 frame:1411370
-          TX packets:1428220 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:10 
-          RX bytes:50946992 (48.5 MiB)  TX bytes:28564400 (27.2 MiB)
-          Interrupt:255 
-
-
-```
+   can1      Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
+             inet addr:169.254.185.103  Mask:255.255.0.0
+             UP RUNNING NOARP  MTU:72  Metric:1
+             RX packets:4226044 errors:1411370 dropped:0 overruns:0 frame:1411370
+             TX packets:1428220 errors:0 dropped:0 overruns:0 carrier:0
+             collisions:0 txqueuelen:10 
+             RX bytes:50946992 (48.5 MiB)  TX bytes:28564400 (27.2 MiB)
+             Interrupt:255 
+   ```
 
 4. K1 配置 CAN 的仲裁域和数据域波特率，两个 CAN 设备必须要配置成相同的仲裁、数据波特率才能正常收发数据。
 
-```shell
-ip link set can1 up type can bitrate 4000000 sample-point 0.75 dbitrate 8000000 sample-point 0.8 fd on
+   ```shell
+   ip link set can1 up type can bitrate 4000000 sample-point 0.75 dbitrate 8000000 sample-point 0.8 fd on
 
-#接收数据
-candump can1
-```
+   #接收数据
+   candump can1
+   ```
 
 5. 打开另外一个 CAN 设备作为数据发送端(可以是 PC CAN，也可以是开发板的另外一个 CAN 设备，这里以另外一个 CAN 设备发送数据，PC CAN 可自行验证)
 

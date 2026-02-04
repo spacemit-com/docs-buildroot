@@ -215,7 +215,7 @@ Successfully generated at /home/username/work/buildroot-sdk/output/k1_v2/images/
 
 其中`buildroot-k1_v2.zip`适用于Titan Flasher，或者解压后用fastboot刷机；`buildroot-k1_v2-sdcard.img`为sdcard固件，解压后可以用dd命令或者[balenaEtcher](https://etcher.balena.io/)写入sdcard。
 
-> Titan Flasher使用指南：[刷机工具使用指南](https://developer.spacemit.com/#/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)
+> Titan Flasher使用指南：[刷机工具使用指南](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)
 
 固件默认用户名：`root`，密码：`bianbu`。
 

@@ -4,6 +4,27 @@ sidebar_position: 1
 
 # Buildroot 2.2 更新说明
 
+## v2.2.9 更新说明
+
+发布日期：2026-1-28
+
+### 主要更新
+
+- 新增 LPDDR3 支持，支持最高 1600MT/s
+- 新增 DDR 容量支持：768MB、1.5GB、3GB
+- 新增面板支持
+   - MIPI LCD jd9366tc
+   - MIPI DSI OLED co5300（支持 video 和 command 模式）
+   - MIPI LCD jd9366tcyh1095
+   - MIPI LCD icnl9951r
+- 新增 GigaDevice SPI NAND flash 支持
+- 更新 rtl8852bs 驱动
+- 新增 ES7243 Audio Codec 支持
+- 修复 aic8800 挂起期间设备忙的问题
+- 更新 impg-gpu-powervr、mesa3d、glmark2 仓库
+- 更新 k1x camera 仓库
+- 更新 k1x vpu 和 mpp 等多媒体相关库
+
 ## v2.2.7 更新说明
 
 发布日期：2025-8-13

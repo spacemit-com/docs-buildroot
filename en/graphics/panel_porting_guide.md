@@ -530,7 +530,7 @@ Below are the key logs of MIPI DSI Panel initialization during the U-Boot startu
 
 ## Kernel Screen Debugging
 
-For the functions and usage of the SpacemiT platform Display module, refer to: [SpacemiT Platform Display Module Introduction](https://sdk.spacemit.com/en/device/peripheral_driver/Display/)
+For the functions and usage of the SpacemiT platform Display module, refer to: [SpacemiT Platform Display Module](../device/peripheral_driver/12-Display.md)
 
 ### HDMI Configuration
 

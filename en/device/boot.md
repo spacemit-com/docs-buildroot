@@ -31,7 +31,7 @@ This section introduces configurations and implementation principles related to 
 
 > **Note:** Flashing and booting are closely connected. Customizing the flashing process may require adjusting the boot settings, and vice versa.
 
-### 2.1 Firmware Layout
+### Firmware Layout
 
 The K1 series SoC commonly supports the following **three** firmware layout schemes. Their key characteristics are described below:
 
@@ -468,7 +468,7 @@ To prepare an SD card for booting, use the **TitanFlash** tool or the `dd` comma
 **How to Create a Bootable SD Card (with TitanFlash)**
 
 1. Insert a TF (microSD) card into a card reader and connect it to your PC.
-2. Open the **TitanFlash** utility on your computer (installation guide: [TitanFlash Installation](https://developer.spacemit.com/documentation?token=P9EKwYIkti4EOOkvsgTcb9W3nUb)).
+2. Open the **TitanFlash** utility on your computer (installation guide: [TitanFlash Installation](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)).
 3. In the top menu, go to **Dev Tools → SDCard Boot Disk**.
 4. Choose the **Boot Card** and select the **flashing package**.
    ![TitanFlash Card Boot Tool](static/flash_tool_1.png)
@@ -505,7 +505,7 @@ The platform supports **two main methods** for flashing firmware images:
 - **TitanFlash Tool**
   Designed for general developers, TitanFlash offers a **full-featured, user-friendly GUI** for flashing complete image packages.
   For installation and usage, refer to the official documentation:
-  [TitanFlash User Guide](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
+  [TitanFlash User Guide](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)
 
 - **Fastboot Tool**
   Intended for advanced users who are comfortable with command-line tools.
@@ -516,12 +516,12 @@ The platform supports **two main methods** for flashing firmware images:
   - [Guide 1](https://www.jb51.net/article/271550.htm)
   - [Guide 2](https://blog.csdn.net/qq_34459334/article/details/140128714)
 
-> For information on how to build the firmware image, see: [Download and Build](https://sdk.spacemit.com/en/source)
+> For information on how to build the firmware image, see: [Download and Build](../source.md)
 
 ##### Boot Media Selection
 
 - The hardware platform supports boot media selection via the **Boot Download Sel Switch** (DIP switch).
-  For how to use this switch, refer to the [Boot Download Sel & JTAG Sel](https://developer.spacemit.com/documentation?token=HeDkwc7vhifW9UkyDMdc86iwnbb#4.3.2-boot-download-selection-configuration-circuit) section in the MUSE Pi user guide.
+  For how to use this switch, refer to the [Boot Download Sel & JTAG Sel](https://www.spacemit.com/community/document/info?lang=en&nodepath=hardware/eco/k1_muse_pi/pi_user_guide.md) section in the MUSE Pi user guide.
 
 - For other boards or custom solutions, please refer to their respective hardware manuals.
 
@@ -570,7 +570,7 @@ Based on the **Boot Pin** settings, BROM detects the selected boot device (e.g.,
 
 > For details on how to set Boot Pins, see **Boot Media Selection** in the **Flashing Tools** section.
 
-##### 2.3.1.2 bootinfo
+##### bootinfo
 
 After BROM starts, it reads `bootinfo` from offset **0 of the selected storage device**.
 For example, on eMMC, it reads from the start of the **boot0 partition**.
@@ -1166,7 +1166,7 @@ For example, update the public key information corresponding to the private key 
 
 This section introduces the key features of U-Boot and common configuration methods used in development.
 
-### 3.1  Functions
+### Functions
 
 The main functions of U-Boot are:
 
@@ -1182,7 +1182,7 @@ The main functions of U-Boot are:
 - **Driver Debugging**
   U-Boot provides a shell interface for testing hardware drivers including MMC, SPI, NAND, NOR, NVMe, etc. All drivers are located under the `drivers/` directory of the U-Boot source tree.
 
-### 3.2 Compilation
+### Compilation
 
 This section describes how to compile U-Boot images from the codebase.
 
@@ -1257,8 +1257,6 @@ arch/riscv/dts/k1-x_spl.dts
 
 This section outlines how to use and debug drivers within U-Boot.
 By default, all necessary drivers are enabled in the build configuration, no manual activation is required.
-
----
 
 ### Booting the Linux Kernel
 
@@ -1985,7 +1983,7 @@ List of MTD devices:
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/mtd.c`.
 
-### 4.8  NOR Configuration and Debugging
+### NOR Configuration and Debugging
 
 The NOR driver is based on SPI, so it's necessary to first enable the SPI driver functionality. This section explains how to configure and debug the NOR driver.
 
@@ -3202,7 +3200,7 @@ index 801895d7d4..3f633d30a1 100644
 2.25.1
 ```
 
-### 6.7 Flashing gzip format image file is not supported
+### Flashing gzip format image file is not supported
 
 To speed up USB transfers of large image files, SpacemiT’s flashing process compresses them using gzip. By default, the flashing service detects and decompresses gzip data automatically.
 

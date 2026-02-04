@@ -6,6 +6,6 @@ sidebar_position: 10
 
 常用工具：
 
-- [刷机工具](https://developer.spacemit.com/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)
-- [交叉编译工具链](https://developer.spacemit.com/documentation?token=S66mw1ouRio4dUkqGvkcw7LEnJh)
-- [调试工具](https://developer.spacemit.com/documentation?token=XQmBwcFGmihhK5k5PRGcWLnHnlg)
+- [刷机工具](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)
+- [交叉编译工具链](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/cross_compiler_user_guide.md)
+- [调试工具](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/jtag_debug_user_guide.md)

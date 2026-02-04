@@ -12,4 +12,4 @@ sidebar_position: 2
 
 ## 刷机
 
-Titan Flasher刷机参考[刷机工具使用手册](https://developer.spacemit.com/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)。
+Titan Flasher刷机参考[刷机工具使用手册](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)。

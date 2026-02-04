@@ -12,4 +12,4 @@ Image URL: [Buildroot Image](https://archive.spacemit.com/image/k1/version/bianb
 
 ## Flashing
 
-Refer to the [Flashing Tool User Manual](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh) for flashing via Titan Flasher.
+Refer to the [Flashing Tool User Manual](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md) for flashing via Titan Flasher.
