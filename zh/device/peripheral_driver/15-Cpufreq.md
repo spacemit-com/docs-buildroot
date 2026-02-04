@@ -65,25 +65,25 @@ drivers/cpufreq/
 
 
 1. 将策略修改成 userspace 模式
-```
-echo userspace > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
-```
+   ```
+   echo userspace > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+   ```
 
 2. 查看所支持的频率列表
-```
-cat /sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies
-614400 819000 1000000 1228800 1600000
-```
+   ```
+   cat /sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies
+   614400 819000 1000000 1228800 1600000
+   ```
 
 3. 设置cpu频率
-```
-echo 1228800 > /sys/devices/system/cpu/cpufreq/policy0/scaling_setspeed
-```
+   ```
+   echo 1228800 > /sys/devices/system/cpu/cpufreq/policy0/scaling_setspeed
+   ```
 
 4. 查看频率是否设置成功
-```
-cat /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq
-```
+   ```
+   cat /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq
+   ```
 
 ## 配置介绍
 

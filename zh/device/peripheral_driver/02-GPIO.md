@@ -101,7 +101,7 @@ GPIO 的使用分三步：
 
 采用 `pinctrl-single,gpio-range` 属性设置。如果存在某段pin编号连续且配置相同，则配置为一组。
 
-pin配置参数参考[pin配置参数](01-PINCTRL.md)。
+pin配置参数参考此文件的[pin配置参数](01-PINCTRL.md)。
 
 例如：
 

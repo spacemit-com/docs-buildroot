@@ -5,6 +5,7 @@ sidebar_position: 1
 # Buildroot 1.0 更新说明 [已停服]
 
 ## Buildroot 1.0 停服公告  
+
 Buildroot V1.0 基于linux-6.1内核构建，现已决定对Buildroot V1.0停止维护（End of Life）。
 | 版本 | 停止支持日期 | 延长生命周期（Extended Life-cycle Support, ELS）停止日期|
 | :-----| :----| :----|

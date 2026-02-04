@@ -435,9 +435,9 @@ K1 平台支持卡启动，并且在启动时会**优先尝试从 SD 卡启动**
 **使用刷机工具制作卡启动镜像：**
 
 1. 将 TF 卡插入读卡器，并连接到电脑的 USB 接口。
-2. 打开电脑端的 **TitanFlash 刷机工具**（安装方式请参考 [TitanFlash 安装](https://developer.spacemit.com/documentation?token=EW5mwVyi8iGXjckrnU0ccQOhnGf)）。
+2. 打开电脑端的 **TitanFlash 刷机工具**（安装方式请参考 [TitanFlash 安装](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)）。
 3. 点击顶部菜单栏中的 **研发工具 → 卡启动**。
-4. 点击对应的 **选择SD卡** 和 **选择刷机包**。
+4. 点击对应的 **选择 SD卡** 和 **选择刷机包**。
 ![alt text](static/flash_tool_1.png)
 5. 点击 **执行**，开始烧写镜像。
 6. 烧写成功后，将 TF 卡插入设备，上电后设备即可实现卡启动。
@@ -468,7 +468,7 @@ K1 平台支持卡量产烧录。通过 **TitanFlash 工具** 可将 SD 卡制�
 
 - **TitanFlash 刷机工具**：
   面向一般开发者，适用于完整刷机包的烧写，界面友好、功能完整。
-  工具的安装与使用说明详见官方文档：[TitanFlash 使用手册](https://developer.spacemit.com/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)
+  工具的安装与使用说明详见官方文档：[TitanFlash 使用手册](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)
 
 - **Fastboot 工具**：
   面向具备一定开发能力的用户，适合进行单个分区的镜像烧写。
@@ -478,12 +478,12 @@ K1 平台支持卡量产烧录。通过 **TitanFlash 工具** 可将 SD 卡制�
   - [参考链接 1](https://www.jb51.net/article/271550.htm)
   - [参考链接 2](https://blog.csdn.net/qq_34459334/article/details/140128714)
 
-> 固件镜像的生成方式，请参考文档：[下载和编译](https://sdk.spacemit.com/source)
+> 固件镜像的生成方式，请参考文档：[下载和编译](../source.md)
 
 ##### 刷机介质选择
 
 - 硬件平台支持通过 **Boot Download Sel Switch 拨码开关** 切换启动介质。
-  具体使用方法可参考 MUSE Pi 用户指南中的 [Boot Download Sel & JTAG Sel](https://developer.spacemit.com/documentation?token=ZugWwIVmkiGNAik55hzc4C3Ln6d) 章节。
+  具体使用方法可参考 MUSE Pi 用户指南中的 [Boot Download Sel & JTAG Sel](https://www.spacemit.com/community/document/info?lang=zh&nodepath=hardware/eco/k1_muse_pi/pi_user_guide.md) 章节。
 
 - 其他平台或方案，请参考对应的硬件用户使用手册。
 
@@ -2139,15 +2139,15 @@ ret = spi_flash_read(flash, offset, len, buf);
    **进入 Device Drivers -> Graphics support**  
    在 `make uboot_menuconfig` 菜单中，进入 **Device Drivers** -> **Graphics support**，开启以下配置(默认情况下已开启)。
 
-![a](static/GeszbbETBojI9KxyCWBcPM7fnHe.png)
+   ![a](static/GeszbbETBojI9KxyCWBcPM7fnHe.png)
 
-![a](static/MXYNbqJwjoNsdhxsBT2clnTSn1e.png)
+   ![a](static/MXYNbqJwjoNsdhxsBT2clnTSn1e.png)
 
-![a](static/MX60b8b2uoLDLaxHlJlcTyc7nte.png)
+   ![a](static/MX60b8b2uoLDLaxHlJlcTyc7nte.png)
 
-![a](static/Sm8hbLmawoxfMdxrMlBcJMVInHd.png)
+   ![a](static/Sm8hbLmawoxfMdxrMlBcJMVInHd.png)
 
-![a](static/NuSSbshdfon2mWxWZU6cEipvnwf.png)
+   ![a](static/NuSSbshdfon2mWxWZU6cEipvnwf.png)
 
 2. **dts 配置**
 
@@ -2274,8 +2274,8 @@ UBOOT_LOGO_FILE="$DEVICE_DIR/bianbu.bmp"
      ![a](static/UEhPbxaIgoXpv8xBh52cn7Vdndb.png)
 
 2. **env 配置**
-在 `buildroot-ext/board/spacemit/k1/env_k1-x.txt` 文件中，需要添加 `bootdelay` 和 `bootmenu_delay` 环境变量。
-例如：
+   在 `buildroot-ext/board/spacemit/k1/env_k1-x.txt` 文件中，需要添加 `bootdelay` 和 `bootmenu_delay` 环境变量。
+   例如：
    - `bootmenu_delay=5` 表示系统会在启动菜单界面等待 5 秒，用户可以选择启动选项。
    - `bootdelay=5` 表示选择启动方式后，系统在真正启动前再等待 5 秒。
 

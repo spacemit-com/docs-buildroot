@@ -858,12 +858,12 @@ Aborting!
 
 1. **DDR 容量配置异常**
    - 需要通过烧号工具重新写 CS 值，保证容量识别正常。
-   - 写号工具集成到刷机工具中，参考：[工具链接](https://developer.spacemit.com/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)
+   - 写号工具集成到刷机工具中，参考：[工具链接](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)
 
 2. **DDR 稳定性异常（memtest 不通过）**
    - 检查 DDR 是否在 SpacemiT 官方支持列表中。
    - 如果不在，请使用在支持列表中的物料，或者将 DDR 型号告诉 SpacemiT，待压测入支持列表后继续使用。
-   - 支持列表查询：[DDR 支持列表](https://developer.spacemit.com/documentation?token=MHrtw0FymiAJFNkRsXjc46ygnDh&type=file)
+   - 支持列表查询：[DDR 支持列表](https://www.spacemit.com/community/document/info?lang=zh&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_avl.md)
 
 3. **更新后异常重启**
    - 建议通过 U-Boot shell 修改 env, 选择上一个版本的 Image 加载。
@@ -938,12 +938,12 @@ Unable to handle kernel paging request at virtual address ffffffdb33e98040
 
 1. **DDR 容量配置异常**
    - 需要通过烧号工具重新写 CS 值，保证容量识别正常。
-   - 写号工具集成到刷机工具中，参考：[工具链接](https://developer.spacemit.com/documentation?token=O6wlwlXcoiBZUikVNh2cczhin5d)
+   - 写号工具集成到刷机工具中，参考：[工具链接](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)
 
 2. **DDR 稳定性异常（memtest 不通过）**
    - 检查 DDR 是否在 SpacemiT 官方支持列表中。
    - 如果不在，请使用在支持列表中的物料，或者将 DDR 型号告诉 SpacemiT，待压测入支持列表后继续使用。
-   - 支持列表查询：[DDR 支持列表](https://developer.spacemit.com/documentation?token=MHrtw0FymiAJFNkRsXjc46ygnDh&type=file)
+   - 支持列表查询：[DDR 支持列表](https://www.spacemit.com/community/document/info?lang=zh&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_avl.md)
 
 3. **开启 KASAN 检测内存问题**
    - 使能 KASAN，配置 `KASAN=Y` 后编译运行

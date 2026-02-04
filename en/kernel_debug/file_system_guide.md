@@ -935,12 +935,12 @@ There are three common ways to enable `memblock` debug information:
 
 1. **DDR Capacity Misconfiguration**
    - Use the flashing tool to rewrite the CS values to ensure correct capacity recognition.
-   - The flashing tool is integrated into the firmware update tool, see: [Tool Link](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
+   - The flashing tool is integrated into the firmware update tool, see: [Tool Link](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)
 
 2. **DDR Stability Issues (memtest Fails)**
    - Verify that the DDR is listed in the official SpacemiT supported list.
    - If not, use DDR modules from the supported list, or provide the DDR model to SpacemiT to include it after stress testing.
-   - Supported DDR list: [DDR Support List](https://developer.spacemit.com/documentation?token=MHrtw0FymiAJFNkRsXjc46ygnDh&type=file)
+   - Supported DDR list: [DDR Support List](https://www.spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_avl.md)
 
 3. **Unexpected Reboot After Update**
    - Modify `env` in U-Boot shell to select the previous Image version.
@@ -1019,13 +1019,13 @@ Unable to handle kernel paging request at virtual address ffffffdb33e98040
 1. **DDR Capacity Misconfiguration**
 
    - Rewrite the CS value using the flashing tool to ensure correct DDR capacity recognition.
-   - The flashing tool is integrated into the firmware flashing toolset. See: [Tool Link](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
+   - The flashing tool is integrated into the firmware flashing toolset. See: [Tool Link](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)
 
 2. **DDR Stability Issues (memtest Failures)**
 
    - Check whether the DDR module is listed in the official SpacemiT supported list.
    - If not, either use DDR modules from the supported list or provide the DDR model to SpacemiT for stress testing and possible inclusion in the support list.
-   - Supported DDR list: [DDR Supported List](https://developer.spacemit.com/documentation?token=MHrtw0FymiAJFNkRsXjc46ygnDh&type=file)
+   - Supported DDR list: [DDR Supported List](https://www.spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_avl.md)
 
 3. **Enable KASAN for Memory Issue Detection**
 

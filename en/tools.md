@@ -6,6 +6,6 @@ sidebar_position: 10
 
 Commonly used tools:
 
-- [Firmware Update Tool](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
-- [Cross-Compilation Toolchain](https://developer.spacemit.com/documentation?token=BZfYwFfEmiSr7dkintEca9ERn3b)
-- [Debugging Tools](https://developer.spacemit.com/documentation?token=ECBzwMn61i8WjWkP7EzccDAonHh)
+- [Firmware Update Tool](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)
+- [Cross-Compilation Toolchain](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/cross_compiler_user_guide.md)
+- [Debugging Tools](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/jtag_debug_user_guide.md)

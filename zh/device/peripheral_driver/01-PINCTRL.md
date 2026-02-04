@@ -78,7 +78,7 @@ K1 pin 编号范围 **1~147**，对应宏定义 `GPIO_00 ~ GPIO_127`。
 
 K1 pin 支持复用选择。
 
-K1 pin 复用功能列表见 [K1 Pin Multiplex](https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file)。
+K1 pin 复用功能列表见 [K1 Pin Multiplex](https://www.spacemit.com/community/document/info?lang=zh&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_resources.md)。
 
 pin 的复用功能号为 **0~7**，分别定义为 `MUX_MODE0 ~ MUX_MODE7`。
 
@@ -135,7 +135,7 @@ pin 的属性包括 **边沿检测**、**上下拉** 和 **驱动能力**。
 
 示例：将 pin GPIO_00 设置为 gmac0 rxdv 功能，且关闭边沿检测，关闭上下拉，驱动能力设置为 2 (1.8V)。
 
-查看 K1 pin 功能复用列表 [K1 Pin Multiplex](https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file)，GPIO_00 要设置成 gmac0 rxdv 功能，需要设置功能模式为 1, 即 MUX_MODE1。
+查看 K1 pin 功能复用列表 [K1 Pin Multiplex](https://www.spacemit.com/community/document/info?lang=zh&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_resources.md)，GPIO_00 要设置成 gmac0 rxdv 功能，需要设置功能模式为 1, 即 MUX_MODE1。
 
 设置如下:
 

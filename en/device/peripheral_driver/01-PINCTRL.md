@@ -77,7 +77,7 @@ The K1 pin numbers range is **1 - 147**, corresponding to the macro definitions 
 
 K1 pins support multiplexing selection.
 
-The K1 pin multiplexing function list can be found at [K1 Pin Multiplex](https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file).
+The K1 pin multiplexing function list can be found at [K1 Pin Multiplex](https://www.spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_resources.md).
 
 The multiplexing function numbers for pins range from **0 to 7**, defined as `MUX_MODE0 to MUX_MODE7`.
 
@@ -134,7 +134,7 @@ Use the macro `K1X_PADCONF` for configuration, with the format **pin_id, mux_mod
 
 Example: Set pin GPIO_00 to the gmac0 rxdv function, disable edge detection, disable pull-up/pull-down, and set the drive strength to 2 (1.8V).
 
-Check the K1 pin multiplexing function list [K1 Pin Multiplex] (<https://developer.spacemit.com/documentation?token=CzJlwnDYNigRgDk7qS2cvYHPnkh&type=file>). To set GPIO_00 to the gmac0 rxdv function, the function mode needs to be set to 1, that is, MUX_MODE1.
+Check the K1 pin multiplexing function list [K1 Pin Multiplex] (<https://www.spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_resources.md>). To set GPIO_00 to the gmac0 rxdv function, the function mode needs to be set to 1, that is, MUX_MODE1.
 
 Configure as follows:
 

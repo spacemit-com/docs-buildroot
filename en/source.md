@@ -221,7 +221,7 @@ Successfully generated at /home/username/work/buildroot-sdk/output/k1_v2/images/
 - `buildroot-k1_v2.zip` is suitable for use with Titan Flasher. Alternatively, you can unzip it and flash it using Fastboot.
 - `buildroot-k1_v2-sdcard.img` is the sdcard firmware, which can be written to the sdcard using the dd command or [balenaEtcher](https://etcher.balena.io/) after unzipping.
 
-> Titan Flasher User Guide: [Flashing Tool User Guide](https://developer.spacemit.com/documentation?token=B9JCwRM7RiBapHku6NfcPCstnqh)
+> Titan Flasher User Guide: [Flashing Tool User Guide](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md)
 
 The default username for the firmware is `root`, and the password is `bianbu`.
 

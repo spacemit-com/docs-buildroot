@@ -4,6 +4,27 @@ sidebar_position: 1
 
 # Buildroot 2.2 Release Notes
 
+## v2.2.9 release note
+
+Release date: 2026-1-28
+
+### Major Updates
+
+- Added support for LPDDR3, with maximum speed up to 1600MT/s
+- Added support for DDR capacity: 768MB, 1.5GB, 3GB
+- Added support for new panels
+   - MIPI LCD jd9366tc
+   - MIPI DSI OLED co5300 (supports both video and command modes)
+   - MIPI LCD jd9366tcyh1095
+   - MIPI LCD icnl9951r
+- Added support for GigaDevice SPI NAND flash
+- Updated rtl8852bs driver
+- Added support for ES7243 Audio Codec
+- Fixed the device busy issue during aic8800 suspend
+- Updated impg-gpu-powervr, mesa3d, glmark2 repositories
+- Updated k1x camera repository
+- Updated k1x vpu, mpp, and other multimedia-related libraries
+
 ## v2.2.7 release note
 
 Release date: 2025-8-13
