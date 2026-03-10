@@ -8,7 +8,7 @@ sidebar_position: 2
 
 ## 下载
 
-镜像地址：[Buildroot Image](https://archive.spacemit.com/image/k1/version/bianbu-linux/)。
+镜像地址：[Buildroot Image](https://archive.spacemit.com/image/k3/version/buildroot/)。
 
 ## 刷机
 
