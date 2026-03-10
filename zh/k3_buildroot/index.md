@@ -8,6 +8,7 @@ sidebar_position: 2
 - [镜像](image.md)
 - [源码](source.md)
 - [更新说明](./release_notes/index.md)
+- [ESOS 开发](./esos/index.md)
 - [设备开发](./device/index.md)
 - [相机开发](./camera/index.md)
 - [多媒体](./media/index.md)
