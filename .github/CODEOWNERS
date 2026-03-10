@@ -1,5 +1,181 @@
 # fallback match
 * @junlin-luo-spacemit @jing-liu-spacemit
 
-# peripheral driver
+# Introduction/Overview
+/zh/root_overview.md @jing-liu-spacemit
+/en/root_overview.md @jing-liu-spacemit
+
+# Tools
+/zh/tools.md @jing-liu-spacemit
+/en/tools.md @jing-liu-spacemit
+
+# Images
+/zh/**/image.md @jing-liu-spacemit
+/en/**/image.md @jing-liu-spacemit
+
+# Release notes
+/**/release_notes/ @jing-liu-spacemit
+
+# ESOS dev guide
+/zh/**/esos/esos_dev_guide.md @ljysy
+/en/**/esos/esos_dev_guide.md @ljysy
+
+# ESOS drivers
+/zh/**/esos/esos_driver/gpio.md 
+/en/**/esos/esos_driver/gpio.md 
+
+/zh/**/esos/esos_driver/pwm.md 
+/en/**/esos/esos_driver/pwm.md 
+
+/zh/**/esos/esos_driver/pinctrl.md 
+/en/**/esos/esos_driver/pinctrl.md 
+
+/zh/**/esos/esos_driver/i2c.md 
+/en/**/esos/esos_driver/i2c.md 
+
+/zh/**/esos/esos_driver/spi.md @ljysy
+/en/**/esos/esos_driver/spi.md @ljysy
+
+/zh/**/esos/esos_driver/rtimer.md @ljysy
+/en/**/esos/esos_driver/rtimer.md @ljysy
+
+/zh/**/esos/esos_driver/rcan.md 
+/en/**/esos/esos_driver/rcan.md 
+
+/zh/**/esos/esos_driver/ruart.md 
+/en/**/esos/esos_driver/ruart.md 
+
+/zh/**/esos/esos_driver/rgmac.md 
+/en/**/esos/esos_driver/rgmac.md 
+
+# Device Management
+/zh/**/device/device_management.md @jing-liu-spacemit
+/en/**/device/device_management.md @jing-liu-spacemit
+
+# Solution Management 
+/zh/**/device/solution_management.md @jing-liu-spacemit
+/en/**/device/solution_management.md @jing-liu-spacemit
+
+# Boot Guide
+/zh/**/device/boot.md
+/en/**/device/boot.md
+
+# Standby
+/zh/**/device/standby.md
+/en/**/device/standby.md
+
+# Product Line Tool
+/zh/**/device/plt.md @jing-liu-spacemit
+/en/**/device/plt.md @jing-liu-spacemit
+
+# peripheral drivers
+
+/zh/**/device/peripheral_driver/01-PINCTRL.md
+/en/**/device/peripheral_driver/01-PINCTRL.md
+
+/zh/**/device/peripheral_driver/02-GPIO.md
+/en/**/device/peripheral_driver/02-GPIO.md
+
+/zh/**/device/peripheral_driver/03-PWM.md
+/en/**/device/peripheral_driver/03-PWM.md
+
+/zh/**/device/peripheral_driver/04-IR-RX.md
+/en/**/device/peripheral_driver/04-IR-RX.md
+
+/zh/**/device/peripheral_driver/05-UART.md
+/en/**/device/peripheral_driver/05-UART.md
+
+/zh/**/device/peripheral_driver/06-I2C.md
+/en/**/device/peripheral_driver/06-I2C.md
+
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy
+/en/**/device/peripheral_driver/07-QSPI.md @ljysy
+
+/zh/**/device/peripheral_driver/08-SDHC.md @ljysy
+/en/**/device/peripheral_driver/08-SDHC.md @ljysy
+
+/zh/**/device/peripheral_driver/09-GAMC.md
+/en/**/device/peripheral_driver/09-GAMC.md
+
+/zh/**/device/peripheral_driver/10-USB/
+/en/**/device/peripheral_driver/10-USB/
+
+/zh/**/device/peripheral_driver/11-PCIe.md
+/en/**/device/peripheral_driver/11-PCIe.md
+
+/zh/**/device/peripheral_driver/12-Display.md
+/en/**/device/peripheral_driver/12-Display.md
+
+/zh/**/device/peripheral_driver/13-V2D.md
+/en/**/device/peripheral_driver/13-V2D.md
+
+/zh/**/device/peripheral_driver/14-PMIC.md
+/en/**/device/peripheral_driver/14-PMIC.md
+
+/zh/**/device/peripheral_driver/15-CAN.md
+/en/**/device/peripheral_driver/15-CAN.md
+
+/zh/**/device/peripheral_driver/15-Cpufreq.md
+/en/**/device/peripheral_driver/15-Cpufreq.md
+
+/zh/**/device/peripheral_driver/16-Clock.md
+/en/**/device/peripheral_driver/16-Clock.md
+
+/zh/**/device/peripheral_driver/17-Audio.md
+/en/**/device/peripheral_driver/17-Audio.md
+
+/zh/**/device/peripheral_driver/18-CRYPTO.md @ljysy
+/en/**/device/peripheral_driver/18-CRYPTO.md @ljysy
+
+/zh/**/device/peripheral_driver/21-DMA.md
+/en/**/device/peripheral_driver/21-DMA.md
+
+/zh/**/device/peripheral_driver/22-EtherCAT.md
+/en/**/device/peripheral_driver/22-EtherCAT.md
+
+/zh/**/device/peripheral_driver/23-WDT.md
+/en/**/device/peripheral_driver/23-WDT.md
+
+/zh/**/device/peripheral_driver/BT.md
+/en/**/device/peripheral_driver/BT.md
+
+/zh/**/device/peripheral_driver/ddr.md
+/en/**/device/peripheral_driver/ddr.md
+
+/zh/**/device/peripheral_driver/gpadc.md
+/en/**/device/peripheral_driver/gpadc.md
+
+/zh/**/device/peripheral_driver/rtc.md 
+/en/**/device/peripheral_driver/rtc.md
+
+/zh/**/device/peripheral_driver/SPI.md @ljysy
+/en/**/device/peripheral_driver/SPI.md @ljysy
+
+/zh/**/device/peripheral_driver/thermal.md 
+/en/**/device/peripheral_driver/thermal.md
+
+/zh/**/device/peripheral_driver/WIFI.md 
+/en/**/device/peripheral_driver/WIFI.md
+
+# Camera
+/zh/**/camera/ @qiang-fu-spacemit
+/en/**/camera/ @qiang-fu-spacemit
+
+# Media
+/zh/**/media/ @qiang-fu-spacemit
+/en/**/media/ @qiang-fu-spacemit
+
+# Graphics
+/zh/**/graphics/ 
+/en/**/graphics/ 
+
+/zh/**/graphics/panel_porting_guide.md 
+/en/**/graphics/panel_porting_guide.md 
+
+# Kernel Debug
+/zh/**/kernel_debug/ @ljysy
+/en/**/kernel_debug/ @ljysy
+
+# FAQ
+/zh/faqs.md @jing-liu-spacemit
+/en/faqs.md @jing-liu-spacemit
