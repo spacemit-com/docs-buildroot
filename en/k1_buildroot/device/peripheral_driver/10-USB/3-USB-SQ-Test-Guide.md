@@ -1,6 +1,6 @@
 sidebar_position: 3
 
-# USB 信号质量测试指南
+# USB Signal Quality Test Guide
 
 > English version is coming soon...
 
