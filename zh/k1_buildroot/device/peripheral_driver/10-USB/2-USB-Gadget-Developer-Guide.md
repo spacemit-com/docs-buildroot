@@ -10,22 +10,22 @@ sidebar_position: 2
 
 USB Linux Gadget 功能使得开发板可以作为一个 USB 外设通过 USB 接口接入到 USB 主机。
 
-如使开发板作为一个 U 盘， USB 网卡， USB 串口等设备。
+如使开发板作为 U 盘、USB 网卡、USB 串口等设备。
 
-我们生活中把手机通过 USB 连接到 PC 上，可以传输数据、 ADB 调试、共享网络等功能，就是基于 USB Linux Gadget 实现。
+我们生活中把手机通过 USB 连接到 PC 上，可以传输数据、ADB 调试、共享网络等功能，就是基于 USB Linux Gadget 实现。
 
 ![](../static/USB/usbg-framework.png)
 
-USB Device 角色驱动框架自底向上可以分为以下几个层次：  
+USB Device 角色驱动框架自底向上可以分为以下几个层次：
 
-- **USB Device Controller Driver：** 这是 USB Device 角色控制器驱动层，负责初始化控制器硬件及进行底层数据收发操作。  
-- **UDC Core：** 这是核心层，负责抽象出 USB Device 层次和基于 usb_request 的传输，并提供接口供上下交互使用。  
-- **Composite Layer：** 为了让单个 Linux 终端作为 Gadget 时方便支持多个接口从而实现单个物理设备作为 USB 多功能外设， Linux USB Gadget 框架依据 USB2.0 ECN Interface Association Descriptor(IAD) 实现了 Composite Driver 中间层，从而上层只需要实现 function 驱动即可，用户可以自由组合这些 functions 形成一个多功能设备。 Composite layer 支持用户空间通过 configfs 配置，或者 legacy 驱动硬编码组合好的 Functions，我们下文都是基于 configfs 配置方法进行说明，不建议再使用 legacy 驱动。  
-- **Function Driver：** 这是 USB Device 功能层，负责实现 USB Device 模式的功能驱动，对接内核其他框架（如存储、 V4L2 、网络等）。  
-- **Configfs API：** configfs 是 Linux 内核中一个通过让用户创建、编辑目录结构和文件来配置内核功能的子系统， USB Gadget API 框架中，用户主要通过操作 configfs 的 usb_gadget 子目录下的目录结构、属性文件来进行 function driver、 USB 协议相关元信息配置（图中省去）。更多信息可以参考内核中的 Linux USB gadget configured through configfs 文档。
-- **Userspace：** 大部分 USB gadget function 都依赖应用层的配置或与 Linux 的其他子系统的 API 交互，如网卡 gadget 需要用户完成网络配置， U 盘 gadget 需要用户完成块设备或文件系统配置（框图中省去这部分子系统的部分）。部分 USB gadget function 还需要应用层的服务才能够正常工作，如 ADB (Android Debug Bridge) 功能、 MTP 功能等。
+- **USB Device Controller Driver：** 这是 USB Device 角色控制器驱动层，负责初始化控制器硬件及进行底层数据收发操作。
+- **UDC Core：** 这是核心层，负责抽象出 USB Device 层次和基于 usb_request 的传输，并提供接口供上下交互使用。
+- **Composite Layer：** 为了让单个 Linux 终端作为 Gadget 时方便支持多个接口从而实现单个物理设备作为 USB 多功能外设，Linux USB Gadget 框架依据 USB2.0 ECN Interface Association Descriptor (IAD) 实现了 Composite Driver 中间层，从而上层只需要实现 function 驱动即可。用户可以自由组合这些 functions 形成一个多功能设备。Composite layer 支持用户空间通过 configfs 配置，或者 legacy 驱动硬编码组合好的 Functions。我们下文都是基于 configfs 配置方法进行说明，不建议再使用 legacy 驱动。
+- **Function Driver：** 这是 USB Device 功能层，负责实现 USB Device 模式的功能驱动，对接内核其他框架（如存储、V4L2、网络等）。
+- **Configfs API：** configfs 是 Linux 内核中一个通过让用户创建、编辑目录结构和文件来配置内核功能的子系统。USB Gadget API 框架中，用户主要通过操作 configfs 的 usb_gadget 子目录下的目录结构、属性文件来进行 function driver、USB 协议相关元信息配置（图中省去）。更多信息可以参考内核中的 Linux USB gadget configured through configfs 文档。
+- **Userspace：** 大部分 USB gadget function 都依赖应用层的配置或与 Linux 的其他子系统的 API 交互，如网卡 gadget 需要用户完成网络配置，U 盘 gadget 需要用户完成块设备或文件系统配置（框图中省去这部分子系统的部分）。部分 USB gadget function 还需要应用层的服务才能够正常工作，如 ADB (Android Debug Bridge) 功能、MTP 功能等。
 
-这些层次结构共同构成了 Linux 系统中 USB 子系统的框架，确保了 USB 模块系统中的正常运行和数据传输。
+这些层次结构共同构成了 Linux 系统中 USB 子系统的框架，确保 USB 模块的正常运行和数据传输。
 
 内核文档参考资料：
 
