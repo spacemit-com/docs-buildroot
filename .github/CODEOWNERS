@@ -30,8 +30,8 @@
 /zh/**/esos/esos_driver/pinctrl.md 
 /en/**/esos/esos_driver/pinctrl.md 
 
-/zh/**/esos/esos_driver/i2c.md 
-/en/**/esos/esos_driver/i2c.md 
+/zh/**/esos/esos_driver/i2c.md @yeshan-li-spacemit
+/en/**/esos/esos_driver/i2c.md @yeshan-li-spacemit
 
 /zh/**/esos/esos_driver/spi.md @ljysy
 /en/**/esos/esos_driver/spi.md @ljysy
@@ -57,8 +57,8 @@
 /en/**/device/solution_management.md @jing-liu-spacemit
 
 # Boot Guide
-/zh/**/device/boot.md
-/en/**/device/boot.md
+/zh/**/device/boot.md @zhouxl756 @GM2020JLU
+/en/**/device/boot.md @zhouxl756 @GM2020JLU
 
 # Standby
 /zh/**/device/standby.md
@@ -85,8 +85,8 @@
 /zh/**/device/peripheral_driver/05-UART.md
 /en/**/device/peripheral_driver/05-UART.md
 
-/zh/**/device/peripheral_driver/06-I2C.md
-/en/**/device/peripheral_driver/06-I2C.md
+/zh/**/device/peripheral_driver/06-I2C.md @yeshan-li-spacemit
+/en/**/device/peripheral_driver/06-I2C.md @yeshan-li-spacemit
 
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy
 /en/**/device/peripheral_driver/07-QSPI.md @ljysy
@@ -162,19 +162,19 @@
 /en/**/camera/ @qiang-fu-spacemit
 
 # Media
-/zh/**/media/ @qiang-fu-spacemit
-/en/**/media/ @qiang-fu-spacemit
+/zh/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
+/en/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
 
 # Graphics
-/zh/**/graphics/ 
-/en/**/graphics/ 
+/zh/**/graphics/ @yeshan-li-spacemit
+/en/**/graphics/ @yeshan-li-spacemit
 
 /zh/**/graphics/panel_porting_guide.md 
 /en/**/graphics/panel_porting_guide.md 
 
 # Kernel Debug
-/zh/**/kernel_debug/ @ljysy
-/en/**/kernel_debug/ @ljysy
+/zh/**/kernel_debug/ @ljysy @yeshan-li-spacemit
+/en/**/kernel_debug/ @ljysy @yeshan-li-spacemit
 
 # FAQ
 /zh/faqs.md @jing-liu-spacemit
