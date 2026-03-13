@@ -97,8 +97,8 @@
 /zh/**/device/peripheral_driver/09-GAMC.md
 /en/**/device/peripheral_driver/09-GAMC.md
 
-/zh/**/device/peripheral_driver/10-USB/
-/en/**/device/peripheral_driver/10-USB/
+/zh/**/device/peripheral_driver/10-USB/ @rzbdz
+/en/**/device/peripheral_driver/10-USB/ @rzbdz
 
 /zh/**/device/peripheral_driver/11-PCIe.md
 /en/**/device/peripheral_driver/11-PCIe.md

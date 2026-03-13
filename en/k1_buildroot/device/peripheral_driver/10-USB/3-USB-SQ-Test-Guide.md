@@ -1,28 +1,24 @@
 sidebar_position: 3
 
-# USB 信号质量测试指南
+# USB Signal Quality Test Guide
 
-> English version is coming soon...
+## USB 2.0 Test Guide
 
-## USB 2.0 测试指南
+The complete USB 2.0 electrical signal quality test content can be found on [USB 2.0 Electrical Compliance Specification | USB-IF Document Library](https://www.usb.org/document-library/usb-20-electrical-compliance-test-specification-version-107).
 
-完整的 USB 2.0 电气信号质量测试内容可以在 USB-IF 官网中找到：
+Main test items：
 
-- [USB 2.0 Electrical Compliance Specification | USB-IF Document Library](https://www.usb.org/document-library/usb-20-electrical-compliance-test-specification-version-107)
-
-主要有：
-
-- 眼图
-- 信号速率
-- 上升下降时间
-- 单调性测试
+- Eye Diagram
+- Signal Rate
+- Rise and Fall Time
+- Monotonicity Test
   
-等测试项。
+and other test items.
 
-具体测试步骤根据相应测试仪器（示波器）或对应测试实验室的指南进行，
-这里介绍如何让 K1 USB 控制器产生相应的测试波形。
+The specific test procedures shall follow the guidelines provided by the corresponding test instrument (oscilloscope) or test laboratory.
+This section describes how to generate the required test waveforms using the K1 USB controller.
 
-USB2.0 的测试波形 (Test pattern) 选项有以下几种（具体可参考 USB 2.0 Spec 7.1.20 ）：
+The USB 2.0 test pattern options are listed below (for details, refer to USB 2.0 Spec Section 7.1.20):
 
 - Test SE0 NAK
 - Test J
@@ -30,161 +26,159 @@ USB2.0 的测试波形 (Test pattern) 选项有以下几种（具体可参考 US
 - Test Packet 
 - Test Force Enable
 
-测试上升下降时间、眼图、抖动、其他动态波形规范等信号质量时选用的是 Test Packet 的 Test pattern，具体的测试包组成，参阅 USB 2.0 Spec 7.1.20 。
+When testing signal quality such as rise/fall time, eye diagram, jitter, and other dynamic waveform specifications, the Test Packet test pattern shall be used. For the specific test packet structure, refer to USB 2.0 Specification Section 7.1.20.
 
 
-### USB 2.0 Device 信号质量测试指南
+### USB 2.0 Device Signal Quality Test Guide
 
-Device 模式下，测试波形是支持以下两种方式，根据测试环境遍历任选其一即可：
--  上位机使用 xHCI Electrical Test Tool 配置测试波形： Host 安装 USB-IF 的标准测试工具 [xHCI Electrical Test Tool](https://www.usb.org/document-library/xhsett) ，向设备发送控制包 Set Feature(Test Packet) 实现。
--  K1 使用 Linux DebugFS 进行配置： Device 端直接操作控制器，进行配置， K1 SDK 上是通过 linux debugfs 节点进行配置。
+In Device mode, the test waveform can be generated using either of the following two methods. Either method may be selected according to the test environment.
+-  The test waveform is configured by the host using the [xHCI Electrical Test Tool](https://www.usb.org/document-library/xhsett): Install the USB-IF standard test tool xHCI Electrical Test Tool on the host, and implement it by sending the control packet Set Feature(Test Packet) to the device.
+-  Configuration of K1 is performed via Linux DebugFS：The controller is directly operated and configured on the Device side, and on the K1 SDK, configuration is implemented through the linux debugfs nodes. 
 
-#### K1 USB2.0 OTG 控制器 Device 模式测试
+#### K1 USB2.0 OTG Controller Device Mode Test
 
-测试时，请先保证 USB2.0 OTG 控制器工作在 Device 模式，
-目前 Buildroot/Bianbu 都开机启动 USB2.0 OTG 控制器作为一个 USB ADB 设备。
+Before testing, ensure that the USB2.0 OTG controller is operating in Device mode. Currently, both Buildroot and Bianbu boot up the USB2.0 OTG controller as a USB ADB device on startup.
 
-如果采用特殊固件，可以使用 gadget-setup.sh 脚本进行配置：
+If a special firmware is used, the configuration can be performed using the gadget-setup.sh script:
 
 ```
 USB_UDC=c0900100.udc gadget-setup.sh adb
 ```
 
-具体的该脚本介绍可参考 [ USB Gadget 开发指南 ](2-USB-Gadget-Developer-Guide.md)
+For detailed information about this script, please refer to the [ USB Gadget Developer Guide ](2-USB-Gadget-Developer-Guide.md).
 
-##### 上位机使用 xHCI Electrical Test Tool 配置测试波形
+##### Host Configuration of Test Waveform via xHCL Electrical Test Tool
 
-将 K1 开发板的 USB2.0 OTG 端口（原理图中的 USB0_DP/USB0_DN）通过 USB 线材和测试治具接入安装有 xHCI Electrical Test Tool 的上位机，
-如图选择 VID/PID 0x361c/... 的 Device，选择
-Device Command 发送 TEST_PACKET 选项，点击 EXECUTE 即可让 K1 USB2.0 OTG 控制器发送测试波形。
+Connect the USB2.0 OTG port of the K1 development board (USB0_DP/USB0_DN in the schematic) to the host with the xHCI Electrical Test Tool installed via a USB cable and test fixture. As shown in the figure, select the device with VID/PID 0x361c/..., choose the TEST_PACKET option under Device Command, and click EXECUTE. The K1 USB2.0 OTG controller will then start transmitting the test waveform.
 
 ![alt text](../static/USB/usb2-xett-testpacket.png)
 
-##### K1 使用 Linux DebugFS 进行配置
+##### K1 Configuration via Linux DebugFS
 
-注：需要较新版本的 SpacemiT 内核才提供本节对 USB2.0 OTG 控制器 DebugFS 的支持
+Note: Support for the USB2.0 OTG controller DebugFS described in this section is only available in newer versions of the SpacemiT kernel.
 
-K1 开发板的 USB2.0 OTG 控制器在 Device 模式下，可通过 Linux DebugFS 节点直接操作控制器进行测试波形配置，具体操作如下：
+When the USB2.0 OTG controller of the K1 development board is in Device mode, the test waveform can be configured by directly operating the controller via Linux DebugFS nodes. The specific operations are as follows:
 
-1. 确保开发板已启动并进入系统， USB2.0 OTG 控制器对应的 DebugFS 节点路径为 `/sys/kernel/debug/usb/c0900100.udc/`。
+1. Ensure the development board is powered on and has entered the system. The path to the DebugFS node corresponding to the USB2.0 OTG controller is `/sys/kernel/debug/usb/c0900100.udc/`.
 
-2. 进入测试模式并发送测试波形：
+2. Enter test mode and transmit the test waveform：
    ```
    echo test_packet > /sys/kernel/debug/usb/c0900100.udc/testmode
-   # 其他可选： test_j, test_k, test_se0_nak, test_force_enable
+   #Other options: test_j, test_k, test_se0_nak, test_force_enable
    ```
 
-3. 查看当前高速测试模式状态：
+3. Check the current high-speed test mode status：
    ```
    cat /sys/kernel/debug/usb/c0900100.udc/testmode
    ```
 
-4. 退出测试模式，恢复正常工作状态：
+4. Exit test mode and restore the normal operating status:
    ```
    echo none > /sys/kernel/debug/usb/c0900100.udc/testmode
    ```
 
-操作时，需将开发板的 USB2.0 OTG 端口通过 USB 线材连接至测试治具，执行上述命令后即可在测试治具端观测到对应的测试波形。
+During operation, connect the USB2.0 OTG port of the development board to the test fixture using a USB cable. After executing the above commands, the corresponding test waveform can be observed on the test fixture.
 
-#### K1 USB3.0 DRD 控制器 Device 模式（ HighSpeed 连接）测试
+#### K1 USB3.0 DRD Controller Device Mode (HighSpeed Connection) Testing
 
-此测试只适用开发板 / 产品板有该 USB3.0 DRD 控制器做 Device 模式的规格，或者支持手动切换到 device 模式，
-具体请参考 [USB 通用开发指南 ](1-USB-General-Developer-Guide.md) 。
+This test applies only to development boards / product boards that are designed to use the USB3.0 DRD controller in Device mode, or boards that support manual switching to Device mode.
+For details, refer to [USB General Developer Guide ](1-USB-General-Developer-Guide.md).
 
-测试时，须保证 USB3.0 DRD 控制器工作在 Device 模式，
-且测试夹具线材等为最大支持 USB2.0 High-Speed 规格，而不是 USB3.0 SuperSpeed 规格。
+During testing, ensure the USB3.0 DRD controller operates in Device mode.
+Also, make sure the test fixture and cables support a maximum of USB2.0 High‑Speed instead of USB3.0 SuperSpeed.
 
-可以使用 gadget-setup.sh 脚本配置 USB3.0 DRD 控制器进入 Device 工作模式：
+The gadget-setup.sh script can be used to configure the USB3.0 DRD controller to enter Device operating mode:
 
 ```
 USB_UDC=c0a00000.dwc3 gadget-setup.sh hid
 ```
 
-具体的该脚本介绍可参考 [ USB Gadget 开发指南 ](2-USB-Gadget-Developer-Guide.md)
+For detailed information about this script, refer to the [USB Gadget Developer Guide](2-USB-Gadget-Developer-Guide.md).
 
-##### 上位机使用 xHCI Electrical Test Tool 配置测试波形
+##### Host Configuration of Test Waveform via xHCI Electrical Test Tool 
 
-将 K1 开发板的 USB3.0 DRD 端口（原理图中的 USB2_DP/USB2_DN）通过 USB 线材和测试治具接入安装有 xHCI Electrical Test Tool 的上位机，
-如图选择 VID/PID 0x361c/... 的 Device，选择
-Device Command 发送 TEST_PACKET 选项，点击 EXECUTE 即可让 K1 USB3.0 DRD 控制器发送测试波形。
+Connect the USB3.0 DRD port of the K1 development board (USB2_DP/USB2_DN in the schematic) to the host with the xHCI Electrical Test Tool installed, using a USB cable and test fixture.
+As shown in the figure, select the device with VID/PID 0x361c/..., choose the TEST_PACKET option under Device Command, and click EXECUTE.
+The K1 USB3.0 DRD controller will then transmit the test waveform.
 
 ![alt text](../static/USB/usb2-xett-testpacket.png)
 
-##### K1 使用 Linux DebugFS 进行配置
+#####  Configuration via Linux DebugFS
 
-K1 开发板的 USB3.0 DRD 控制器在 Device 模式下，可通过 Linux DebugFS 节点直接操作控制器进行 USB 2.0 HighSpeed 测试波形配置，具体操作如下：
+When the USB3.0 DRD controller of the K1 development board is in Device mode, the USB 2.0 HighSpeed test waveform can be configured by directly operating the controller via Linux DebugFS nodes. The specific operations are as follows:
 
-1. 确保开发板已启动并进入系统， USB3.0 DRD 控制器对应的 DebugFS 节点路径为 `/sys/kernel/debug/usb/c0a00000.dwc3/`。
+1. Ensure the development board is powered on and has entered the system. The path to the DebugFS node corresponding to the USB3.0 DRD controller is `/sys/kernel/debug/usb/c0a00000.dwc3/`.
 
-2. 进入测试模式并发送测试波形：
+2. Enter test mode and transmit the test waveform:
    ```
    echo test_force_enable > /sys/kernel/debug/usb/c0a00000.dwc3/testmode
    echo test_packet > /sys/kernel/debug/usb/c0a00000.dwc3/testmode
-   # 其他可选： test_j, test_k, test_se0_nak
+   # Other options： test_j, test_k, test_se0_nak
    ```
 
-3. 查看当前高速测试模式状态：
+3. Check the current status of the Highspeed test mode:
    ```
    cat /sys/kernel/debug/usb/c0a00000.dwc3/testmode
    ```
 
-4. 退出测试模式，恢复正常工作状态：
+4. Exit test mode and restore the normal operating status:
    ```
    echo none > /sys/kernel/debug/usb/c0a00000.dwc3/testmode
    ```
 
-操作时，需将开发板的 USB3.0 DRD 端口通过 USB 线材连接至测试治具，执行上述命令后即可在测试治具端观测到对应的测试波形。
+During the operation, connect the USB3.0 DRD port of the development board to the test fixture using a USB cable. After executing the above commands, the corresponding test waveform can be observed on the test fixture.
 
 
-### USB 2.0 Host 信号质量测试指南
+### USB 2.0 Host Signal Quality Test Guide
 
-Host 模式下，只支持使用应用层工具进行配置，该工具支持所有 Host 的所有 USB 2.0 端口。
+In Host mode, configuration is only supported via application layer tools, which are compatible with all USB 2.0 ports of the Host.
 
-用户只需要找到对应的端口的总线号、设备号、端口号，无论是控制器 roothub 直出的端口还是下游 HUB 端口，均可以配置让对应端口发送测试波形。
+Users only need to find the bus number, device number, and port number of the corresponding port. Whether it is a port directly from the controller roothub or a downstream HUB port, the corresponding port can be configured to transmit test waveforms.
 
-测试需要使用命令行工作 porttest 工具源码在附录 - porttest 源码提供。
+Testing requires the use of the command-line porttest tool, and the source code for this tool is provided in Appendix - porttest Source Code.
 
-**porttest 使用方法：**
+**Usage of porttest：**
 
 ```
 ./porttest /dev/bus/usb/《 Bus 号码》/《 Dev 号码》 《端口号》 《测试 PATTERN 代号》
 # e.g.:
 # ./porttest /dev/bus/usb/001/001 1 4
-# 其中测试 PATTERN 代号：
+# The test PATTERN codes are as follows：
 # - Reserved: 0
 # - Test_J: 1
 # - Test_K: 2
 # - Test_SE0_NAK: 3
-# - Test_Packet: 4 ，通常测试眼图等选用此波形
+# - Test_Packet: 4 
+This waveform is typically selected for eye diagram testing and other related tests.
 # - Test_Force_Enable: 5
 ```
 
 
-如对特定端口执行了 Test Packet 的选项后，此时对应端口就会开始发送 Test Packet。
+If the Test Packet option is executed for a specific port, the corresponding port will start transmitting Test Packets at this time.
 
-示波器看到的测试波形如下图所示：
+The test waveform observed on the oscilloscope is shown in the figure below:
 
 ![usbhs-test-packet](../static/USB/usbhs-test-packet.png)
 
-#### K1 USB2.0 OTG 控制器 Host 模式测试
+#### K1 USB2.0 OTG Controller Host Mode Test
 
-1. 首先让 USB2.0 OTG 控制器对外端口（原理图中为 USB0_DN/USB0_DP） 进入 Host 模式，根据实际方案的端口形态做配置（如 Type-C 口，需接入 TypeC 转 Host 转接头）。
+1. First, set the external port of the USB2.0 OTG controller (USB0_DN/USB0_DP in the schematic) to Host mode. Configure according to the actual port type of the design (for example, a Type‑C port requires a Type-C to Host adapter).
 
-   手动切换方案强制进入方法：
+   Manual switching scheme – forced entry method:
 
    ```
    echo host > /sys/class/usb_role/mv-otg-role-switch/role
    ```
 
-2. 找到该控制器 Host 模式下 RootHub Port 的设备路径。
+2. Locate the device path of the RootHub Port for the controller in Host mode.
    
-   首先执行命令
+   First, execute the command:
 
    ```
    cat /sys/kernel/debug/usb/devices
    ```
 
-   在输出中：
+   In the output：
 
    ```
    ~ # cat /sys/kernel/debug/usb/devices
@@ -201,21 +195,21 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
    ```
 
-   找到其中 `SerialNumber=mv-ehci` 的段落。记录下第一行 T: Bus.... 中的 Bus 和 Dev#=。如这里是：
+   Locate the section where `SerialNumber=mv-ehci` is present. Record the Bus and Dev#= values in the first line starting with T: Bus.... For example, in this case:
 
    ```
    T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 1
-   # 这里是 01 ， 1
+   # Here is 01 ， 1
    ```
 
-3. 执行命令进入 Test Packet 模式：
+3. Execute the command to enter Test Packet mode:
    
    ```
    porttest  /dev/bus/usb/< 上一步中得到的 Bus 序号 >/< 上一步中得到的 Dev# 序号 > 1 4
-   # 这里的 1 是指 roothub 的第一个 port， K1 的所有 roothub 都只有一个 port。
+   # Here, 1 refers to the first port of the roothub. All roothubs on K1 have only one port.
    ```
 
-   举例（请按照本节完整步骤确定最终命令，不要直接运行举例中的命令！）：
+   For example (Please follow the complete steps in this section to determine the final command – do NOT run the command in the example directly!):
 
    ```
    ~ # porttest /dev/bus/usb/001/001 1 4
@@ -223,17 +217,17 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    Test mode successful
    ```
    
-#### K1 USB2.0 HOST ONLY 控制器 Host 模式测试
+#### K1 USB2.0 HOST ONLY Controller Host Mode Test
 
-1. 找到该控制器 Host 模式下 RootHub Port 的设备路径。
+1. Locate the device path of the RootHub Port for this controller in Host mode.
    
-   首先执行命令
+   First, execute the command:
 
    ```
    cat /sys/kernel/debug/usb/devices
    ```
 
-   在输出中：
+   In the output：
 
    ```
    ~ # cat /sys/kernel/debug/usb/devices
@@ -250,21 +244,21 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
    ```
 
-   找到其中 `SerialNumber=mv-ehci1` 的段落。记录下第一行 T: Bus.... 中的 Bus= 和 Dev#= 后面的数字。如这里是：
+   Locate the section where `SerialNumber=mv-ehci1` is present. Record the numbers follwing Bus= and Dev#= in the first line starting with T: Bus.... For example, in this case: 
 
    ```
    T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 1
-   # 这里是 02 ， 1
+   # Here is 02 ， 1
    ```
 
-2. 执行命令进入 Test Packet 模式：
+2. Execute the command to enter Test Packet mode：
    
    ```
    porttest  /dev/bus/usb/< 上一步中得到的 Bus 序号 >/< 上一步中得到的 Dev# 序号 > 1 4
-   # 这里的 1 是指 roothub 的第一个 port， K1 的所有 roothub 都只有一个 port。
+   # Here, 1 refers to the first port of the roothub.
    ```
 
-   举例（请按照本节完整步骤确定最终命令，不要直接运行举例中的命令！）：
+   For example (Please follow the complete steps in this section to determine the final command – do NOT run the command in the example directly!):
 
    ```
    ~ # porttest /dev/bus/usb/001/001 1 4
@@ -273,25 +267,25 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    ```
 
 
-#### K1 USB3.0 DRD 控制器 Host 模式（ HighSpeed 连接）测试
+#### K1 USB3.0 DRD Controller Host Mood（ HighSpeed Connection）Test
 
-1. 首先让 USB3.0 DRD 控制器进入 Host 模式 （原理图中是 USB2_DN/DP） 进入 Host 模式。
+1. First, set the USB3.0 DRD to Host mode (USB2_DN/DP in the schematic).
    
-   DRD 模式时，强制进入方法：
+   To force entry in DRD mode:
 
    ```
    echo host > /sys/kernel/debug/usb/c0a00000.dwc3/mode
    ```
 
-2. 找到该控制器 Host 模式下 RootHub Port 的设备路径。
+2. Locate the device path of the Roothub Port for this controller in Host mode.
    
-   首先执行命令
+   First, execute the command:
 
    ```
    cat /sys/kernel/debug/usb/devices
    ```
 
-   在输出中：
+   In the output:
 
    ```
    ~ # cat /sys/kernel/debug/usb/devices
@@ -308,23 +302,23 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
    ```
 
-   找到其中 `Product=xHCI Host Controller`  的段落，并且第一行 T 开头的行有 `Spd=480`。
+   Locate the section where `Product=xHCI Host Controller` is specified, and ensure that the first line starting with T in this section contains `Spd=480`.
    
-   记录下第一行 T: Bus.... 中的 Bus= 和 Dev#= 后面的数字，如这里是：
+   Record the numbers after Bus= and Dev#= in the first line starting with T: Bus..... For example:
 
    ```
    T:  Bus=03 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 1
-   # 这里是 03 ， 1
+   # Here is 03 ， 1
    ```
 
-3. 执行命令进入 Test Packet 模式：
+3. Execute the command to enter Test Packet mode：
    
    ```
    porttest  /dev/bus/usb/< 上一步中得到的 Bus 序号 >/< 上一步中得到的 Dev# 序号 > 1 4
-   # 这里的 1 是指 roothub 的第一个 port， K1 的所有 roothub 都只有一个 port。
+   # The 1 here refers to the first port of the roothub. All roothubs on K1 have only one port.
    ```
 
-   举例（请按照本节完整步骤确定最终命令，不要直接运行举例中的命令！）：
+   For example (Please follow the complete steps in this section to determine the final command – do NOT run the command in the example directly!):
 
    ```
    ~ # porttest /dev/bus/usb/003/001 1 4
@@ -332,31 +326,28 @@ Host 模式下，只支持使用应用层工具进行配置，该工具支持所
    Test mode successful
    ```
 
-#### K1 开发板其他 USB 2.0 HUB 端口信号测试
+#### K1 Development Board Other USB 2.0 HUB Port Signal Test
 
-对最终产品测试时，需要测试开发板最外层的 USB 端口，部分方案的最外层 USB 端口是经过
-USB HUB 扩展而来。此时需要打开他们的测试模式，同样使用 porttest 程序进行配置。
+During the final product testing, it is necessary to test the outermost USB ports of the development board. For some solutions, the outermost USB ports are extended via a USB HUB. In such cases, you need to enable their test mode and configure them using the porttest program as well.
 
-可以参考上面的方法，只是把找的 Vendor、 ProdID、 Manufacturer、 Product 的对应信息换成
-你要测试的 HUB 的信息去找到对应的 Bus number 和 Device number 即可。
+You can refer to the method above – simply replace the corresponding information of Vendor, ProdID, Manufacturer, and Product that you look up with the information of the HUB you want to test, then find the corresponding Bus number and Device number.
 
-这里再介绍如何使用 lsusb （不适用于 buildroot，因为 buildroot 的 lsusb 是精简版）
-查找对应的 Bus number 和 Dev number。
+Here we further explain how to use lsusb (not applicable to buildroot, as the 1susb included with buildroot is a simplified version) to find the corresponding Bus number and Dev number. 
 
-以 K1 开发板 bpi-banana-f3 为例，在 USB3.0 DRD 控制器上板载了一款 VIA Labs 的 VL817 型号
-的 USB 3.0 HUB。由于 USB 3.0 是双总线架构，因此他也包含一个 USB 2.0 HUB。
 
-首先执行 `lsusb -tv` 命令：
+Take the K1 development board bpi-banana-f3 as an example. A VIA Labs VL817 USB 3.0 is integrated on the USB 3.0 DRD controller. Since USB 3.0 uses a dual-bus architecture, it also includes a USB 2.0 HUB.
+
+First, execute the `lsusb -tv` command：
 
 ![alt text](../static/USB/usb-portest-hub.png)
 
-如图橙色高亮部分，我们找到一个产品描述是 `VIA Labs, Inc` 的 480M 速率的 Hub 设备。
+As shown in the orange-highlighted area in the figure, we find a 480M Hub device with the product description `VIA Labs, Inc`.
 
-记录要测试的 hub **所在** 的总线号（ `Bus XX`，这里是 002 ）， hub 设备号（ `Dev xx`，这里是 002 ），记录下来备用。
+Record the bus number (`Bus XX`, here it is 002) and device number (`Dev xx`, here it is 002) of **the hub** to be tested, and save them for later use.
 
-并且留意， `Driver=hub/4p` 的 4 意味着他有 4 个端口，测试时需要依次执行对应命令配置 1~4 的端口号发送测试波形。
+Also note that the 4 in `Driver=hub/4p` means it has 4 ports. During testing, you need to run the corresponding commands in sequence to configure port number 1-4 to send test waveforms. 。
 
-随后根据实际情况，执行 porttest 命令传递正确的参数即可：
+Subsequently, according to the actual situation, execute the porttest command with the correct parameters:
 
 ```
 ./porttest /dev/bus/usb/《 Bus 号码》/《 Dev 号码》 《端口号》 《测试 PATTERN 代号， 4 为眼图包》
@@ -364,100 +355,100 @@ USB HUB 扩展而来。此时需要打开他们的测试模式，同样使用 po
 # ./porttest /dev/bus/usb/001/001 1 4
 ```
 
-### USB-IF USB 2.0 产品合规测试介绍
+### USB-IF USB 2.0 Product Compliance Test Introduction
 
-**参考：** https://www.usb.org/usb2
+**Refer to：** https://www.usb.org/usb2
 
-针对 USB 2.0 产品，除了信号质量测试， USB-IF 还规定了其他的一些测试：功能测试、互操作性测试。
+For USB 2.0 products, in addition to signal quality tests, USB-IF also specifies other tests: functional tests and interoperability tests.
 
-这些测试集合统称为 USB 2.0 产品合规测试（ USB 2.0 Compliance Test）。
+These tests are collectively referred to as the USB 2.0 Compliance Test.
 
-USB 2.0 合规测试是针对 USB 外设产品的测试，如 HUB、 U 盘、等 USB 外设产品。
+The USB 2.0 Compliance Test is intended for USB peripheral devices, such as HUBs, USB flash drives, and other USB peripherals.
 
-使用 K1 开发板开发的基于 Linux Gadget 驱动的 USB 2.0 外设成品也属于 USB 2.0 产品，如果要使用 USB 商标，必须通过 USB 2.0 产品合规测试，拿到 USB-IF 的认证。 
+USB 2.0 peripheral products based on the Linux Gadget driver developed using the K1 development board also qualify as USB 2.0 products. To use the USB trademark, they must pass the USB 2.0 Compliance Test and obtain certification from USB-IF.
 
-#### 功能（ Functional）
-功能测试环节通过 USB-IF（ USB 实施者论坛）的工具 USB30CV 执行。
+#### Functional
+The functional test phrase is executed using USB30CV, an official tool from the USB-IF.
 
-该工具会针对《 USB 2.0 规范》第 9 章的要求进行常规测试；
+This tool performs routine tests in accordance with the requirements specified in Chapter 9 of the USB 2.0 Specification.
 
-此外，对于任何实现了 USB 标准类的产品，该工具还会执行相应的类测试。 
+In addition, for any product implementing a USB standard class, the tool will also execute the corresponding class tests.
 
-USB30CV 工具是仅支持 Windows PC，并且要求上位机是标准 xHCI 规范控制器。
+USB30CV only supports Windows PC and requires a standard xHCL-compliant host controller.
 
-USB30CV 软件包可在 USF-IF 官方网站下载： https://www.usb.org/document-library/usb3cv。
+Download the USB30CV package from the official website:[https://www.usb.org/document-library/usb3cv](https://www.usb.org/document-library/usb3cv).
 
-*Note：更老版本是 USB20CV，这是基于上位机采用 EHCI 控制器，目前新款 Windows PC 基本都是采用 XHCI，因此使用 USB30CV 测试即可。
+*Note: The older tool is USB20CV, which relies on an EHCI controller on the host PC.Newer Windows PCs mostly use xHCI, so USB30CV is sufficient for testing.
 
-#### 电气（ Electrical）
+#### Electrical
 
-经批准的 USB 2.0 示波器供应商
+Approved USB 2.0 oscilloscope vendors:
 - Keysight
 - Rohde & Schwarz
 - Tektronix
 - Teledyne LeCroy
 
-合规计划的电气测试环节聚焦于物理层，需使用多种工具。
+The electrical test phase of the compliance program focuses on the physical layer and requires the use of various tools.
 
-在高速信号质量测试中， USB-IF 仅认可使用经批准的信号质量测试治具所采集的测试数据。
+For High speed signal quality testing, USB-IF only accepts test data captured using approved signal quality test fixtures. 
 
-此外， USB-IF 仅接受通过其工具 USBET 生成的 USB 2.0 信号质量分析报告。
+In addition, USB-IF only accepts USB 2.0 signal quality analysis reports generated by its official tool USBET.
 
-对于其他电气测试，需要参考 USB-IF 的 Low/Full-speed electrical test specification 和 [USB 2.0 Electrical test specification](https://www.usb.org/document-library/usb-20-electrical-compliance-test-specification-version-107)，并联系经批准的示波器供应商，获取相关测试治具及测试方法说明。通常是采用第三方实验室协助进行测试。
+For other electrical tests, refer to the Low/Full-speed electrical test specification of USB-IF and the [USB 2.0 Electrical test specification](https://www.usb.org/document-library/usb-20-electrical-compliance-test-specification-version-107). In addition, contact the approved oscilloscope vendors to obtain the relevent test fixtures and test method instructions. Third party laboratories are usually engaged to assist with the testing. 
 
-《 USB 2.0 电气合规测试规范》可在 USB-IF 的文档库中下载。
+The USB 2.0 Electrical Compliance Test Specification is available for download in the USB‑IF Document Library.
 
-#### 互操作性（ Interoperability）
+#### Interoperability
 
-合规计划的互操作性测试环节，重点验证被测产品与 “已知合格的 USB 产品” 之间的协同工作能力。 
+The interoperability test phase of the compliance program focuses on verifying the interoperability between the device under test and known-good USB products. 
 
-USB 2.0 的互操作性测试方法与 USB 3.2 采用相同标准。相关的工具资料 [xHCI Interoperability Test Procedures For Peripherals, Hubs and Hosts](https://www.usb.org/document-library/xhci-interoperability-test-procedures-peripherals-hubs-and-hosts-version-096)
+USB 2.0 and USB 3.2 use the same standard for interoperability test methods. Related tools and documentation [xHCI Interoperability Test Procedures For Peripherals, Hubs and Hosts](https://www.usb.org/document-library/xhci-interoperability-test-procedures-peripherals-hubs-and-hosts-version-096).
 
-## USB 3.0 测试指南
+## USB 3.0 Test Guide
 
-USB 3.0 测试涉及使用经过 USB-IF 认证的高速示波器和相关测试治具、仪器。
+USB 3.0 testing requires USB-IF certified high-speed oscilloscopes, along with corresponding test fixtures and instruments.
 
-这些因不同设备供应商而差异，请参考相关测试供应商的文档和操作步骤。
+These vary by equipment vendor. Please refer to the documentation and operating procedures provided by the respective test vendors.
 
-这里只简要介绍如何配置 K1 的 USB 3.0 PHY 进入测试模式。
+This section only briefly describes how to configure the USB 3.0 PHY on the K1 into test mode.
 
-### USB 3.0 Device Tx 信号质量测试指南
+### USB 3.0 Device Tx Signal Quality Test Guide
 
-首先启动 gadget-setup 脚本（参考 USB Gadget 开发指南）拉起 device，连接测试夹具。
+First, launch the gadget-setup script (refer to the USB Gadget Developer Guide) to bring up the device, then connect the test fixture.
 
 ```
 USB_UDC=c0a00000.dwc3 gadget-setup hid
 ```
 
-测试夹具对端（上位机）使用 USB 3.0 SuperSpeed LTSSM 规定的标准方法（见 USB 3.0 Spec 7.5.5 ）：
+On the test fixture peer (host) side, use the standard method specified in USB 3.0 SuperSpeed LTSSM (refer to USB 3.0 Spec Section 7.5.5):
 
-SSTX+、 SSTX- 接入 Rx Termination，让 Device 端 LSTTM 进入 LFPS Polling 状态。
+Connect SSTX+ and SSTX-to the Rx Termination, causing the Device-side LTSSM to enter the LFPS Polling state. 
 
-此时上位机测试组件不响应， Device 发出的第一个 Polling.LFPS 超时让 Device 状态机进入 Compliance Mode。
+At this point, the host test component does not respond, and the timeout of the first Polling.LFPS sent by the Device causes the Device state machine to enter Compliance Mode. 
 
-此时查看 DebugFS， USB 3.0 Link State 进入 Compliance 模式：
+Check the DebugFS at this time—the USB 3.0 Link State will have entered Compliance Mode:
 
 ```
 cat /sys/kernel/debug/usb/c0a00000.dwc3/link_state
 Compliance
 ```
 
-后续对端发送 Ping.LFPS 切换下下一个 pattern。
+Subsequently, the peer side sends Ping.LFPS to the next pattern.
 
-### USB 3.0 Host Tx 信号质量测试指南
+### USB 3.0 Host Tx Signal Quality Test Guide
 
 
-测试夹具对端使用 USB 3.0 SuperSpeed LTSSM 规定的标准方法（见 USB 3.0 Spec 7.5.5 ）：
+The peer side of the test fixture uses the standard method specified in USB 3.0 SuperSpeed LTSSM (Refer to USB 3.0 Spec 7.5.5):
 
-SSTX+、 SSTX- 接入 Rx Termination，让 Host 端口 LSTTM 进入 LFPS Polling 状态。
+Connect SSTX+ and SSTX- to the Rx Termination to put the LTSSM of the host port into the LFPS Polling state.
 
-此时上位机测试组件不响应， Host 端口发出的第一个 Polling.LFPS 超时让 Host 端口状态机进入 Compliance Mode。
+At this point, the host test component does not respond. The timeout of the first Polling.LFPS sent by the host port causes the host port state machine to enter Compliance Mode.
 
-后续对端发送 Ping.LFPS 切换下下一个 pattern。
+Subsequently, the peer sends Ping.LFPS to switch to the next pattern.
 
-此外 K1 上可以使用 tx-compliance 脚本配置强制进入 Compliance 模式。
+In addition, the tx-compliance script on the K1 can be used to configure and force entry into Compliance Mode.
 
-1. 执行命令进入 cp0 pattern
+1. Execute the command to enter cp0 pattern
    ```
    ~ # tx-compliance.sh cp0
    XHCI and DWC3 Register Info:
@@ -481,47 +472,45 @@ SSTX+、 SSTX- 接入 Rx Termination，让 Host 端口 LSTTM 进入 LFPS Polling
    Powered-off Not-connected Disabled Link:Compliance mode PortSpeed:0 Change: Wake: WCE WOE
    ```
 
-2. 执行命令切换 pattern：
+2. Execute the cpmmand to switch the pattern：
    ```
    tx-compliance toggle
    ```
 
-### USB 3.0 Rx 信号质量测试指南
+### USB 3.0 Rx Signal Quality Test Guide
 
-Rx Compliance 测试是使链路进入 Loopback mode。
+Rx Compliance Test places the link into Loopback mode.
 
-进入方法和上文提到的 Tx 信号质量测试类似，也是基于规范定义的标准方法进入。
+The entry method is similar to the Tx signal quality test described above, and also follows the standard method defined in the specification.
 
-USB 3.0 控制器在 link training 的 Polling.Configuration 阶段，
-如果检测到 T2 pattern 中 Loopback bit 位置位，
-就会自动配置 USB 3.0 链路进入 Loopback mode（具体可参考 USB 3.0 规范的 7.5.10 和 7.5.11 章节）。
+During the Polling.Configuration phase of link training, if the USB 3.0 controller detects that the Loopback bit in the T2 pattern is set, it will automatically configure the USB 3.0 link to enter Loopback Mode (refer to Sections 7.5.10 and 7.5.11 of the USB 3.0 specification for details).
 
 
-### USB-IF USB 3.0 产品合规测试介绍
+### USB-IF USB 3.0 Product Compliance Test Introduction
 
 
-**参考：** https://www.usb.org/usb-32
+**Refer to：** https://www.usb.org/usb-32
 
-针对 USB 3.0 产品，除了电气信号质量测试， USB-IF 还规定了其他的一些测试：功能测试、互操作性测试、链路层测试。
+For USB 3.0 products, in addition to electrical and signal quality tests, USB-IF also specifies other tests: functional testing, interoperability testing, and link-layer testing.
 
-#### 功能（ Functional）
-功能测试环节通过 USB-IF（ USB 实施者论坛）的工具 USB30CV 执行。
+#### Functional
+The functional testing phrase is executed using USB30CV, an official tool from the USB-IF.
 
-该工具会针对《 USB 3.0 规范》第 9 章的要求进行常规测试；
+This tool performs routine tests in accordance with the requirements specified in Chapter 9 of the USB 3.0 Specification.
 
-此外，对于任何实现了 USB 标准类的产品，该工具还会执行相应的类测试。 
+In addition, for any product implementing USB standard classes, the tool will also execute the corresponding class-specific tests.
 
-USB30CV 工具是仅支持 Windows PC，并且要求上位机是标准 xHCI 规范控制器。
+The USB30CV tool is only supported on Windows PCs and requires the host to be equipped with a controller compliant with the standard xHCI Specification.
 
-USB30CV 软件包可在 USF-IF 官方网站下载： https://www.usb.org/document-library/usb3cv。
+The USB30CV software package is available for download from the official USB-IF website at: https://www.usb.org/document-library/usb3cv。
 
-#### 链路层测试（ Link Test）
+#### Link Test
 
 - [Link Layer Test Specification ](https://www.usb.org/document-library/usb-32-link-layer-test-specification)
 
-#### 电气（ Electrical）
+#### Electrical
 
-经批准的 USB 3.0 示波器供应商
+Approved USB 3.0 oscilloscope vendors:
 
 - Anritsu
 - Keysight
@@ -529,37 +518,37 @@ USB30CV 软件包可在 USF-IF 官方网站下载： https://www.usb.org/documen
 - Tektronix
 - Teledyne LeCroy
 
-合规计划的电气测试环节聚焦于物理层，需使用多种工具。
+The electrical test phase of the compliance program focuses on the physical layer and requires various tools.
 
-在高速信号质量测试中， USB-IF 仅认可使用经批准的信号质量测试治具所采集的测试数据。
+For high-speed signal quality testing, USB-IF only accepts test data captured with approved signal quality test fixtures.
 
-此外， USB-IF 仅接受通过其工具 USBET 生成的 USB 3.0 信号质量分析报告。
+In addition, USB-IF only accepts USB 3.0 signal quality analysis reports generated by its official tool USBET.
 
-对于其他电气测试，需要参考 USB-IF 的以下规范 :
+For other electrical tests, refer to the following USB-IF specifications:
 
 - [The Electrical Compliance Test Specification for SuperSpeed USB 10 Gbps Rev. 1.0](https://www.usb.org/document-library/electrical-compliance-test-specification-superspeed-usb-10-gbps-rev-10)
 - [The Electrical Compliance Test Specification for SuperSpeed USB Rev. 1.0a](https://www.usb.org/document-library/electrical-compliance-test-specification-superspeed-usb-rev-10a)
 
-并联系经批准的示波器供应商，获取相关测试治具及测试方法说明。通常是采用第三方实验室协助进行测试。
+Contact approved oscilloscope vendors for relevant test fixtures and test method documentation. Testing is typically performed with the assistance of third-party laboratories.
 
-#### 互操作性（ Interoperability）
+#### Interoperability
 
-合规计划的互操作性测试环节，重点验证被测产品与 “已知合格的 USB 产品” 之间的协同工作能力。 
+The interoperability test phase of the compliance program focuses on verifying interoperability between the device under test and known-good USB products. 
 
-相关的工具资料 [xHCI Interoperability Test Procedures For Peripherals, Hubs and Hosts](https://www.usb.org/document-library/xhci-interoperability-test-procedures-peripherals-hubs-and-hosts-version-096)
+Related tools and documentation [xHCI Interoperability Test Procedures For Peripherals, Hubs and Hosts](https://www.usb.org/document-library/xhci-interoperability-test-procedures-peripherals-hubs-and-hosts-version-096)
 
-## 附录
+## Appendix
 
-### porttest 源码
+### porttest source code
 
 
-推送源码到 Bianbu 中，终端打开文件所在目录执行：
+Push the source code to Bianbu, then open the directory where the file is located in the terminal and execute:
 
 ```
 gcc porttest.c -o porttest --static
 ```
 
-生成目标文件： porttest。
+Generate the target file: porttest。
 
 ```c
 /* porttest -- put a USB hub port into TEST mode */
@@ -643,7 +632,7 @@ int main(int argc, char **argv)
 }
 ```
 
-### tx-compliance 脚本
+### tx-compliance script
 
 ```
 #!/bin/sh
