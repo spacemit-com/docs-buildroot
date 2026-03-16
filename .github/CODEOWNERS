@@ -17,21 +17,21 @@
 /**/release_notes/ @jing-liu-spacemit
 
 # ESOS dev guide
-/zh/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ
+/zh/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ 
 /en/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ
 
 # ESOS drivers
-/zh/**/esos/esos_driver/gpio.md @TroyMitchell911 @LittlepigNellJ
-/en/**/esos/esos_driver/gpio.md @TroyMitchell911 LittlepigNellJ
+/zh/**/esos/esos_driver/gpio.md @LittlepigNellJ @TroyMitchell911
+/en/**/esos/esos_driver/gpio.md @LittlepigNellJ @TroyMitchell911
 
-/zh/**/esos/esos_driver/pwm.md @TroyMitchell911 @LittlepigNellJ
-/en/**/esos/esos_driver/pwm.md @TroyMitchell911 @LittlepigNellJ
+/zh/**/esos/esos_driver/pwm.md @LittlepigNellJ @TroyMitchell911
+/en/**/esos/esos_driver/pwm.md @LittlepigNellJ @TroyMitchell911
 
-/zh/**/esos/esos_driver/pinctrl.md @TroyMitchell911 
-/en/**/esos/esos_driver/pinctrl.md @TroyMitchell911 
+/zh/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911 
+/en/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911 
 
-/zh/**/esos/esos_driver/i2c.md @yeshan-li-spacemit @yhd0727
-/en/**/esos/esos_driver/i2c.md @yeshan-li-spacemit @yhd0727
+/zh/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
+/en/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
 
 /zh/**/esos/esos_driver/spi.md @ljysy @peixin-xie-spacemit
 /en/**/esos/esos_driver/spi.md @ljysy @peixin-xie-spacemit
@@ -42,11 +42,11 @@
 /zh/**/esos/esos_driver/rcan.md @LittlepigNellJ @yhd0727
 /en/**/esos/esos_driver/rcan.md @LittlepigNellJ @yhd0727
 
-/zh/**/esos/esos_driver/ruart.md @TroyMitchell911
-/en/**/esos/esos_driver/ruart.md @TroyMitchell911
+/zh/**/esos/esos_driver/ruart.md @yhd0727 @TroyMitchell911
+/en/**/esos/esos_driver/ruart.md @yhd0727 @TroyMitchell911
 
-/zh/**/esos/esos_driver/rgmac.md 
-/en/**/esos/esos_driver/rgmac.md 
+/zh/**/esos/esos_driver/rgmac.md @george-hu-spacemit
+/en/**/esos/esos_driver/rgmac.md @george-hu-spacemit
 
 # Device Management
 /zh/**/device/device_management.md @jing-liu-spacemit
@@ -61,8 +61,8 @@
 /en/**/device/boot.md @zhouxl756 @GM2020JLU
 
 # Standby
-/zh/**/device/standby.md @LittlepigNellJ
-/en/**/device/standby.md @LittlepigNellJ
+/zh/**/device/standby.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/en/**/device/standby.md @zhangmeng.kevin-spacemit @LittlepigNellJ
 
 # Product Line Tool
 /zh/**/device/plt.md @jing-liu-spacemit
@@ -70,23 +70,23 @@
 
 # peripheral drivers
 
-/zh/**/device/peripheral_driver/01-PINCTRL.md @TroyMitchell911
-/en/**/device/peripheral_driver/01-PINCTRL.md @TroyMitchell911
+/zh/**/device/peripheral_driver/01-PINCTRL.md @george-hu-spacemit @TroyMitchell911
+/en/**/device/peripheral_driver/01-PINCTRL.md @george-hu-spacemit @TroyMitchell911
 
-/zh/**/device/peripheral_driver/02-GPIO.md @TroyMitchell911
-/en/**/device/peripheral_driver/02-GPIO.md @TroyMitchell911
+/zh/**/device/peripheral_driver/02-GPIO.md @george-hu-spacemit @TroyMitchell911
+/en/**/device/peripheral_driver/02-GPIO.md @george-hu-spacemit @TroyMitchell911
 
 /zh/**/device/peripheral_driver/03-PWM.md @yhd0727 @TroyMitchell911
 /en/**/device/peripheral_driver/03-PWM.md @yhd0727 @TroyMitchell911
 
-/zh/**/device/peripheral_driver/04-IR-RX.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/04-IR-RX.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727 
+/en/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727 
 
 /zh/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 /en/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 
-/zh/**/device/peripheral_driver/06-I2C.md @yeshan-li-spacemit @@TroyMitchell911
-/en/**/device/peripheral_driver/06-I2C.md @yeshan-li-spacemit @TroyMitchell911
+/zh/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit 
+/en/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit 
 
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
@@ -94,35 +94,35 @@
 /zh/**/device/peripheral_driver/08-SDHC.md @ljysy
 /en/**/device/peripheral_driver/08-SDHC.md @ljysy
 
-/zh/**/device/peripheral_driver/09-GAMC.md
-/en/**/device/peripheral_driver/09-GAMC.md
+/zh/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit
+/en/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit
 
 /zh/**/device/peripheral_driver/10-USB/ @rzbdz
 /en/**/device/peripheral_driver/10-USB/ @rzbdz
 
-/zh/**/device/peripheral_driver/11-PCIe.md @yeshan-li-spacemit
-/en/**/device/peripheral_driver/11-PCIe.md @yeshan-li-spacemit
+/zh/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
+/en/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
 
-/zh/**/device/peripheral_driver/12-Display.md
-/en/**/device/peripheral_driver/12-Display.md
+/zh/**/device/peripheral_driver/12-Display.md @lanzreal
+/en/**/device/peripheral_driver/12-Display.md @lanzreal
 
-/zh/**/device/peripheral_driver/13-V2D.md
-/en/**/device/peripheral_driver/13-V2D.md
+/zh/**/device/peripheral_driver/13-V2D.md @lanzreal
+/en/**/device/peripheral_driver/13-V2D.md @lanzreal
 
-/zh/**/device/peripheral_driver/14-PMIC.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/14-PMIC.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/15-CAN.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/15-CAN.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727 
+/en/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727 
 
-/zh/**/device/peripheral_driver/15-Cpufreq.md @LittlepigNellJ
-/en/**/device/peripheral_driver/15-Cpufreq.md @LittlepigNellJ
+/zh/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/en/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
 
-/zh/**/device/peripheral_driver/16-Clock.md @weijinmei
-/en/**/device/peripheral_driver/16-Clock.md @weijinmei
+/zh/**/device/peripheral_driver/16-Clock.md @zhangmeng.kevin-spacemit @weijinmei
+/en/**/device/peripheral_driver/16-Clock.md @zhangmeng.kevin-spacemit @weijinmei
 
-/zh/**/device/peripheral_driver/17-Audio.md @weijinmei
-/en/**/device/peripheral_driver/17-Audio.md @weijinmei
+/zh/**/device/peripheral_driver/17-Audio.md @zhangmeng.kevin-spacemit @weijinmei
+/en/**/device/peripheral_driver/17-Audio.md @zhangmeng.kevin-spacemit @weijinmei
 
 /zh/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
 /en/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
@@ -130,32 +130,32 @@
 /zh/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
 /en/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
 
-/zh/**/device/peripheral_driver/22-EtherCAT.md
-/en/**/device/peripheral_driver/22-EtherCAT.md
+/zh/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
+/en/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
 
-/zh/**/device/peripheral_driver/23-WDT.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/23-WDT.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727 
+/en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727 
 
-/zh/**/device/peripheral_driver/BT.md
-/en/**/device/peripheral_driver/BT.md
+/zh/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
+/en/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
 
-/zh/**/device/peripheral_driver/ddr.md
-/en/**/device/peripheral_driver/ddr.md
+/zh/**/device/peripheral_driver/ddr.md @zhouxl756
+/en/**/device/peripheral_driver/ddr.md @zhouxl756
 
-/zh/**/device/peripheral_driver/gpadc.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/gpadc.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727 
+/en/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727 
 
-/zh/**/device/peripheral_driver/rtc.md @yhd0727 @LittlepigNellJ
-/en/**/device/peripheral_driver/rtc.md @yhd0727 @LittlepigNellJ
+/zh/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727 
+/en/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727 
 
 /zh/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
 
-/zh/**/device/peripheral_driver/thermal.md @LittlepigNellJ
-/en/**/device/peripheral_driver/thermal.md @LittlepigNellJ
+/zh/**/device/peripheral_driver/thermal.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/en/**/device/peripheral_driver/thermal.md @zhangmeng.kevin-spacemit @LittlepigNellJ
 
-/zh/**/device/peripheral_driver/WIFI.md 
-/en/**/device/peripheral_driver/WIFI.md
+/zh/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
+/en/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
 
 # Camera
 /zh/**/camera/ @qiang-fu-spacemit @haodong-xu-spacemit
@@ -165,12 +165,18 @@
 /zh/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
 /en/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
 
-# Graphics
-/zh/**/graphics/ @yeshan-li-spacemit
-/en/**/graphics/ @yeshan-li-spacemit
+/zh/**/media/mpp/05-CPP_ISP_MIPI-CSI.md @qiang-fu-spacemit @haodong-xu-spacemit
+/en/**/media/mpp/05-CPP_ISP_MIPI-CSI.md @qiang-fu-spacemit @haodong-xu-spacemit
 
-/zh/**/graphics/panel_porting_guide.md 
-/en/**/graphics/panel_porting_guide.md 
+# Graphics
+/zh/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
+/en/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
+
+/zh/**/graphics/ @xiaoguorou 
+/en/**/graphics/ @xiaoguorou 
+
+/zh/**/graphics/panel_porting_guide.md @lanzreal
+/en/**/graphics/panel_porting_guide.md @lanzreal
 
 # Kernel Debug
 /zh/**/kernel_debug/ @ljysy @yeshan-li-spacemit
