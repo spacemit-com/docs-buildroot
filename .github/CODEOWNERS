@@ -61,8 +61,8 @@
 /en/**/device/boot.md @zhouxl756 @GM2020JLU
 
 # Standby
-/zh/**/device/standby.md @zhangmeng.kevin-spacemit @LittlepigNellJ
-/en/**/device/standby.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/zh/**/device/standby.md @kevin-zhm @LittlepigNellJ
+/en/**/device/standby.md @kevin-zhm @LittlepigNellJ
 
 # Product Line Tool
 /zh/**/device/plt.md @jing-liu-spacemit
@@ -115,14 +115,14 @@
 /zh/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
-/en/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/zh/**/device/peripheral_driver/15-Cpufreq.md @kevin-zhm @LittlepigNellJ
+/en/**/device/peripheral_driver/15-Cpufreq.md @kevin-zhm @LittlepigNellJ
 
-/zh/**/device/peripheral_driver/16-Clock.md @zhangmeng.kevin-spacemit @weijinmei
-/en/**/device/peripheral_driver/16-Clock.md @zhangmeng.kevin-spacemit @weijinmei
+/zh/**/device/peripheral_driver/16-Clock.md @kevin-zhm @weijinmei
+/en/**/device/peripheral_driver/16-Clock.md @kevin-zhm @weijinmei
 
-/zh/**/device/peripheral_driver/17-Audio.md @zhangmeng.kevin-spacemit @weijinmei
-/en/**/device/peripheral_driver/17-Audio.md @zhangmeng.kevin-spacemit @weijinmei
+/zh/**/device/peripheral_driver/17-Audio.md @kevin-zhm @weijinmei
+/en/**/device/peripheral_driver/17-Audio.md @kevin-zhm @weijinmei
 
 /zh/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
 /en/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
@@ -136,8 +136,8 @@
 /zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
-/en/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
+/zh/**/device/peripheral_driver/BT.md @kevin-zhm
+/en/**/device/peripheral_driver/BT.md @kevin-zhm
 
 /zh/**/device/peripheral_driver/ddr.md @zhouxl756
 /en/**/device/peripheral_driver/ddr.md @zhouxl756
@@ -151,8 +151,8 @@
 /zh/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
 
-/zh/**/device/peripheral_driver/thermal.md @zhangmeng.kevin-spacemit @LittlepigNellJ
-/en/**/device/peripheral_driver/thermal.md @zhangmeng.kevin-spacemit @LittlepigNellJ
+/zh/**/device/peripheral_driver/thermal.md @kevin-zhm @LittlepigNellJ
+/en/**/device/peripheral_driver/thermal.md @kevin-zhm @LittlepigNellJ
 
 /zh/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
 /en/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
