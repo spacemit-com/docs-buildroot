@@ -17,7 +17,7 @@
 /**/release_notes/ @jing-liu-spacemit
 
 # ESOS dev guide
-/zh/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ 
+/zh/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ
 /en/**/esos/esos_dev_guide.md @ljysy @LittlepigNellJ
 
 # ESOS drivers
@@ -27,8 +27,8 @@
 /zh/**/esos/esos_driver/pwm.md @LittlepigNellJ @TroyMitchell911
 /en/**/esos/esos_driver/pwm.md @LittlepigNellJ @TroyMitchell911
 
-/zh/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911 
-/en/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911 
+/zh/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911
+/en/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911
 
 /zh/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
 /en/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
@@ -79,14 +79,14 @@
 /zh/**/device/peripheral_driver/03-PWM.md @yhd0727 @TroyMitchell911
 /en/**/device/peripheral_driver/03-PWM.md @yhd0727 @TroyMitchell911
 
-/zh/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727 
-/en/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727 
+/zh/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/04-IR-RX.md @LittlepigNellJ @yhd0727
 
 /zh/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 /en/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 
-/zh/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit 
-/en/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit 
+/zh/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit
+/en/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit
 
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
@@ -112,8 +112,8 @@
 /zh/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727 
-/en/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727 
+/zh/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/15-CAN.md @LittlepigNellJ @yhd0727
 
 /zh/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
 /en/**/device/peripheral_driver/15-Cpufreq.md @zhangmeng.kevin-spacemit @LittlepigNellJ
@@ -133,8 +133,8 @@
 /zh/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
 /en/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
 
-/zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727 
-/en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727 
+/zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 
 /zh/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
 /en/**/device/peripheral_driver/BT.md @zhangmeng.kevin-spacemit
@@ -142,11 +142,11 @@
 /zh/**/device/peripheral_driver/ddr.md @zhouxl756
 /en/**/device/peripheral_driver/ddr.md @zhouxl756
 
-/zh/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727 
-/en/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727 
+/zh/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/gpadc.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727 
-/en/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727 
+/zh/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727
+/en/**/device/peripheral_driver/rtc.md @LittlepigNellJ @yhd0727
 
 /zh/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/SPI.md @ljysy @peixin-xie-spacemit
@@ -172,8 +172,8 @@
 /zh/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
 /en/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
 
-/zh/**/graphics/ @xiaoguorou 
-/en/**/graphics/ @xiaoguorou 
+/zh/**/graphics/ @xiaoguorou
+/en/**/graphics/ @xiaoguorou
 
 /zh/**/graphics/panel_porting_guide.md @lanzreal
 /en/**/graphics/panel_porting_guide.md @lanzreal
