@@ -45,8 +45,8 @@
 /zh/**/esos/esos_driver/ruart.md @yhd0727 @TroyMitchell911
 /en/**/esos/esos_driver/ruart.md @yhd0727 @TroyMitchell911
 
-/zh/**/esos/esos_driver/rgmac.md @george-hu-spacemit
-/en/**/esos/esos_driver/rgmac.md @george-hu-spacemit
+/zh/**/esos/esos_driver/rgmac.md @george-hu-spacemit @1024panda
+/en/**/esos/esos_driver/rgmac.md @george-hu-spacemit @1024panda
 
 # Device Management
 /zh/**/device/device_management.md @jing-liu-spacemit
@@ -94,8 +94,8 @@
 /zh/**/device/peripheral_driver/08-SDHC.md @ljysy
 /en/**/device/peripheral_driver/08-SDHC.md @ljysy
 
-/zh/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit
-/en/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit
+/zh/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit @1024panda
+/en/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit @1024panda
 
 /zh/**/device/peripheral_driver/10-USB/ @rzbdz
 /en/**/device/peripheral_driver/10-USB/ @rzbdz
@@ -130,8 +130,8 @@
 /zh/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
 /en/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
 
-/zh/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
-/en/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit
+/zh/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit @1024panda
+/en/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit @1024panda
 
 /zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
@@ -172,8 +172,8 @@
 /zh/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
 /en/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
 
-/zh/**/graphics/ @xiaoguorou
-/en/**/graphics/ @xiaoguorou
+/zh/**/graphics/ @xiaoguorou @Sterling-Ash
+/en/**/graphics/ @xiaoguorou @Sterling-Ash
 
 /zh/**/graphics/panel_porting_guide.md @lanzreal
 /en/**/graphics/panel_porting_guide.md @lanzreal
