@@ -290,11 +290,75 @@ K3 在 `k3.dtsi` 中导出了很多串口别名：
 
 - `serial0 = &uart0`
 - `serial1 = &uart1`
+- `serial2 = &uart2`
 - ...
 - `serial10 = &uart10`
 - `serial11` ~ `serial16` 对应 `r_uart*`
 
 这说明如果后续某块板子要把 BT 接到 UART 上，**并不是只有一个固定 UART 可选**。真正该怎么写，要回到具体板级原理图和 DTS。
+
+### 6. 关于你提到的“UART2 开 BT”
+
+这条线我又专门回查了一遍 K3 DTS。结论是：
+
+- `k3.dtsi` 里明确存在 `uart2: serial@d4017100`
+- alias 里明确有：`serial2 = &uart2`
+- 在 `k3_evb.dts` 和 `k3_deb1.dts` 里都能看到：
+
+```dts
+&uart2 {
+	status = "okay";
+};
+```
+
+也就是说，**K3 上确实有板子把 `uart2` 打开了**。
+
+但要注意，当前 DTS 里我还**没有直接看到一个挂在 `&uart2` 下面的 `bluetooth { ... }` 子节点**，也没看到类似 serdev 直绑蓝牙协议节点的写法。
+
+所以更稳的判断是：
+
+- `uart2` 这条口在部分板子上已经被 enable；
+- 它**很可能就是留给串口类外设/蓝牙模组使用的候选口之一**；
+- 但当前这版 K3 DTS 里，并没有把“`uart2` = 蓝牙”这件事直接写死在设备树里。
+
+换句话说，这条链更像是：
+
+1. 板级先把 `&uart2` 打开；
+2. Linux 提供对应串口设备；
+3. 用户态再用 `hciattach` 或厂商工具把 BT HCI 拉起来。
+
+这也符合很多 UART 蓝牙模组的常见 bring-up 方式。
+
+### 7. 如果后续板子就是用 UART2 挂蓝牙，文档怎么落地
+
+如果你的板子确认蓝牙就是接在 `uart2`，那最小可落地配置思路通常是：
+
+1. 使能 `&uart2`
+2. 配好 TX/RX，必要时再补 CTS/RTS 流控 pinctrl
+3. 配好 BT 模组的 `shutdown-gpios` / `reset-gpios` 或 `rfkill-gpio`
+4. 进入系统后通过用户态 attach 工具初始化
+
+示意上可以理解成：
+
+```dts
+&uart2 {
+	status = "okay";
+};
+```
+
+然后用户态执行类似：
+
+```shell
+# H4 示例
+hciattach /dev/ttyS2 any 1500000 flow
+
+# Realtek H5 类方案要按模组工具/协议来
+```
+
+这里有两个要点：
+
+- `/dev/ttySx` 的实际编号，要以系统启动后的串口枚举结果为准，**不要只凭 alias 名字硬猜**；
+- H4 还是 H5，要以模组协议为准，尤其 Realtek 常常走 H5/3-wire。
 
 ## 接口介绍
 
