@@ -130,7 +130,7 @@ To download a different branch, specify another `manifest.xml` file using the `-
 After downloading the source code, it is recommended to download the third-party software packages required by buildroot in advance and distribute them within the team to avoid network congestion on the main server.
 
 ```shell
-wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
+wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl/
 ```
 
 ## Directory structure
