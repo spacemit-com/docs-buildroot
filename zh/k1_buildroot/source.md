@@ -127,7 +127,7 @@ repo start k1-bl-v2.2.y --all
 下载完源码，推荐提前下载 buildroot 依赖的第三方软件包，并在团队内部分发，避免主服务器网络拥塞。
 
 ```shell
-wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
+wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl/
 ```
 
 ## 目录结构
