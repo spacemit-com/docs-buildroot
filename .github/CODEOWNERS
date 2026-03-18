@@ -103,11 +103,11 @@
 /zh/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
 /en/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
 
-/zh/**/device/peripheral_driver/12-Display.md @lanzreal
-/en/**/device/peripheral_driver/12-Display.md @lanzreal
+/zh/**/device/peripheral_driver/12-Display.md @lijun-li-spacemit @lanzreal
+/en/**/device/peripheral_driver/12-Display.md @lijun-li-spacemit @lanzreal
 
-/zh/**/device/peripheral_driver/13-V2D.md @lanzreal
-/en/**/device/peripheral_driver/13-V2D.md @lanzreal
+/zh/**/device/peripheral_driver/13-V2D.md @lijun-li-spacemit @lanzreal
+/en/**/device/peripheral_driver/13-V2D.md @lijun-li-spacemit @lanzreal
 
 /zh/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/14-PMIC.md @LittlepigNellJ @yhd0727
@@ -175,8 +175,8 @@
 /zh/**/graphics/ @xiaoguorou @Sterling-Ash
 /en/**/graphics/ @xiaoguorou @Sterling-Ash
 
-/zh/**/graphics/panel_porting_guide.md @lanzreal
-/en/**/graphics/panel_porting_guide.md @lanzreal
+/zh/**/graphics/panel_porting_guide.md @lijun-li-spacemit @lanzreal
+/en/**/graphics/panel_porting_guide.md @lijun-li-spacemit @lanzreal
 
 # Kernel Debug
 /zh/**/kernel_debug/ @ljysy @yeshan-li-spacemit
