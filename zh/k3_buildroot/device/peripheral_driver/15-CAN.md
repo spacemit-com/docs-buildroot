@@ -54,7 +54,7 @@ K3 的 CAN 控制器在 Linux 中表现为网络设备，例如：
 - `can3`
 - `can4`
 
-如果启用了 R-domain CAN，则还可能出现对应的 rdomain 控制器实例。
+如果启用了 R-domain CAN，则还可能出现对应的 `r_flexcanX` 控制器实例。
 
 ### 源码结构介绍
 
@@ -91,7 +91,7 @@ linux-6.18/
 | :----- | :---- |
 | 协议类型 | 支持 CAN，驱动体系也支持 CAN FD 能力（取决于具体 compatible / 控制器能力） |
 | Linux 接口 | 使用 SocketCAN，表现为标准网络设备 |
-| 控制器数量 | K3 A-domain 提供 `flexcan0 ~ flexcan4`，R-domain 提供 `rflexcan0 ~ rflexcan4` |
+| 控制器数量 | K3 A-domain 提供 `flexcan0 ~ flexcan4`，R-domain 提供 `r_flexcan0 ~ r_flexcan4` |
 | 时钟源选择 | 支持 `fsl,clk-source` 属性 |
 | 收发器支持 | 支持 `xceiver-supply` 和 `can-transceiver` 描述外部收发器 |
 | 板级终端控制 | binding 支持 `termination-gpios` |
@@ -131,6 +131,32 @@ CAN 联调要同时满足：
 - 总线未短路、未悬空。
 
 所以文档里不能只讲驱动，也必须讲板级和用户空间 bring-up 方法。
+
+### K3 板级现状和使用建议
+
+从 K3 当前 SDK 的 `k3.dtsi`、`k3-rdomain.dtsi` 以及板级 DTS 来看，可以总结出几个很实用的事实：
+
+1. **A-domain 一共有 5 路 CAN**：`flexcan0 ~ flexcan4`；
+2. **R-domain 也有 5 路 CAN**：`r_flexcan0 ~ r_flexcan4`；
+3. 当前板级里最常见的启用方式，是直接在板级 DTS 里给某一路控制器补：
+   - `clock-frequency = <80000000>;`
+   - `pinctrl-names = "default";`
+   - `pinctrl-0 = <&canX_Y_cfg>;`
+   - `status = "okay";`
+4. `k3_com260_kit_v02.dts` 是一个很好的参考板，里面一次启用了多路：
+   - `&flexcan0`
+   - `&flexcan1`
+   - `&flexcan2`
+   - `&flexcan3`
+   - `&flexcan4`
+   - `&r_flexcan2`
+5. `k3_com260.dts` 里则只启用了 `&flexcan2`，这也说明不同板子通常只会打开实际引出的那几路，而不是把所有控制器都开起来。
+
+所以对用户来说，**最稳妥的做法不是“看到 dtsi 里有 10 路 CAN 就全开”**，而是：
+
+- 先看原理图/接口定义；
+- 再看板级 pinctrl 有没有对应 `canX_Y_cfg` / `rcanX_Y_cfg`；
+- 再确认对应收发器、电源、终端电阻和外部接口是否真的焊出。
 
 ## 配置介绍
 
@@ -184,10 +210,10 @@ flexcan0: fdcan@d4028000 {
 K3 R-domain 中也有对应节点，例如：
 
 ```dts
-rflexcan0: fdcan@c0883000 {
+r_flexcan0: fdcan@c0710000 {
         compatible = "spacemit,k1-flexcan";
-        reg = <0x0 0xc0883000 0x0 0x4000>;
-        interrupts = <45 IRQ_TYPE_LEVEL_HIGH>;
+        reg = <0x0 0xc0710000 0x0 0x4000>;
+        interrupts = <241 IRQ_TYPE_LEVEL_HIGH>;
         interrupt-parent = <&saplic>;
         fsl,clk-source = <0>;
         clocks = <&syscon_rcpu_sysctrl CLK_RCPU_SYSCTRL_RCAN0>,
