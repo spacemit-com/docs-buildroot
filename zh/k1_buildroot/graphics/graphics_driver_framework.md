@@ -33,6 +33,7 @@ CONFIG_POWERVR_ROGUE=y # 启用 PowerVR Rogue
 在 Buildroot 和 Bianbu 上开启 PVR GPU 驱动的方式如下：
 
 #### Buildroot
+
 在编译 buildroot 时，将配置文件中启用：
 
 ```shell
@@ -191,7 +192,7 @@ Driver Status:   OK
 
 Device ID: 0:128
 Firmware Status: OK
-Server Errors:   24
+Server Errors:   0
 HWR Event Count: 0
 CRR Event Count: 0
 SLR Event Count: 0

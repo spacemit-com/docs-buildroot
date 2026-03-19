@@ -9,6 +9,7 @@ OpenCL（Open Computing Language，开放计算语言）是由 Khronos Group 维
 通过这种方式，开发者可以同时提升 **代码可移植性** 和 **运行性能**。
 
 OpenCL 主要包含以下两个部分：
+
 1. **内核编程语言**：基于 C99 的语言，用于编写在 OpenCL 设备上运行的函数（Kernels）
 2. **平台API**：用于定义和控制计算平台的接口
 
@@ -170,11 +171,13 @@ cl_command_queue clCreateCommandQueueWithProperties(
 **程序对象**和**内核对象**是 OpenCL 最重要的部分。程序对象就是内核的一个容器，一个程序对象可以包含多个内核对象，内核对象由程序对象创建和管理。
 
 一个 OpenCL 程序对象通常包括：
+
 - 一个或多个用 OpenCL C 编写的内核函数；
 - 所调用的辅助函数；
 - 常量数据。
 
 例如，在一个代数计算场景中，同一个程序对象可以同时包含以下三个内核：
+
 - 向量相加的内核
 - 矩阵相乘的内核
 - 矩阵转置的内核
@@ -249,6 +252,7 @@ clCreateKernel(
 
 OpenCL 内核通常需要对输入和输出数据进行分类（例如，数组或多维矩阵）。
 程序执行前，需要保证输入数据可在设备端访问。为了将数据转移到设备端：
+
 1. 在设备端开辟足够的空间；
 2. 将空间封装成内存对象，以便内核访问。
 
@@ -289,6 +293,7 @@ cl_int clSetKernelArg(
 命令队列由目标设备指定，内核对象则决定具体执行的代码。
 
 在内核执行过程中，工作项的创建涉及以下四个参数：
+
 - `work_dim`：指定工作项的维度（一维、二维或三维）。
 - `global_work_size`：指定 NDRange 在每个维度上的工作项数量。
 - `local_work_size`：指定 NDRange 在每个维度上的工作组数量。
@@ -351,7 +356,7 @@ clReleaseContext(context);  //释放上下文对象
 
 在 **Buildroot** 系统中，Demo 源码位置为：
 
-```
+```bash
 xxx/buildroot-sdk/package-src/k1x-gpu-test/openGLDemo
 ```
 

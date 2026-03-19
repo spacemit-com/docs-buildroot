@@ -118,6 +118,7 @@ EGL API 由 Mesa3D 提供具体实现。
    ```c
    void glAttachShader(GLuint program, GLuint shader)
    ```
+
    用于绑定着色器对象到着色器程序。
    **参数说明**
    - `program`：指定要附加着色器的程序对象的标识符。
@@ -128,6 +129,7 @@ EGL API 由 Mesa3D 提供具体实现。
    ```c
    void glLinkProgram(GLuint program)
    ```
+
    用于将可编程渲染管道（OpenGL Shading Language）的顶点和片段着色器程序连接到一个可执行的程序对象中。
    如果连接成功，函数将返回 `GL_TRUE`，否则返回 `GL_FALSE`。
 
@@ -150,7 +152,7 @@ EGL API 由 Mesa3D 提供具体实现。
 
 在 **buildroot** 系统中，Demo 源码位置为：
 
-```
+```bash
 xxx/buildroot-sdk/package-src/k1x-gpu-test/openGLDemo
 ```
 
