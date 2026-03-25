@@ -1,34 +1,31 @@
 ---
 sidebar_position: 1
-slug: /media/mpp
 ---
 
-# 多媒体开发指南
+# Multimedia Development Guides
 
-> English Version is coming soon...
+The guides describe the purpose, scope of application and relevant personnel.
 
-介绍文档编写目的、使用范围和相关人员。
+## Purpose
 
-## 编写目的
+The documents introduce the hierarchical structure of SpacemiT's multimedia-related frameworks, open API interfaces, etc., to help developers facilitate rapid adoption and secondary developments.
 
-主要介绍 SpacemiT 的多媒体相关的框架层次结构，开放 API 接口等，方便开发者快速上手或者二次开发。
+## Scope of Application
 
-## 适用范围
+Applicable to SpacemiT K1 series SOC.
 
-适用于 SpacemiT 的 K1 系列 SOC。
+## Relevant Personnel
 
-## 相关人员
+- Application Development Engineer
+- Multimedia Middleware Development and Maintenance Engineer
 
-- 应用开发工程师
-- 多媒体中间件开发及维护工程师
+## Document Structure
 
-## 文档结构
+The document first introduces the overall structure of the multimedia framework and brief description, then elaborates on the MPP module, VPU module, JPU module, ISP/ CPP/ MIPI-CSI module, and other related modules respectively.
 
-该文档首先介绍了多媒体整体框架结构及其简要说明，然后分别对 MPP 模块，VPU 模块，JPU 模块，ISP/CPP/MIPI-CSI 模块等进行详细的说明。
+## Index
 
-## 快速索引
-
-- [多媒体框架](01-multimedia_framework.md)
+- [Multimedia Framework](01-multimedia_framework.md)
 - [MPP](02-MPP.md)
 - [VPU](03-VPU.md)
 - [JPU](04-JPU.md)
