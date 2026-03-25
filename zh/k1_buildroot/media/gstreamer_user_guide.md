@@ -27,7 +27,7 @@ GStreamer 的源码按照功能模块被划分到不同的代码仓库（repo）
 | `gst-plugins-good` | 成熟且稳定的插件                                |
 | `gst-plugins-bad`  | 正在开发中的插件，可能不稳定                     |
 | `gst-plugins-ugly` | 有 license 问题的插件，用户可以根据地域和法规，进行选择性的规避或安装                              |
-| `gst-libav`        | 基于 libav 的编解码器插件持。                     |
+| `gst-libav`        | 基于 libav 的编解码器插件。                     |
 
 这种结构使得每个仓库独立，但都依赖于 `gstreamer` 和 `gst-plugins-base`。
 
@@ -163,7 +163,7 @@ gst-inspect-1.0
 
 网络协议插件的作用是负责在设备之间建立网络连接。
 
-| Network Plugins | Package          | Description                                                      | Bianbu OS(Y/N) | Buildroot(Y/N) |
+| Payload/Depayload Plugins | Package          | Description                                                      | Bianbu OS(Y/N) | Buildroot(Y/N) |
 |-----------------|------------------|------------------------------------------------------------------|----------------|-------------------|
 | udpsink         | gst-plugins-good | Send data over the network via UDP                               | Y              | Y                 |
 | multiudpsink    | gst-plugins-good | Send data over the network via UDP to one or multiple recipients | Y              | Y                 |
@@ -313,7 +313,7 @@ HD Pro Webcam C920 (usb-xhci-hcd.0.auto-1.3):
   gst-launch-1.0 v4l2src device=/dev/video20 num-buffers=600  ! "video/x-raw,framerate=30/1,format=YUY2,width=640,height=480" ! filesink location=output.yuv
   ```
 
-- UVC 摄像头以 capture video 为 video20，采集 600 帧 480p JPEG 的格式图像并解码。（分辨率，帧率可以根据需求调整，只需摄像头自身支持该规格输出即可）
+- 以 /dev/video20 为 UVC 摄像头设备，采集 600 帧 480p JPEG 的格式图像并解码。（分辨率，帧率可以根据需求调整，只需摄像头自身支持该规格输出即可）
 
   - 图像解码后送显。
 
@@ -645,7 +645,7 @@ gst-launch-1.0 -v filesrc location=<output_image>.jpeg ! jpegdec ! imagefreeze !
 **Rtsp**
 
 1. 下载项目源码
-   访问 [https://github.com/GStreamer/gst-rtsp-server，并切换到 1.18 分支](https://github.com/GStreamer/gst-rtsp-server%EF%BC%8C%E5%B9%B6%E5%88%87%E6%8D%A2%E5%88%B01.18%E5%88%86%E6%94%AF)
+   访问 [https://github.com/GStreamer/gst-rtsp-server，并切换到 1.18 分支](https://github.com/GStreamer/gst-rtsp-server)
 
 2. 编译安装
 
@@ -787,4 +787,4 @@ $ dot 0.00.00.170999259-gst-launch.PAUSED_PLAYING.dot -Tpng -o play.png
    - 使用通用的 Gstreamer 插件替换 SpacemiT 解码插件进行调试。
    - 使用 `ffplay` 解码片源观察是否有问题。
    - 使用 MPP 自带测试工具, 解码片源观察是否有问题。
-    参考 [SpacemiT MPP 文档](./mpp/02-MPP.md) 使用其提供的测试工具进行解码测试
+    参考 [SpacemiT MPP 文档](.//mpp/02-MPP.md) 使用其提供的测试工具进行解码测试

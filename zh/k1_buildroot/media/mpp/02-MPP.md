@@ -1163,7 +1163,7 @@ typedef struct _MppG2dPara {
   S32 nOutputWidth;                             ；输出frame帧的宽
   S32 nOutputHeight;                            ；输出frame帧的高
   S32 nInputBufSize;                            ；输入frame帧的size
-  S32 nOutputBufSize;                           ；输出frrame帧的size
+  S32 nOutputBufSize;                           ；输出frame帧的size
   union {
     MppG2dFillColorPara sFillColorPara;         ；颜色填充参数
     MppG2dCopyPara sCopyPara;                   ；复制参数
@@ -1311,7 +1311,7 @@ typedef struct _MppProcessNode {
 
 #### 4.7.3 struct MppOps
 
-接口抽象。
+node 节点操作集的定义
 
 ```c
 /***
