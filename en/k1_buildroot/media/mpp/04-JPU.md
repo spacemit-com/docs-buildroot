@@ -2,58 +2,56 @@ sidebar_position: 4
 
 # JPU
 
-> English Version is coming soon...
+As a hardware module for JPEG image encoding and decoding, JPU (JPEG Processing Unit) improves encoding and decoding efficiency and reduces CPU load. K1's CPU offers complete test programs for reference.
 
-JPU（Jpeg Processing Unit）是进行 Jpeg 图像编解码的硬件，能够提高 Jpeg 的编解码效率并减少 CPU 负荷。K1 的 JPU 提供了完整的测试程序供参考。
+## 1. Specification（To be supplement）
 
-## 1 规格（待补充）
+## 2. JPU Test Program
 
-## 2 JPU 测试程序
+`k1x-jpu` encapsulates APIs for the application layer. Based on these APIs, it also integrates a set of programs for testing and verifying the K1's JPU functions, which also provide reference for application development (interface with the JPU for hardware encoding and decoding).
 
-k1x-jpu 内部封装了给应用层的 API，同时基于该 API 集成一套用于测试验证 K1 芯片的 JPU（Jpeg Processing Unit，负责视频的编解码工作）功能的程序集，也可以作为客户开发自己的应用程序（需要对接 JPU 进行硬件编解码）的参考。
+### 2.1 Installation Instruction
 
-### 2.1 安装说明
+#### 2.1.1 Bianbu Desktop System
 
-#### 2.1.1 Bianbu 桌面系统
-
-源中已经集成了 k1x-jpu，直接使用 apt 命令来安装即可。
+`k1x-jpu` is pre-integrated in the repository and can be installed via `apt` command. 
 
 ```shell
 sudo apt update
 sudo apt install k1x-jpu
 ```
 
-#### 2.1.2 Buildroot 系统
+#### 2.1.2 Buildroot System
 
-2 种方法将 k1x-jpu 集成到系统中：
+Two methods for intergrating `k1x-jpu` into the system: 
 
-- 在编译 img 的时候，将 k1x-vpu-test 的编译集成选项打开**（默认已经打开）**，这样，编译的 img 中默认就有 k1x-jpu 相关的测试程序
-- 如果编译 img 的时候，没有打开 k1x-jpu 的编译集成选项，img 中没有 k1x-jpu 相关的测试程序，只能手动编译 k1x-jpu，然后将生成的 bin 拷贝到系统的/usr/bin/目录中来使用，具体包括 bin，下面有说明
+- Enable the compilation and integration option for k1x-jpu when compiling the image (enabled by default), so that all related test programs are included in the generated image.
+- If the `k1x-jpu` is not integrated into the img, you can only compile `k1x-jpu` manually, then copy the generated `bin` files to the `/usr/bin/` directory of the system for use. The specific `bin` files are described below.
 
-### 2.2 使用说明
+### 2.2 Usage Instruction
 
-k1x-jpu 的测试程序集中主要包含下面几个测试程序：
+The main test programs of `k1x-jpu`: 
 
-- **jpu_dec_test**：用于 JPEG 的解码测试
-- **jpu_enc_test**：用于 JPEG 的编码测试
-- **libjpu.so**：JPU 的 API 封装库
+- **jpu_dec_test**: Used for JPEG decoding test
+- **jpu_enc_test**: Used for JPEG encoding test
+- **libjpu.so**：JPU wrapper library
 
 #### 2.2.1 jpu_dec_test
 
-1. 一些基本用法
+1. Basic usage examples:
 
 ```shell
-//将input.jpeg解码为output.yuv
+//Decode input.jpeg to output.yuv
 ./jpu_dec_test --input=input.jpeg   --output=output.yuv
 
-//将input.jpeg解码为output.yuv，output.yuv的像素格式为NV12
+//Decode input.jpeg to output.yuv, with pixel format of output.yuv set to NV12. 
 ./jpu_dec_test --input=input.jpeg   --output=output.yuv --subsample=420 --ordering=nv12
 
-//将input.jpeg解码为output.yuv，output.yuv的像素格式为YUYV
+//Decode input.jpeg to output.yuv, with pixel format of output.yuv set to YUYV将input.jpeg
 ./jpu_dec_test --input=input.jpeg   --output=output.yuv --subsample=422 --ordering=yuyv
 ```
 
-2. 参数说明
+2. Parameter Description
 
 ```shell
 bianbu@k1:~$ jpu_dec_test -h
@@ -87,14 +85,14 @@ bianbu@k1:~$ jpu_dec_test -h
 
 #### 2.2.2 jpu_enc_test
 
-1. 一些基本用法
-
+1. Basic usage examples:
+ 
 ```shell
-//将input.yuv编码为quality为10的output.jpeg,使用enc.cfg中的配置
+//Encode imput.yuv to output.jpeg with a quality of 10, using the configurations in enc.cfg.
 ./jpu_enc_test --cfg-dir=xxx --yuv-dir=xxx --input=enc.cfg --output=output.jpeg --profiling=1 --loop_count=1 --quality=10
 
 
-//env.cfg的配置参考如下：
+//reference for env.cfg configuration:
 ;-----------------------------------------------------------------
 ; Configuration File for MJPEG BP @ Encoder
 ;
@@ -122,7 +120,7 @@ IMG_FORMAT                  0
                             ; Source Format (0 : 4:2:0, 1 : 4:2:2, 2 : 4:4:0, 3 : 4:4:4, 4 : 4:0:0)
 ```
 
-2. 参数说明
+2. Parameter Description
 
 ```shell
 bianbu@k1:~$ jpu_enc_test -h
@@ -139,19 +137,19 @@ bianbu@k1:~$ jpu_enc_test -h
 [JPU/6272] --quality=PERCENTAGE    quality factor(1..100)
 ```
 
-### 2.3 代码结构
+### 2.3 Code Structure
 
-k1x-jpu 的代码位置在：
+Code of `k1x-jpu` locates at:
 
 ```shell
 package-src/k1x-jpu
 ```
 
-代码结构及简要说明如下：
+Code structure and brief description are as follows:
 
 ```shell
-|-- CMakeLists.txt                //cmake构建脚本
-|-- debian                        //deb包构建的相关配置和脚本
+|-- CMakeLists.txt                //cmake build script
+|-- debian                        //deb package build configration and script
 |   |-- bianbu.conf
 |   |-- changelog
 |   |-- compat
@@ -190,13 +188,13 @@ package-src/k1x-jpu
 |   |-- mm.h
 |   `-- regdefine.h
 |-- sample
-|   |-- dmabufheap                           //dmabuf分配管理
+|   |-- dmabufheap                           //dmabuf allocation and management
 |   |   |-- BufferAllocator.cpp
 |   |   |-- BufferAllocator.h
 |   |   |-- BufferAllocatorWrapper.cpp
 |   |   |-- BufferAllocatorWrapper.h
 |   |   `-- dmabufheap-defs.h
-|   |-- helper                               //一些utils
+|   |-- helper                               //utils
 |   |   |-- bitstreamfeeder.c
 |   |   |-- bitstreamwriter.c
 |   |   |-- bsfeeder_fixedsize_impl.c
@@ -210,8 +208,8 @@ package-src/k1x-jpu
 |   |   |-- platform.h
 |   |   |-- yuv_feeder.c
 |   |   `-- yuv_feeder.h
-|   |-- main_dec_test.c                      //解码测试程序实现
-|   `-- main_enc_test.c                      //编码测试程序实现
+|   |-- main_dec_test.c                      //decoding test program implementation
+|   `-- main_enc_test.c                      //encoding test program implementation
 `-- usr
     `-- lib
         `-- systemd
@@ -219,17 +217,17 @@ package-src/k1x-jpu
                 `-- jpu.service
 ```
 
-### 2.4 编译说明
+### 2.4 Compilation Instruction
 
-Bianbu 桌面系统
+**Bianbu Desktop System**
 
 ```shll
 cd k1x-jpu
-sudo apt-get build-dep k1x-jpu    #安装依赖
+sudo apt-get build-dep k1x-jpu    #Install Dependencies
 dpkg-buildpackage -us -uc -nc -b -j32
 ```
 
-Buildroot 系统
+**Buildroot System**
 
 ```shell
 cd k1x-jpu

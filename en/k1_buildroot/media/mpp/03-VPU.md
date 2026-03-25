@@ -2,86 +2,89 @@ sidebar_position: 3
 
 # VPU
 
-> English Version is coming soon...
+VPU (Video Processing Unit) is a hardware with video codec functionality, which improves codec efficiency and reduces CPU load. 
 
-VPU（Video Processing Unit，视频处理单元）具有视频编解码功能的硬件，能够提高编解码效率并减少 CPU 负荷。K1 的 VPU 基于标准 V4L2 框架实现，支持 H.264/HEVC/VP8/VP9/MJPEG/MPEG4 等格式的解码和 H.264/HEVC/VP8/VP9/MJPEG 等格式的编码，并提供了完整的测试程序供参考。
+K1 VPU implemented based on **V4L2** framework.
+- **Decoding support**：H.264/ HEVC/ VP8/ VP9/ MJPEG/ MPEG4
+- **Encoding support**:  H.264/ HEVC/ VP8/ VP9/ MJPEG
+- **Feature**: Provide complete test programs to facilitate development and functional verification.
 
-## 1 规格
+## 1 Specifications
 
-### 1.1 解码规格（2cores@819MHz）
+### 1.1 Decodig Specification（2cores@819MHz）
 
-| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格        | 多路规格        |
+| format  | profile                   | maximum resolution | maximum bitrate | specification        | multi-channel specification        |
 | ----- | ------------------------- | ---------- | -------- | ----------- | --------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 200Mbps  | 4k@60fps    | 8路 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 200Mbps  | 4k@60fps    | 8路 1080P@30fps |
-| VP8   | /                         | 2048×2048  | 100Mbps  | 1080p@60fps | 2路 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 120Mbps  | 4k@30fps    | 4路 1080P@30fps |
-| JPEG  | Baseline sequential       | 8192×8192  | 80Mbps   | 4k@30fps    | 4路 1080P@30fps |
-| VC-1  | SP/MP/AP                  | 2048×4096  | 80Mbps   | 1080p@60fps | 2路 1080P@30fps |
-| MPEG4 | SP/ASP                    | 2048×2048  | 40Mbps   | 1080p@60fps | 2路 1080P@30fps |
-| MPEG2 | MP                        | 4096×4096  | 40Mbps   | 1080p@60fps | 2路 1080P@30fps |
+| HEVC  | Main/Main10               | 4096×4096  | 200Mbps  | 4k@60fps    | 8 channels 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 200Mbps  | 4k@60fps    | 8 channels 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 100Mbps  | 1080p@60fps | 2 channels 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 120Mbps  | 4k@30fps    | 4 channels 1080P@30fps |
+| JPEG  | Baseline sequential       | 8192×8192  | 80Mbps   | 4k@30fps    | 4 channels 1080P@30fps |
+| VC-1  | SP/MP/AP                  | 2048×4096  | 80Mbps   | 1080p@60fps | 2 channels 1080P@30fps |
+| MPEG4 | SP/ASP                    | 2048×2048  | 40Mbps   | 1080p@60fps | 2 channels 1080P@30fps |
+| MPEG2 | MP                        | 4096×4096  | 40Mbps   | 1080p@60fps | 2 channels 1080P@30fps |
 
-### 1.2 编码规格（2cores@819MHz）
+### 1.2 Encoding Specification（2cores@819MHz）
 
-| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格        | 多路规格        |
+| format  | profile                   | maximum resolution | maximum bitrate | specification        | multi-channel specification        |
 | ----- | ------------------------- | ---------- | -------- | ----------- | --------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 200Mbps  | 4k@30fps    | 4路 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 200Mbps  | 4k@30fps    | 4路 1080P@30fps |
-| VP8   | /                         | 2048×2048  | 100Mbps  | 1080p@60fps | 2路 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 200Mbps  | 4k@30fps    | 4路 1080P@30fps |
-| JPEG  | Baseline sequential       | 8192×8192  | 200Mbps  | 4k@30fps    | 4路 1080P@30fps |
+| HEVC  | Main/Main10               | 4096×4096  | 200Mbps  | 4k@30fps    | 4 channels 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 200Mbps  | 4k@30fps    | 4 channels 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 100Mbps  | 1080p@60fps | 2 channels 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 200Mbps  | 4k@30fps    | 4 channels 1080P@30fps |
+| JPEG  | Baseline sequential       | 8192×8192  | 200Mbps  | 4k@30fps    | 4 channels 1080P@30fps |
 
-## 2 VPU 测试程序
+## 2 VPU Test Program
 
-k1x-vpu-test 是一套用于测试验证 K1 芯片的 VPU（Video Processing Unit，负责视频的编解码工作）功能性能的程序集，也可以作为客户开发自己的应用程序（需要对接 VPU 进行硬件编解码）的参考。
+`k1x-vpu-test` is a set of programs used to test the functions and performances of K1's VPU. It's also a reference for application development (interface with the VPU for hardware encoding and decoding).
 
-### 2.1 安装说明
+### 2.1 Installation Instruction
 
-#### 2.1.1 Bianbu 桌面系统
+#### 2.1.1 Bianbu Desktop System
 
-源中已经集成了 k1x-vpu-test，直接使用 apt 命令来安装即可。
+`k1x-vpu-test` is pre-integrated in the repository and can be installed via the `apt` command.
 
 ```shell
 sudo apt update
 sudo apt install k1x-vpu-test
 ```
 
-#### 2.1.2 Buildroot 系统
+#### 2.1.2 Buildroot System
 
-2 种方法将 k1x-vpu-test 集成到系统中：
+Two methods for integrating `k1x-vpu-test` into the system:
 
-- 在编译 img 的时候，将 k1x-vpu-test 的编译集成选项打开（默认已经打开），这样，编译的 img 中默认就有 k1x-vpu-test 相关的测试程序
-- 如果编译 img 的时候，没有打开 k1x-vpu-test 的编译集成选项，img 中没有 k1x-vpu-test 相关的测试程序，只能手动编译 k1x-vpu-test，然后将生成的 bin 拷贝到系统的/usr/bin/目录中来使用，具体包括哪些 bin，下面有说明
+- Enable the `k1x-vpu-test` compilation and integration option (enabled by default) when compiling img, so the img will include `k1x-vpu-test` related test programs by default.
+- If the `k1x-vpu-test` compilation and integration option is disabled during img compilation, you can manually compile `k1x-vpu-test` and copy the generated bin files to the system's `/usr/bin/` directory to use them. The bin files are listed below.
 
-### 2.2 使用说明
+### 2.2 Usage Instruction
 
-k1x-vpu-test 的测试程序集中主要包含下面几个测试程序：
+The test suite of `k1x-vpu-test` includes the following test programs:
 
-- **mvx_decoder**：用于单路视频码流的解码测试
-- **mvx_decoder_multi**：用于多路视频码流的解码测试（多路视频码流必须为同一个视频）
-- **mvx_encoder**：用于单路视频流的视频编码测试
-- **mvx_encoder_multi**：用于多路 YUV 流的视频编码测试（多路 YUV 流必须为同一个流）
-- **mvx_logd**：用于抓取 firmware 的 log 分析定位问题
+- **mvx_decoder**: Used for decoding tests of single-channel video bitstreams
+- **mvx_decoder_multi**: Used for decoding tests of multi-channel video bitstreams (Multi-channel video bitstreams must be the same video).
+- **mvx_encoder**: Used for video encoding tests of single-channel video bistreams
+- **mvx_encoder_multi**: Used for video encoding tests of multi-channel YUV streams (Multi-channel YUV streams must be the same stream).
+- **mvx_logd**: Used to capture firmware logs to analyze and locate issues
 
 #### 2.2.1 mvx_decoder
 
-一些基本用法
+Basic usage examples:
 
 ```shell
-//将input.264的H.264视频流（带startcode）解码为output.yuv
-//-f raw ： 表示视频裸流
-//输入码流的编码格式默认为H.264
-//输出YUV数据的像素格式默认为YUV420P
+//Decode H.264 video stream (with startcode) from input.264 to output.yuv
+//-f raw : represents raw video stream 
+//Default input encoding format is H.264
+//Default output YUV pixel format is YUV420P
 mvx_decoder -f raw /mnt/streams/input.264 /mnt/test/output.yuv
 
-//将input.264的H.264视频流（带startcode）解码为output.yuv，output.yuv的像素格式为NV12
+//Decode H.264 video stream (with startcode) from input.264 to output.yuv, with output pixel format set to NV12
 mvx_decoder -f raw -o yuv420_nv12 /mnt/streams/input.264 /mnt/test/output.yuv
 
-//将input.265的HEVC视频流（带startcode）解码为output.yuv
+//Decode HEVC video stream (with startcode) from input.265 to output.yuv
 mvx_decoder -f raw -i hevc /mnt/streams/input.265 /mnt/test/output.yuv
 ```
 
-参数说明
+Parameter Description
 
 ```shell
 usage: ./mvx_decoder [optional] [positional]
@@ -182,19 +185,19 @@ optional arguments:
 
 #### 2.2.2 mvx_decoder_multi
 
-一些基本用法
+Basic usage examples:
 
 ```shell
-//将input.264的H.264视频流（带startcode）解码为output.yuv，同时4路解码并行
-//输入码流的编码格式默认为H.264
-//输出YUV数据的像素格式默认为YUV420P
+//Decode the H.264 video stream (with startcode) from input.264 to output.yuv, processing 4 concurrent decodings. 
+//The default input encoding format is H.264.
+//The default pixel format of the output YUV data is YUV420P.
 mvx_decoder_multi -n 4 /mnt/streams/input.264 /mnt/test/output.yuv
 
-//将input.265的HEVC视频流（带startcode）解码为output.yuv，4路同时进行，output.yuv的像素格式为NV21
+//Decode the HEVC video stream (with startcode) from input.265 to output.yuv, processing 4 concurrent decodings. The pixel format of output.yuv is NV21.
 mvx_decoder_multi -n 4 -i hevc -o yuv420_nv21 /mnt/streams/input.265 /mnt/test/output.yuv
 ```
 
-参数说明
+Parameter Description
 
 ```shell
 usage: ./mvx_decoder_multi [optional] [positional]
@@ -225,19 +228,19 @@ optional arguments:
 
 #### 2.2.3 mvx_encoder
 
-一些基本用法
+Basic usage examples:
 
 ```shell
-//将input.yuv的YUV420P流编码为output.264的H.264视频流（带startcode）
-//输入YUV流的像素格式默认为YUV420P
-//输出视频流的编码格式默认为H.264
+//Encode the YUV420P sream from input.yuv to H.264 video stream (with startcode) in output.264. 
+//The default pixel format of the input YUV stream is YUV420P.
+//The default encoding format of the output video stream is H.264.
 mvx_encoder -f raw -w 1280 -h 720 /mnt/streams/input.yuv /mnt/test/output.264
 
-//将input.yuv的NV21流编码为output.265的HEVC视频流(带startcode)
+//Encode the NV21 stream from input,yuv to HEVC video stream (with startcode) output.265.
 mvx_encoder -f raw -w 1280 -h 720 -i yuv420_nv21 -o hevc /mnt/streams/input.yuv /mnt/test/output.265
 ```
 
-参数说明
+Parameter Description
 
 ```shell
 usage: ./mvx_encoder [optional] [positional]
@@ -454,17 +457,17 @@ optional arguments:
 
 #### 2.2.4 mvx_encoder_multi
 
-一些基本用法
+Basic usage examples:
 
 ```shell
-//将input.yuv的YUV420P流编码为output.264的H.264视频流（带startcode），4路同时进行
+//Encode the YUV420P stream from input.yuv into H.264 video stream (with startcode) in output.264, performing 4 concurrent encodings. 
 mvx_encoder_multi -n 4 -w 1280 -h 720 /mnt/streams/input.yuv /mnt/test/output.264
 
-//将input.yuv的NV21流编码为output.265的HEVC视频流(带startcode)，4路同时进行
+//Encode the NV21 stream from input.yuv into HEVC video stream (with startcode) in output.265, performing 4 concurrent encodings.
 mvx_encoder_multi -n 4 -w 1280 -h 720 -i yuv420_nv21 -o hevc /mnt/streams/input.yuv /mnt/test/output.265
 ```
 
-参数说明
+Parameter Description
 
 ```shell
 usage: ./mvx_encoder_multi [optional] [positional]
@@ -504,20 +507,20 @@ optional arguments:
 
 #### 2.2.5 mvx_logd
 
-一些基本用法
+Basic usage examples:
 
 ```shell
-//挂载debugfs，保存fw的log到文件
+//mount debugfs to save fw log to file
 mount -t debugfs none /sys/kernel/debug
-//清除之前的log
+//Clear previous logs
 mvx_logd -C
-//设置好保存路径
+//Set log save path and format
 mvx_logd -d -f text xxx.log
-//开始播放视频
-//查看xxx.log
+//Start video playback
+//Inspect xxx.log
 ```
 
-参数说明
+Parameter Description
 
 ```shell
 Usage: ./mvx_logd [OPTIONS] [DST]
@@ -558,51 +561,51 @@ Example:
     # mvx_logd -t -1 fw.log
 ```
 
-### 2.3 代码结构
+### 2.3 Code Structure
 
-k1x-vpu-test 的代码位置在：
+The code of k1x-vpu-test locates at：
 
 ```shell
 package-src/k1x-vpu-test
 ```
 
-代码结构及简要说明如下：
+Code structure and brief description：
 
 ```shell
-|-- CMakeLists.txt                //cmake构建脚本
-|-- debian                        //deb包构建的相关配置和脚本
-|-- format.sh                     //代码风格格式化脚本，Google风格进行格式化
-|-- include                       //重要头文件
+|-- CMakeLists.txt                //cmake build script
+|-- debian                        //configurations and scripts for deb package building
+|-- format.sh                     //code style formatting script, formated in Google style
+|-- include                       //important header file
 |   |-- fw_v2
 |   |   `-- mve_protocol_def.h    
 |   |-- md5.h
 |   |-- mvx_argparse.h
 |   |-- mvx_list.h
 |   |-- mvx_log_ram.h
-|   `-- mvx-v4l2-controls.h       //VPU驱动的附加API
+|   `-- mvx-v4l2-controls.h       //Additional APIs for VPU driver
 |-- test
 |   |-- coverage
-|   |-- md5                                 //md5相关的API与实现
+|   |-- md5                                 //md5 API and implementation
 |   |   |-- CMakeLists.txt
 |   |   |-- md5.c
 |   |   `-- md5.h
-|   |-- mvx_player                          //测试程序集实现代码
+|   |-- mvx_player                          //test program set implementation code
 |   |   |-- CMakeLists.txt
-|   |   |-- dmabufheap                      //dmabuf管理相关API与实现
+|   |   |-- dmabufheap                      //dmabuf management API and implementation
 |   |   |   |-- BufferAllocator.cpp
 |   |   |   |-- BufferAllocator.h
 |   |   |   |-- BufferAllocatorWrapper.cpp
 |   |   |   |-- BufferAllocatorWrapper.h
 |   |   |   `-- dmabufheap-defs.h
-|   |   |-- mvx_decoder.cpp                 //mvx_decoder实现
-|   |   |-- mvx_decoder_multi.cpp           //mvx_decoder_multi实现
-|   |   |-- mvx_encoder.cpp                 //mvx_encoder实现
-|   |   |-- mvx_encoder_gen.cpp             //mvx_encoder_gen实现
-|   |   |-- mvx_encoder_multi.cpp           //mvx_encoder_multi实现
-|   |   |-- mvx_info.cpp                    //mvx_info实现
-|   |   |-- mvx_player.cpp                  //核心逻辑封装实现
-|   |   |-- mvx_player.hpp                  //核心逻辑封装API
-|   |   `-- reader                          //码流读取API与实现
+|   |   |-- mvx_decoder.cpp                 //mvx_decoder implementation
+|   |   |-- mvx_decoder_multi.cpp           //mvx_decoder_multi implementation
+|   |   |-- mvx_encoder.cpp                 //mvx_encoder implementation
+|   |   |-- mvx_encoder_gen.cpp             //mvx_encoder_gen implementation
+|   |   |-- mvx_encoder_multi.cpp           //mvx_encoder_multi implementation
+|   |   |-- mvx_info.cpp                    //mvx_info implementation
+|   |   |-- mvx_player.cpp                  //core logic encapsulation implementation
+|   |   |-- mvx_player.hpp                  //core logic encapsulation API
+|   |   `-- reader                          //bitsream reading API and implementation
 |   |       |-- parser.h
 |   |       `-- read_util.h
 |   |-- userptr
@@ -614,12 +617,12 @@ package-src/k1x-vpu-test
 |       |-- mvx_argparse.h
 |       `-- mvx_list.h
 `-- tools
-    |-- logd                                //logd实现，抓取VPU的firmware的log
+    |-- logd                                //logd implementation, capture VPU firmware logs
     |   |-- CMakeLists.txt
     |   |-- mvx_logd.cpp
     |   |-- mvx_logd_fwif_v2.cpp
     |   `-- mvx_logd.hpp
-    `-- securevideo                         //用于安全视频的测试（未验证使用）
+    `-- securevideo                         //for security video testing (use not verified)
         |-- 50-mvx.rules
         |-- mvx_securehelper.cpp
         |-- mvx_secureplayer.cpp
@@ -628,17 +631,17 @@ package-src/k1x-vpu-test
 
 ```
 
-### 2.4 编译说明
+### 2.4 Compilation Instruction
 
-Bianbu 桌面系统
+**Bianbu Desktop System**
 
 ```shell
 cd k1x-vpu-test
-sudo apt-get build-dep k1x-vpu-test    #安装依赖
+sudo apt-get build-dep k1x-vpu-test    #install dependencies
 dpkg-buildpackage -us -uc -nc -b -j32
 ```
 
-Buildroot 系统
+**Buildroot System**
 
 ```shell
 cd k1x-vpu-test
@@ -649,18 +652,18 @@ make
 make install
 ```
 
-### 2.5 调试说明
+### 2.5 Debugging Instruction
 
-#### 2.5.1 Log 添加
+#### 2.5.1 Log addition
 
-使用 printf 或者 fprintf 来添加 log，重新编译安装即可生效
+Add logs with `printf` or `fprintf`, recompile and reinstall to activate.
 
-#### 2.5.2 解码成功 log
+#### 2.5.2 Decoding succeeded log
 
-1. 单路解码
+1. **Signle-channel decoding**
 
 ```shell
-/mnt/tool # ./mvx_decoder -f raw /mnt/streams/h264dec/Zhling_1280x720.264 /mnt/test/output.yuv  //输入命令
+/mnt/tool # ./mvx_decoder -f raw /mnt/streams/h264dec/Zhling_1280x720.264 /mnt/test/output.yuv  //input command
 
 Opening '/dev/video0'.
 Enumerate frame size. index=0, pixel_format=32314d59, min_width=2, max_width=8192, step_width=2, min_height=2, max_height=8192, step_height=2
@@ -675,11 +678,11 @@ Query: type=2, index=4, sequence=0, timestamp={0, 0}, flags=4000, bytesused=0, l
 Query: type=2, index=5, sequence=0, timestamp={0, 0}, flags=4000, bytesused=0, length=1048576
 Request buffers. type=9, count=1, memory=4
 Query: type=9, index=0, sequence=0, timestamp={0, 0}, flags=4000, num_planes=3, bytesused=[0, 0, 0], length=[1, 1, 1], offset=[0, 0, 0]
-//申请输入输出buffer
+//request input and output buffer
 
 Stream on 2
 Stream on 9
-//输入输出开流
+//open input and output streams
 
 Event. type=5.
 source changed. should reset output stream.
@@ -692,10 +695,10 @@ Query: type=9, index=1, sequence=0, timestamp={0, 0}, flags=4000, num_planes=3, 
 Query: type=9, index=2, sequence=0, timestamp={0, 0}, flags=4000, num_planes=3, bytesused=[0, 0, 0], length=[921600, 230400, 230400], offset=[0, 0, 0]
 Query: type=9, index=3, sequence=0, timestamp={0, 0}, flags=4000, num_planes=3, bytesused=[0, 0, 0], length=[921600, 230400, 230400], offset=[0, 0, 0]
 Stream on 9
-//收到分辨率改变消息，关闭输出流，重新申请输出buffer，开启输出流
+//Upon receiving the resolution change message, close the output stream, reallocate the output buffer, and reopen the output stream.
 
 -----Decoder. set timestart_us: 15432355548 us---------
-//开始解码
+//start decoding
 
 Capture EOS.
 -----[Test Result] MVX Decode Done. frames_processed: 18, cost time: 16604176 us.
@@ -704,20 +707,20 @@ Stream off 9
 -----[Test Result] MVX Decode PASS. Average Framerate: 1.08.
 Total size 26265600
 Closing fd 5.
-//解码完成，输出信息，退出
+//Decoding completed, output information, and exit.
 ```
 
-2. 多路解码
+2. **Multi-channel decoding**
 
 ```shell
 /mnt/tool # ./mvx_decoder_multi -n 4 /mnt/streams/h264dec/foreman_128x64.264 /mnt/test/output.yuv
-//命令
+//command
 
 -----Decoder. set timestart_us: 16076598695 us---------
 -----Decoder. set timestart_us: 16076606348 us---------
 -----Decoder. set timestart_us: 16076569259 us---------
 -----Decoder. set timestart_us: 16076788196 us---------
-//开始解码
+//start decoding
 
 -----[Test Result] MVX Decode Done. frames_processed: 2, cost time: 148367 us.
 -----[Test Result] MVX Decode Done. frames_processed: 2, cost time: 250563 us.
@@ -727,16 +730,16 @@ Total size 36864
 Total size 36864
 Total size 36864
 Total size 36864
-//解码完成，输出信息，退出
+//Decoding completed, output information, and exit.
 ```
 
-#### 2.5.3 编码成功 log
+#### 2.5.3 Encoding succeeded log
 
-1. 单路编码
+1. **Single-channel encoding**
 
 ```shell
 /mnt/tool # ./mvx_encoder -f raw -w 1280 -h 720 /mnt/streams/yuv/zhling_1280x720.yuv /mnt/test/output.264
-//命令
+//command
 
 Opening '/dev/video0'.
 setEncFramerate( 1966080 )
@@ -758,14 +761,14 @@ Query: type=9, index=5, sequence=0, timestamp={0, 0}, flags=4000, num_planes=1, 
 Query: type=9, index=6, sequence=0, timestamp={0, 0}, flags=4000, num_planes=1, bytesused=[0], length=[921600], offset=[0]
 Query: type=9, index=7, sequence=0, timestamp={0, 0}, flags=4000, num_planes=1, bytesused=[0], length=[921600], offset=[0]
 Query: type=9, index=8, sequence=0, timestamp={0, 0}, flags=4000, num_planes=1, bytesused=[0], length=[921600], offset=[0]
-//申请输入输出buffer
+//Request input and output buffer
 
 Stream on 10
 Stream on 9
-//输入输出开流
+//Open input and output streams
 
 -----Encoder. set timestart_us: 15823672258 us---------
-//开始编码
+//start encoding
 
 Capture EOS.
 -----[Test Result] MVX Encode Done. frames_processed: 19, cost time: 28493385 us.
@@ -774,20 +777,20 @@ Stream off 9
 -----[Test Result] MVX Encode PASS. Average Framerate: 0.67.
 Total size 140165
 Closing fd 5.
-//编码完成，输出信息，退出
+//Encoding completed, input information, and exit.
 ```
 
-2. 多路编码
+2. **Multi-channel encoding**
 
 ```shell
 /mnt/tool # ./mvx_encoder_multi -n 4 -w 128 -h 64 /mnt/streams/yuv/foreman_128x64_3frames.yuv /mnt/test/output.264
-//命令
+//command
 
 -----Encoder. set timestart_us: 16243183563 us---------
 -----Encoder. set timestart_us: 16243458316 us---------
 -----Encoder. set timestart_us: 16243756086 us---------
 -----Encoder. set timestart_us: 16244053547 us---------
-//开始编码
+//Start encoding
 
 -----[Test Result] MVX Encode Done. frames_processed: 3, cost time: 634710 us.
 -----[Test Result] MVX Encode Done. frames_processed: 3, cost time: 952320 us.
@@ -797,5 +800,5 @@ Total size 1618
 Total size 1618
 Total size 1618
 Total size 1618
-//编码完成，输出信息，退出
+//Encoding completed, input information, and exit. 
 ```
