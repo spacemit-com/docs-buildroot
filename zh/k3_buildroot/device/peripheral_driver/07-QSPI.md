@@ -51,13 +51,16 @@ Linux spi驱动框架分为三部分: **SPI core**、**SPI控制器驱动** 和 
 
 当前QSPI控制器最大支持102MHz，支持的通信频率列表：
 
-| 最大频率（MHz） | 分频系数(x)   | 实际频率 |
-| --------------- | ------------- | -------- |
-| 409             | 4,5,6,7,8    | 409/x    |
-| 307             | 3,4,5,6,7,8 | 307/x    |
-| 245             | 3,4,5,6,7,8   | 245/x    |
-| 223             | 3,4,5,6,7,8   | 223/x    |
-| 491             | 5,6,7,8       | 491/x    |
+- 30.72MHz
+- 35.10MHz
+- 40.96MHz
+- 53.57MHz
+- 68.26MHz
+- 75MHz
+- 81.92MHz
+- 93.75MHz
+- 98.3MHz
+- 102.4MHz
 
 #### 通信倍速
 
@@ -114,20 +117,15 @@ Device Drivers
 QSPI 控制器和 SPI 设备最大通信速率。  
 当前 QSPI 控制器支持的通信频率列表见本文 **性能参数** 小节 的 **通信频率** 中的频率列表
 
-##### 通信倍速
-
-QSPI 通信倍速支持 x1/x2/x4。
 
 ##### spi 设备 dts
 
 以 spi nor 为例，采用最大通信频率 30MHz，发送和接收都采用 x4 通信。
 
-QSPI 控制器默认最大通信频率 30MHz。若 QSPI 控制器的最大通信频率为 30MHz，则方案 DTS 中可省略 `k1x,qspi-freq` 配置项。
-
 ```c
+// 这里需要指定一下pin所需使用的电压，这里以1V8举例，更详细信息请参考pinctrl章节
 &pinctrl {
 	qspi-cfg {
-        // 1V8
 		qspi-0-pins {
 			power-source = <1800>;
 		};
@@ -148,25 +146,25 @@ QSPI 控制器默认最大通信频率 30MHz。若 QSPI 控制器的最大通信
 		reg = <0>;
 		spi-max-frequency = <30000000>;
 		m25p,fast-read;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 		broken-flash-reset;
 		status = "okay";
 	};
 };
-
 ```
 
 #### dts示例
 
 ##### spi-nor
 
-综合上述信息，QSPI 连接 spi-nor flash，最大通信频率为 30MHz，且采用 x4 通信。
+综合上述信息，QSPI 连接 spi-nor flash，nor最大通信频率为 30MHz，且采用 x4 通信。
 
 方案 dts 配置如下
 
 ```c
 &pinctrl {
 	qspi-cfg {
-        // 1V8
 		qspi-0-pins {
 			power-source = <1800>;
 		};
@@ -187,6 +185,8 @@ QSPI 控制器默认最大通信频率 30MHz。若 QSPI 控制器的最大通信
 		reg = <0>;
 		spi-max-frequency = <30000000>;
 		m25p,fast-read;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 		broken-flash-reset;
 		status = "okay";
 	};
@@ -195,14 +195,13 @@ QSPI 控制器默认最大通信频率 30MHz。若 QSPI 控制器的最大通信
 
 ##### spi-nand
 
-QSPI 连接 spi-nand flash，最大通信频率为 26.5MHz，且采用 x4 通信。
+QSPI 连接 spi-nand flash，nand最大通信频率为30MHz，且采用 x4 通信。
 
 方案 dts 配置可以参考 spi-nor，只用修改 flash 设备节点。
 
 ```c
 &pinctrl {
 	qspi-cfg {
-        // 1V8
 		qspi-0-pins {
 			power-source = <1800>;
 		};
@@ -223,6 +222,8 @@ QSPI 连接 spi-nand flash，最大通信频率为 26.5MHz，且采用 x4 通信
 		reg = <0>;
 		spi-max-frequency = <30000000>;
 		m25p,fast-read;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 		broken-flash-reset;
 		status = "okay";
 	};
@@ -280,8 +281,8 @@ int spi_sync(struct spi_device *spi, struct spi_message *message);
 /sys/bus/spi
 
 ```
-|-- devices                 //spi总线上的设备
-|-- drivers                 //spi总线上注册的设备驱动
+|-- devices                 // spi总线上的设备
+|-- drivers                 // spi总线上注册的设备驱动
 |-- drivers_autoprobe
 |-- drivers_probe
 `-- uevent
@@ -295,6 +296,7 @@ int spi_sync(struct spi_device *spi, struct spi_message *message);
 ```
 |-- capabilities
 `-- params
+
 # cat capabilities
 Supported read modes by the flash
  1S-1S-1S
@@ -305,40 +307,62 @@ Supported read modes by the flash
   opcode        0x0b
   mode cycles   0
   dummy cycles  8
+ 1S-1S-2S
+  opcode        0x3b
+  mode cycles   0
+  dummy cycles  8
+ 1S-2S-2S
+  opcode        0xbb
+  mode cycles   2
+  dummy cycles  2
+ 1S-1S-4S
+  opcode        0x6b
+  mode cycles   0
+  dummy cycles  8
+ 1S-4S-4S
+  opcode        0xeb
+  mode cycles   2
+  dummy cycles  4
+ 4S-4S-4S
+  opcode        0xeb
+  mode cycles   2
+  dummy cycles  2
 
 Supported page program modes by the flash
  1S-1S-1S
   opcode        0x02
+
 # cat params
-name            w25q32
-id              ef 40 16 00 00 00
-size            4.00 MiB
+name            gd25lq64c
+id              c8 60 17 c8 60 17
+size            8.00 MiB
 write size      1
 page size       256
 address nbytes  3
-flags           BROKEN_RESET | HAS_16BIT_SR
+flags           HAS_SR_TB | BROKEN_RESET | HAS_LOCK | HAS_16BIT_SR | NO_READ_CR | SOFT_RESET
 
 opcodes
- read           0x0b
-  dummy cycles  8
+ read           0xeb
+  dummy cycles  6
  erase          0x20
  program        0x02
  8D extension   none
 
 protocols
- read           1S-1S-1S
+ read           1S-4S-4S
  write          1S-1S-1S
  register       1S-1S-1S
 
 erase commands
- 20 (4.00 KiB) [0]
- d8 (64.0 KiB) [1]
- c7 (4.00 MiB)
+ 20 (4.00 KiB) [1]
+ 52 (32.0 KiB) [2]
+ d8 (64.0 KiB) [3]
+ c7 (8.00 MiB)
 
 sector map
- region (in hex)   | erase mask | flags
+ region (in hex)   | erase mask | overlaid
  ------------------+------------+----------
- 00000000-003fffff |     [01  ] |
+ 00000000-007fffff |     [ 1  ] | no
 ```
 
 ## 测试介绍
