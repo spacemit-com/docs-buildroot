@@ -227,7 +227,7 @@ You can download and compile the source code manually, or install the tool direc
   Controls result display by aggregating information from each thread or process.
 ```
 
-- Vertify
+- Verify
 
    **Tip:** It is generally recommended to enable this option during read/write aging tests.
 
