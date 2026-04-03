@@ -1,45 +1,43 @@
 sidebar_position: 3
 
-# Linux 内存调试指南
+# Linux Memory Debugging Guide
 
-> English Version is coming soon...
+## 1. Overall Memory Status
 
-## 整体内存情况
+These tools are used to quickly assess memory pressure and performance bottlenecks.
 
-这些工具用于快速评估内存压力和性能瓶颈。
+### 1.1 free
 
-### free
-
-#### 输出示例
+#### Example Output
 
 ```text
 free
                total        used        free      shared  buff/cache   available
-内存：       3505164     1079472     1232024        4492     1354252     2425692
-交换：             0           0           0
+Memory:       3505164     1079472     1232024        4492     1354252     2425692
+Swap:             0           0           0
 ```
 
-- total: 总量
-- used: 已使用量
-- free: 完全空闲量
-- shared: 共享内存（主要由 tmpfs 等使用）
-- buff/cache: 用作缓冲区和缓存的内存
-- available: 对应用程序来说，可用的内存
-- 核心关系解读
+- total: total memory
+- used: used memory
+- free: free memory
+- shared: shared memory (mainly used by tmpfs, etc)
+- buff/cache: buffer/cache memory
+- available: available memory for applications
+- core relationship
   - `total` ≈ `used` + `free` + `buff/cache`
-  - `available` ≈ `free` + (大部分的 `buff/cache`)
+  - `available` ≈ `free` + (most of the `buff/cache`)
 
-#### 常用选项
+#### Common Options
 
-- `-h`：人类可读格式
-- `-s <interval>`：持续监控，每 interval 秒刷新
+- `-h`: human-readable format
+- `-s <interval>`: continuously monitor and refresh every interval second 
 
-#### 作用
-   1.  作为日常快速检查内存使用率和 Swap 情况的首选工具。注意，判断内存是否够用，应该看 available，而不是 free。
+#### Purpose
+ It is the first choice for quickly checking memory usage and Swap status in daily use. **Note**: You should check `available` rather than `free` to determine whether memory is sufficient.
 
-### /proc/meminfo
+### 1.2 /proc/meminfo
 
-#### 输出示例
+#### Example Output
 
 ```text
 cat /proc/meminfo
@@ -95,41 +93,41 @@ Hugepagesize:       2048 kB
 Hugetlb:               0 kB
 ```
 
-- `Active`: 最近被访问过的内存，内核认为短期内可能还会被用到，不优先回收。
-- `Inactive`: 较长时间未被访问的内存，是内存回收时的首选目标。
-- `Active(anon)`: 最近被访问过的匿名内存。这是内存泄漏最常发生的区域。
-- `Slab`: 内核数据结构（如 inode、dentry、socket 缓冲区等）的缓存。
-- `SReclaimable`: `Slab` 中可以被安全回收的部分。
-- `SUnreclaim`: `Slab` 中不能被回收的部分 。
-- `CommitLimit`: 系统当前能够承诺分配给所有进程的总内存大小。
-- `Committed_AS`: 所有进程已经申请的虚拟内存总和。这部分内存不一定真的被使用了，只是“预定”了。
-- 核心关系解读
-  - `Active` + `Inactive` 大致构成了系统当前正在使用的内存页。
+- `Active`: Recently accessed memory is not prioritized for reclamation by the kernel, since it is deemed likely to be reused in the short term.
+- `Inactive`: Memory that has not been accessed for a long time is the primary target for memory reclamation.
+- `Active(anon)`: Recently accessed anonymous memory. This is the most common area for memory leaks. 
+- `Slab`: Caches for kernel data structure (such as inode, dentry, socket buffer, etc.). 
+- `SReclaimable`: Safely reclaimable portion of the `Slab`.
+- `SUnreclaim`: Unreclaimable portion of the `Slab`.
+- `CommitLimit`: Total memory the system can currently commit to allocating for all processes. 
+- `Committed_AS`: Total virtual memory already requested by all processes. This memory is just reserved rather than used.
+- Core relationship
+  - `Active` + `Inactive` roughly constitute the memory pages currently in use by the system. 
   - `CommitLimit` ≈ `SwapTotal` + (`MemTotal` * `vm.overcommit_ratio` / 100)
-  - `Committed_AS` (4.5 GB) > `CommitLimit` (1.75 GB)。这说明系统处于内存超售的状态。Linux 允许进程申请比实际物理内存更多的内存，它在赌这些进程不会同时使用它们申请的所有内存。
-  - `MemTotal` ≈ (应用程序占用的 `AnonPages`) + (内核占用的 `Slab` + `KernelStack` + `PageTables` + ...) + (文件缓存 `Cached` + `Buffers`) + `MemFree`
-  - `MemAvailable` ≈ `MemFree` + (大部分可回收的 `Cached`) + (可回收的内核内存 `SReclaimable`)
+  - `Committed_AS` (4.5 GB) > `CommitLimit` (1.75 GB). This indicates that the system is in an overcommit state. Linux permits processes to request more memory than the actual physical memory, betting that these processes will not use all their requested memory simultaneously.
+  - `MemTotal` ≈ (`AnonPages` used by applications) + (`Slab` + `KernelStack` + `PageTables` + ... used by kernel) + (`Cached` + `Buffers` file cache) + `MemFree`
+  - `MemAvailable` ≈ `MemFree` + (most reclaimable `Cached`) + (reclaimable kernel memory `SReclaimable`)
 
-#### 作用
+#### Purpose
 
-提供一个关于系统内存使用情况的、极其详尽的实时快照。因为free命令的输出信息有限，如果要获取更详细的内容，应查看"/proc/meminfo"。
+Provide a detailed, real-time snapshot of system memory usage. Because the output of the `free` command is limited, see "/proc/meminfo" for more detailed information. 
 
-系统响应缓慢，怀疑内存不足时，如果`MemAvailable`持续很低（比如低于总内存的 10%），说明系统可用的内存确实紧张；如果系统有 Swap，而这个值很高且在持续增长，说明物理内存已经耗尽，系统正在频繁地使用慢速的硬盘充当内存。
+When the system is slow to respond, it may indicate insufficient memory. If `MemAvailable` remains continuously low (e.g. below 10% of total memory), the available system memory is insufficient; if Swap is enabled and its usage is high and growing continuously, it means physical memory is exhausted, and the system is frequently using slow disk as memory.
 
-怀疑存在内存泄漏时，运行 `watch -n 1 cat /proc/meminfo`，观察 MemAvailable 是否在没有运行新程序的情况下，持续、缓慢地下降。
+When suspecting a memory leak, run `watch -n 1 cat /proc/meminfo` to check whether MemAvailable decreases steadily and slowly without launching new programs. 
 
-### top 
+### 1.3 top 
 
-#### 输出示例
+#### Example Output
 
 ```text
 top - 10:36:11 up  1:06,  2 users,  load average: 2.00, 2.00, 2.03
-任务: 308 total,   1 running, 307 sleeping,   0 stopped,   0 zombie
+Task: 308 total,   1 running, 307 sleeping,   0 stopped,   0 zombie
 %Cpu(s):  0.4 us,  0.4 sy,  0.0 ni, 99.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
 MiB Mem :   3423.0 total,   1127.9 free,   1070.9 used,   1392.0 buff/cache     
 MiB Swap:      0.0 total,      0.0 free,      0.0 used.   2352.1 avail Mem 
 
- 进程号 USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                                                                                                                                                                                       
+ Process ID USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                                                                                                                                                                                       
    3029 root      20   0 1224740 119232  72168 S   2.3   3.4   5:26.08 Xorg                                                                                                                                                                                          
    5021 root      20   0   16432   5248   3072 R   1.3   0.1   0:00.32 top                                                                                                                                                                                           
     723 avahi     20   0    7544   3712   2944 S   0.7   0.1   0:21.87 avahi-daemon                                                                                                                                                                                  
@@ -149,27 +147,27 @@ MiB Swap:      0.0 total,      0.0 free,      0.0 used.   2352.1 avail Mem
       4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-rcu_g                                                                                                                                                                               
 ```
 
-- `KiB Mem : ...`: 物理内存使用情况。这一行就是 free 命令的简化版。
-- `KiB Swap: ...`: 交换空间使用情况。`avail Mem`是评估系统可用内存的关键指标。
--  进程列表区：
-  - `VIRT`: 进程“申请”或“预定”的总内存大小。它包括了进程实际使用的内存、被交换出去的内存、以及它所链接的共享库的内存。
-  - `RES`: 它表示该进程当前实际占用了多少物理内存（RAM）。
-  - `SHR`: 代表`RES` 中，有多少是与其他进程共享的内存（主要是共享库）。
-  - `%MEM`: 代表该进程的 `RES` 占系统总物理内存 (`MemTotal`) 的百分比。
-- 核心关系解读
-  -  `RES` - `SHR` 可以估算出这个进程“独占”的物理内存。
+- `KiB Mem : ...`: Physical memory usage. This line is a simplified `free` command. 
+- `KiB Swap: ...`: Swap usage. `avail Mem` is the key indicator for assessing available system memory. 
+- Process list area:
+  - `VIRT`: Total memory "requested" or "reserved" by process. It includes actual memory used by the process, swapped memory and memory from shared libraries linked to the process.
+  - `RES`: It represents physical memory (RAM) currently occupied by the process.
+  - `SHR`: It represents portion of `RES` that is shared with other processes (primarily shared libraries).
+  - `%MEM`: It represents the percentage of total system physical memory (`MemTotal`) used by the process. 
+- Core relationship
+  - `RES` - `SHR` estimates the private physical memory used by the process. 
 
-#### 作用
+#### Purpose
 
-top 命令可以看作是 /proc/meminfo 和 free 的一个动态、交互式的“仪表盘”，它不仅显示了系统的总体资源情况，并列出了消耗资源的进程排行榜。
+The `top` command can be seen as a dynamic, interactive "dashboard" for /proc/meminfo and free. It not only manifests the overall system resource but also ranks processes by resource consumption. 
 
-在 top 界面中，直接按下大写的 M (Shift + m)。top 会立刻按照 %MEM 列从高到低对进程进行排序。
+In the top interface, press "M" ("Shift + m") to sort processes by %MEM in descending order. 
 
-按下小写的 k，top 会提示你输入要杀死的进程 PID，输入后按回车，再输入信号（默认15，表示正常终止），再次回车即可杀死进程。
+Press "k", and top will prompt you to enter the PID of the process to be killed. Press "ENTER", then enter a signal (default: 15 for normal termination). Press "ENTER" again to kill the process. 
 
-### echo m > /proc/sysrq-trigger
+### 1.4 echo m > /proc/sysrq-trigger
 
-1.  输出示例
+#### Example Output
 
 ```text
 echo m > /proc/sysrq-trigger
@@ -202,49 +200,47 @@ echo m > /proc/sysrq-trigger
 [ 5091.851044] 98304 pages cma reserved 
 ```
 
-- 第一部分：全局内存页统计
-  - `isolated_anon/isolated_file`: 隔离页。这是内存回收过程中的一个临时状态。当内核扫描 inactive 列表准备回收时，会先把选中的页移动到 isolated 列表中，以避免争用。
-  - `unreclaimable`: 内核认为“正在使用中”、不可释放的内核数据结构。
-  - `unevictable`: 不可回收页。被 mlock() 系统调用锁定的内存、某些特殊的内核分配等。这些页面绝对不会被交换或回收。
-  - `pagetables`: 用于管理虚拟地址到物理地址映射的页表本身所占用的内存。进程越多、内存分配越碎片化，这个值就越大。
-- 第二部分：Node 和 Zones 
-  - `Node`: 在 NUMA 架构下代表一个 CPU 节点及其本地内存。在普通PC上，通常只有一个 Node 0。
-  - `DMA32 / Normal`: 内存域 (Zone)。DMA32 用于与只能在 4GB 以下地址寻址的 32 位设备进行 DMA 交互的内存区域。
-  - `Watermarks`: min: 最低水位线。low: 低水位线。high: 高水位线。
-- 第三部分：内存碎片化直方图
-  - `588*4kB`: 表示在 Normal 域中，有 588 个大小为 4KB 的连续空闲内存块。
+- Part 1: Global memory page statistics
+  - `isolated_anon/isolated_file`: Isolated pages. This is a temporary status during memory reclamation. When the kernel scans the inactive list to reclaim pages, it first moves selected pages to the isolated list to avoid contention. 
+  - `unreclaimable`: Kernel data structures that the kernel considers "in use" and cannot be freed. 
+  - `unevictable`: Unreclaimable pages. Memory locked by the mlock() system call, certain special kernel allocations, etc. These pages are never swapped out or reclaimed. 
+  - `pagetables`: Memory used by page tables themselves, which manage virtual-to-physical address mappings. This value increases with more processes and more fragmented memory allocations.   
+- Part 2： Nodes and Zones
+  - `Node`: Under a NUMA architecture, it represents a CPU node and its local memory. On ordinary PCs, there is usually only one Node 0.
+  - `DMA32 / Normal`: Memory zone (Zone). DMA32 is used for DMA operations with 32-bit devices that can only address below 4GB.
+  - `Watermarks`: min: minimum watermark; low: low watermark; high: high watermark.
+  - `588*4KB`:It indicates there are 588 contiguous free memory blocks of size 4KB in the Normal zone.
 
-#### 作用
+#### Purpose
 
-该命令会立即触发内核，让它将一份极其详细的、底层的内存状态快照转储到内核日志缓冲区中。它是一个时间点的快照。这对于捕捉瞬时发生的系统问题非常有用，可以在问题发生时立即触发它。
+This command immediately trigger the kernel to dump a highly detailed, low-level snapshot of memory state into the kernel log buffer. It is a point-in-time snapshot. It is very useful for locating transient system issues. You can invoke it right away when a problem occurs. 
 
-如果发现系统卡顿，立即触发 echo m，然后查看 dmesg。如果发现任何一个 Zone 的 free 值低于它的 low 甚至 min 值，就直接证明了卡顿是由内核进行内存回收导致的。
+If the system becomes unresponsive, immediately trigger `echo m` and then check `dmesg`. If the free value of any zone is lower than its low or even min threshold, it turns out that the lag is caused by kernel memory reclamation.
 
-如果看到总 free 很高，但直方图里全是 *4kB, *8kB 这样的小块，而没有 *2048kB 这样的大块，这就直接证明了问题是内存碎片化导致的。
+If the total `free` memory is high, but the histogram consists almost entirely of small blocks such as *4KB, *8KB without large blocks like *2048KB, it turns out the issue is caused by memory fragmentation.
 
-## 页分配器
+## 2. Page Allocator 
 
-分析伙伴系统，诊断内存碎片问题。
+Analyze the buddy system and diagnose memory fragmentation issues.
 
-### /proc/buddyinfo
+### 2.1 /proc/buddyinfo
 
-#### 输出示例
+#### Example output
 
 ```text
 cat /proc/buddyinfo 
 Node 0, zone    DMA32    753    750    565    400    893    433    167     93     40     13      1     71 
 Node 0, zone   Normal     22      3      7    119     96     37      6     16      3      0      0      0  
 ```
+- Each column represents an order, whose size is 2^order * page_size. On x86 systems, one page is 4KB. 
 
-- 每一列代表一个“阶”（order），其大小为 2^order * page_size。在 x86 系统上，一个 page 是 4KB。
+#### Purpose
 
-#### 作用
+It is primarily used to identify memory fragmentation. When severe fragmentation is suspected, you can manually trigger memory compaction with `echo 1 > /proc/sys/vm/compact_memory`. Then you will observe that the kernel successfully compacts small fragments into large blocks.  
 
-主要定位内存碎片化问题。当怀疑碎片化严重时，你可以手动触发内存整理：`echo 1 > /proc/sys/vm/compact_memory`。可以看到内核成功地将小碎片合并成了大块内存。
+### 2.2 /proc/pagetypeinfo
 
-### /proc/pagetypeinfo
-
-#### 输出示例
+#### Example output
 
 ```text
 cat /proc/pagetypeinfo 
@@ -270,47 +266,47 @@ Node 0, zone    DMA32           16          804           12            0       
 Node 0, zone   Normal         1166          856           26            0            0            0  
 ```
 
-- 第一部分：头部信息
-  - `Page block order\Pages per block`: 表示一个 pageblock 的大小是 2^9 = 512 个页，如果一个页是 4KB，那么一个 pageblock 就是 512 * 4KB = 2048KB = 2MB。
-- 第二部分：按类型细分的空闲页统计
-  - 把 buddyinfo 的每一行，按照页面的可迁移类型进行了再次分解。
-  - `Unmovable`: 不可移动页，内核核心数据结构、被硬件直接引用的内存等。
-  - `Movable`: 可移动页，绝大多数用户态应用程序的内存。
-  - `Reclaimable`: 可回收页，不能移动，但可以被安全地丢弃，最典型的是文件页缓存。
-  - `HighAtomic`: 作为原子分配的终极备用池。
-  - `CMA`: 为需要物理连续内存的设备驱动程序预留的区域。
-  - `Isolate`: 内存整理过程中的一个临时状态，通常应为 0。
-- 第三部分：Pageblock 类型摘要
-  - 在每个 zone 中，有多少个 2MB 的 pageblock 被归类为各种类型。
+- Part 1: Header information  
+  - `Page block order\Pages per block`: Indicates that one pageblock consists of  2^9 = 512 pages. If one page is 4KB, one pageblock is 512 * 4KB = 2048KB = 2MB.
+- Part 2: Free pages counts by type
+  - Further breaks down each line from `buddyinfo` according to the page migratetypes.
+  - `Unmovable`: Unmovable pages used for core kernel data structures, memory directly referenced by hardware, etc.
+  - `Movable`: Movable pages. Memory for most userspace applications.
+  - `Reclaimable`: Reclaimable pages. Pages cannot be moved but can be safely discarded. The most typical type is file page cache.
+  - `HighAtomic`: The final reserve pool for atomic allocations.
+  - `CMA`: Reserved zone for device driver that requires physical contiguous memory.
+  - `Isolate`: A temporary state during memory compaction, which should normally be 0.
+- Part 3: Pageblock type summary 
+  - The number of 2MB pageblocks in each zone classified into each type.
 
-#### 作用
+#### Purpose
 
-可以用于定位内存整理失效问题，大量的 Unmovable 内存块充当了“路障”，会使得内核无法将可移动的内存页有效地挪到一起。
+It is used to identify failures in memory compaction. Numerous unmovable blocks act as "roadblocks", preventing the kernel from effectively compacting movable pages.
 
-### /proc/zoneinfo
+### 2.3 /proc/zoneinfo
 
-#### 使用示例
+#### Example Usage
 
 ```text
 cat /proc/zoneinfo 
 ```
 
-- `per-node stats`: 提供了针对整个 NUMA 节点（Node）的内存统计数据。它将该节点下所有内存域（DMA32, Normal）的数据聚合在一起。
-  - `nr_kernel_stack`: 所有进程/线程的内核栈所占用的总页数。这是一个估算系统任务数量的指标。
-  - `nr_page_table_pages`: 用于页表本身的内存页数。如果一个进程的虚拟内存空间非常大且稀疏，这个值会显著增长。
-- `Per-CPU 页缓存`：内核为每个 CPU 都维护了一个小型的“私有”内存缓存 pageset。当 pageset 的页数超过了它的 high 水位线（805），多余的页才会被批量（batch=63）地还给全局的伙伴系统。
+- `per-node stats`: Provides memory statistics aggregated for an entire NUMA Node. It combines data from all memory Zones (DMA32, Normal) under the node. 
+  - `nr_kernel_stack`: Total pages occupied by all processes/threads. This is an indicator for estimating the number of system tasks running on the system.
+  - `nr_page_table_pages`: Number of memory pages used for pages themselves. This value increases significantly if a process has a very large and sparse virtual memory space.
+- `Per-CPU page cache`: The kernel maintains a small private memory cache pageset for each CPU. When the number of pages in pageset exceeds its high watermark (805), the excess pages are returned in batches (batch=63) to overall buddy system in batches (batch=63).
 
-#### 作用
+#### Purpose
 
-/proc/zoneinfo 提供了最详尽、最原始、最全面的内存状态数据，基本上之前所有内存相关 /proc 文件（如 meminfo, buddyinfo）的数据都是从这里汇总或提取出来的。它提供了最精确的分类计数，能精确地知道在 Normal 区域和 DMA32 区域，各种类型的内存分别是多少。
+`/proc/zoneinfo` provides the most detailed, raw and comprehensive memory state information. Data from almost all previous memory-related `/proc` files (e.g. meminfo, buddyinfo) is summarized or derived from here. It provides precise categorized counts, allowing exact inspection of how much memory of each type exists in the Normal zone and DMA32 zone. 
 
-## 对象分配器
+## 3. Object Allocator 
 
-监控 Slab/Slub 缓存，排查内核对象泄漏。
+Monitors Slab/Slub caches and debugs the kernel object leaks.
 
-### /proc/slabinfo
+### 3.1 /proc/slabinfo
 
-#### 使用示例
+#### Example Usage
 
 ```text
 cat /proc/slabinfo 
@@ -318,149 +314,150 @@ cat /proc/slabinfo
 inode_cache        13879  14025    640   25    4 : tunables    0    0    0 : slabdata    561    561      0
 ```
 
-#### 作用
+#### Purpose
 
-用于定位内核内存泄漏 ，系统长时间运行后，可用内存越来越少，但通过 top 等工具找不到是哪个用户进程的错。meminfo 显示 SUnreclaim (不可回收的 Slab) 持续增长。如果发现某个特定的 slab 的 active_objs 和 num_slabs 数量在只增不减，就极有可能找到了内存泄漏的源头。
+Used to identify kernel memory leaks. After the system has been running for a long time, free memory gradually decreases, but tools such as `top` cannot identify which user process is responsible. `meminfo` manifests that SUnreclaim (unreclaimable Slab) keeps growing. If `active_objs` and `num_slabs` of a particular slab only increase and never decrease, this is highly likely the source of the memory leak. 
 
-### slabtop
+### 3.2 slabtop
 
-#### 使用示例
+#### Example Usage
 
 ```text
 slabtop 
 ```
 
-- 按下 c 键，这会使列表按 CACHE SIZE 排序，将内存消耗最大的缓存池置顶。 
+- Press `c` to sort the list by CACHE SIZE, bringing the largest memory-consuming caches to the top. 
 
-#### 作用
+#### Purpose
 
-slabtop 可以看作是 /proc/slabinfo 的一个交互式的实时视图，它让诊断内核内存问题变得更加直观。如果屏幕上最顶部的某个缓存池的 ACTIVE 对象数和 CACHE SIZE 在不断稳定增长，从不下降，很可能就是泄漏的源头。
+`slabtop` can be seen as an interactive real-time view of `/proc/slabinfo`, making kernel memory issue diagnosis more intuitive. If the number of ACTIVE object and CACHE SIZE of a cache at the top of the screen keep growing steadily without ever decreasing, it is likely the source of the leak.
 
-## 虚拟内存管理
+## 4. Virtual Memory Management
 
-分析虚拟内存活动和进程内存映射。
+Analyzes virtual memory activities and process memory mappings.
 
-### vmstat
+### 4.1 vmstat
 
-#### 使用示例
+#### Usage example
 
 ```text
 vmstat
 procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
- r  b 交换 空闲 缓冲 缓存   si   so    bi    bo   in   cs us sy id wa st gu
+ r  b swap free buffer cache   si   so    bi    bo   in   cs us sy id wa st gu
  0  0      0 736276  66928 1503792    0    0    46    19 1533    2  1  0 99  0  0  0
  
 ```
 
-#### 作用
+#### Purpose
 
-可以定位内存瓶颈，比如当物理内存不足以支撑当前的应用负载，系统正在频繁使用慢速的交换分区。
+Identifies memory bottlenecks. For example, when physical memory is insufficient to support the current application load, the system will frequently use the slow swap partition. 
 
-### /proc/vmallocinfo
+### 4.2 /proc/vmallocinfo
 
-#### 使用示例
+#### Example Usage
 
 ```text
 cat /proc/vmallocinfo 
 ```
 
-#### 作用
+#### Purpose
 
-内核中申请内存，除了使用slab，还可能使用vmallo申请。该文件详细列出了当前 vmalloc 区域中所有已分配的内存块。如果发现某个区域的内存只增不减，并且反复出现由同一个调用者（例如 some_driver_alloc）分配的记录，很可能是这个驱动程序或内核模块存在内存泄漏。
+In the kernel, memory can be allocated using `vmalloc` in addition to `slab`. This file lists all allocated memory blocks in the current `vmalloc` zone in detail. If memory in a specific area only increases and never decreases, and there are repeated allocation records from the same caller (such as some_driver_alloc), the driver or kernel module is very likely suffering from a memory leak.
 
-### pmap
+### 4.3 pmap
 
-#### 使用示例
+#### Example Usage
 
 ```text
 pmap [options] PID [PID ...] 
 ```
 
-#### 常用选项
+#### Common Options
 
-- `-x`: 显示细节
-- `-X`: 显示更多细节
-- `-XX`: 显示内核提供的所有信息
+- `-x`: displays details
+- `-X`: displays more details
+- `-XX`: displays all informtion from the kernel 
 
-#### 作用
+#### Purpose
 
-用于显示指定进程的虚拟内存映射信息。有时候程序崩溃或行为异常可能与内存访问错误有关（如段错误），pmap 可以提供上下文信息。
+Displays virtual memory mapping information of a specific process. Program crashes or abnormal behavior are sometimes related to memory access errors (such as segmentation fault), and `pmap` can provide contextual information. 
 
-## 调试文件节点与工具
+## 5. Debugging File Nodes and Tools
 
-用于深度调试的专用工具。
+Tools for in-depth debugging. 
 
-### /sys/kernel/debug/kmemleak
+### 5.1 /sys/kernel/debug/kmemleak
 
-#### 使用方法
+#### Usage
 
-- 开启 kmemleak
+- Enable kmemleak
 
 ```text
 CONFIG_DEBUG_KMEMLEAK=y
 ```
 
-- 手动触发一次扫描
+- Manually trigger a scan 
 
 ```text
 echo scan > /sys/kernel/debug/kmemleak
 ```
 
-- 获取报告
+- Acquire the report
 
 ```text
 cat /sys/kernel/debug/kmemleak
 ```
 
-#### 作用
+#### Purpose
 
-用于定位内存泄漏问题，这类问题不会立即导致崩溃，但会慢慢耗尽系统资源。
+Identify memory leak issues, which do not lead to an immediate crash, but gradually exhaust system resources.
 
-### KASAN
+### 5.2 KASAN
 
-#### 使用方法
+#### Usage
 
--  开启 KASAN
+-  Enable KASAN
 
 ```text
 CONFIG_KASAN=y 
 ```
 
-- 对于软件模式，还可以在 `CONFIG_KASAN_OUTLINE` 和 `CONFIG_KASAN_INLINE` 之间进行选择。outline和inline是编译器插桩类型。前者产生较小的二进制文件， 而后者快2倍。
+- For software mode, `CONFIG_KASAN_OUTLINE` and `CONFIG_KASAN_INLINE` are available. `Outline` and `inline` are compiler instrumentation types. `Outline` produces a small binary file, while `inline` is twice as fast. times faster. 
 
-#### 作用
+#### Purpose
 
-用于发现具有立即破坏性的、非法的内存访问行为。如越界访问、释放后使用、重复释放等。
+Used to detect immediately destructive illegal memory accesses, such as out-of-bounds access, use-after-free, double-free, etc.
 
-### /proc/sys/vm/drop_caches
+### 5.3 /proc/sys/vm/drop_caches
 
-#### 使用方法
+#### Usage
 
 ```text
 echo 1 > /proc/sys/vm/drop_caches
 ```
 
--  释放页面缓存（Page Cache）
+-  Free page cache
 
 ```text
 echo 2 > /proc/sys/vm/drop_caches
 ```
 
-- 释放目录项缓存（dentries）和索引节点缓存（inodes）。
+- Free dentry caches and inode caches.
 
-#### 作用
 
-用于手动触发内核清空Page Cache、dentry caches和inode caches的接口。
+#### Purpose
 
-### /proc/sys/vm/compact_memory
+An interface used to manually trigger the kernel to drop page caches, dentry caches and inode caches. 
 
-#### 使用方法
+### 5.4 /proc/sys/vm/compact_memory
+
+#### Usage
 
 ```text
  echo 1 > /proc/sys/vm/compact_memory
 ```
 
-#### 作用
+#### Purpose
 
-用于手动触发内存规整，减少内存碎片、创建更大连续物理内存块。
+Usedd to manually trigger memory compaction to reduce memory fragments and create larger contiguous physical memory blocks.
 
