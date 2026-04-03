@@ -32,10 +32,10 @@ DMA 控制器相关源码位于 `drivers/dma` 目录下：
 drivers/dma
 |--dmaengine.c dmaengine.h      #内核 DMA 框架代码
 |--dmatest.c                    #内核 DMA 测试代码
-|--mmp_pdma.c                   #K3 PDMA 控制器驱动（上游 mainline）
+|--mmp_pdma.c                   #K3 PDMA 控制器驱动
 ```
 
-K3 使用的 PDMA 驱动为上游 mainline 的 `mmp_pdma.c`，compatible 为 `spacemit,k1-pdma`。
+K3 使用的 PDMA 驱动文件为 `mmp_pdma.c`，compatible 为 `spacemit,k1-pdma`。
 
 ## 关键特性
 
@@ -75,11 +75,7 @@ K3 SDK 的 defconfig 中上述选项及 `CONFIG_DMATEST` 均已开启。
 
 ### DTS 配置
 
-DMA 的使用方法是 **选择一个通道** 并 **指定起始地址和目标地址**，如内存到内存，内存到外设等。
-
-本节介绍：
-- 在 DTS 中使能 DMA 控制器
-- 为具体设备（如 SPI）配置 DMA 支持
+DTS 层面需要完成两件事：首先使能 PDMA 控制器节点，其次在使用 DMA 的外设节点上声明 `dmas` / `dma-names`，这样驱动才能在运行期申请到对应的通道。下面分别示例这两部分写法。
 
 #### DMA 控制器配置示例
 
@@ -99,7 +95,7 @@ pdma: pdma@d4000000 {
 };
 ```
 
-此节点配置了 DMA 的时钟、复位资源和通道数（16 路）。实际传输时的 burst 大小由外设驱动通过 `dma_slave_config` 的 `src_maxburst` / `dst_maxburst` 在运行时指定，驱动支持 8 / 16 / 32 / 64 字节。
+此节点声明了 DMA 的寄存器地址、时钟、复位资源和通道数（16 路）。
 
 K3 还有一组安全域 PDMA 控制器 pdma1（地址 0xf0600000），当前 DTS 中默认禁用：
 
@@ -115,7 +111,7 @@ pdma1: pdma@f0600000 {
 };
 ```
 
-> **注意：** K3 的 `#dma-cells` 为 1（仅需指定 DMA 请求号），在 DTS 中引用 DMA 通道时按该格式填写即可。
+> **注意：** K3 的 `#dma-cells = <1>`（仅需指定 DMA 请求号），因此设备节点引用 DMA 资源时应写成 `dmas = <&pdma 64>` 或 `dmas = <&pdma DMA_SSP0_TX>` 这种 **一个 phandle + 一个请求号** 的格式。
 
 #### DMA-Slave 使用 DMA 的配置示例
 
