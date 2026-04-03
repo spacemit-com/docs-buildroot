@@ -1,39 +1,39 @@
 sidebar_position: 4
 
-# Linux 内存预留指南
+# Linux Memory Reservation Guide
 
-> English Version is coming soon...
+## 1. Memory Reservation Overview
 
-## 内存预留概览
+Linux kernel memory reservation consists of two categories:
 
-Linux 内核的内存预留可以大致分为两类：
+- **no map:**   
+The reserved memory is completely removed from the kernel buddy system. The kernel cannot access or use this memory during normal operation, and generally no virtual address mapping is established for it. This memory is "invisible" to the kernel, providing the strongest isolation. 
+- **CMA:**   
+The reserved memory is nominally dedicated to a specific purpose, but when free, it can be temporarily borrowed by the kernel for ordinary movable pages.
 
-- no-map：被预留的内存完全从内核伙伴系统中移除，内核在正常运行时无法访问或使用这部分内存，通常不会为其建立虚拟地址映射。这块内存对内核来说是“不可见”的，隔离性最强。
-- CMA：被预留的内存名义上属于某个用途，但在其未被使用时，可以被内核借用给普通的可移动页使用。
+## 2. no-map
 
-## no-map
+### 2.1 Reservation via Kernel Boot Parameter
 
-### 内核启动参数预留
+- #### Method
 
-#### 方法
+Use `memmp=<size>$<address>` in the kernel command line parameters passed by the bootloader.
 
-在 bootloader 传递给内核的命令行参数中，使用 `memmap=<size>$<address>`。
-
-#### 示例
+- #### Example
 
 ```text
-# 从物理地址 0x50000000 开始，预留 64MB 内存
+# Reserve 64MB memory starting at physical address 0x50000000
 bootargs=... memmap=64M$0x50000000
 ```
 
-### 设备树预留
+### 2.2 Reservation via Device Tree
 
-#### 示例
+- #### Example
 
 ```c
 reserved-memory {
     /* ... */
-    // 1. 定义一个带标签的 no-map 区域
+    // 1. Define a labeled no-map region
     dsp_mem: dsp_memory_region@30000000 {
         reg = <0x0 0x30000000 0x0 0x1000000>; // 16MB
         no-map;
@@ -42,56 +42,54 @@ reserved-memory {
 
 // ...
 
-// 2. 在 DSP 设备节点中引用这个区域
+// 2. Reference this region in DSP device node
 dsp_controller: dsp@C088C000 {
     compatible = "vendor,dsp-controller";
     /* ... */
-    // Linux 驱动通过读取此属性，得知 DSP 可用的物理内存地址和大小
+    // The Linux driver learns the available physical memory address and size for the DSP by reading this property
     memory-region = <&dsp_mem>;
 };
 ```
 
-## CMA
+## 3. CMA
 
-### 内核启动参数预留
+### 3.1 Reservation via Kernel Boot Parameters 
 
-#### 方法
-   1.   在 bootloader 传递给内核的命令行参数中，使用 `cma=<size>[@<address>]`
-2. 示例
+- #### Method 
+1. Use `cma=<size>[@<address>] in the kernel command line parameters passed by the bootloader
+2. Example
 
 ```text
-# 创建一个 512MB 大小的全局 CMA 区域
+# Establish a global 512MB CMA region
 bootargs=... cma=512M
 ```
 
-### 配置内核预留
+### 3.2 Reservation via Kernel Configuration
 
-#### 方法
+- #### Method
 
-在 menuconfig 中设置 CONFIG_CMA_SIZE_MBYTES 的值。
+Set the value of CONFIG_CMA_SIZE_MBYTES in the menuconfig
 
-#### 示例
+- #### Example
 
 ```c
 //in kernel .config
 CONFIG_DMA_CMA=y
 CONFIG_CMA_SIZE_SEL_MBYTES=y
-CONFIG_CMA_SIZE_MBYTES=256 // 设置一个 256MB 的全局 CMA 区域
+CONFIG_CMA_SIZE_MBYTES=256 // Configure a global 256MB CMA region
 ```
 
-### 设备树预留
+### 3.3 Reservation via Device Tree
 
-#### 全局预留
+#### 3.3.1 Global Reservation
 
-#### 方法
+#### Method
 
-设备树中带有 linux,cma-default 属性的节点。这是通过设备树定义全局池的标准方法。
+The nodes with `linux,cma-default` property in the device tree. This is the standard method for defining a global pool via device tree.
 
-注意，全局 CMA 池只能有一个，优先顺序是DTS > CMDLINE > DEFCONFIG，即如果dts有合法的节点，会
+**Note:** There can be only one global CMA pool, and the priority order should be DTS > CMDLINE > DEFCONFIG. That is, if a valid node exists in the DTS, the configuration from that DTS will be used as the final parameter. Otherwise, the kernel checks whether `cma=size@base` is present in the CMDLINE. Only if neither is present will it use the definition from DEFCONFIG. 
 
-以dts节点配置为最终参数，否则看cmdline是否有cma=size@base，最后才看defconfig是否有定义。
-
-#### 示例
+#### Example
 
 ```c
 reserved-memory {
@@ -101,24 +99,24 @@ reserved-memory {
         reusable;
         size = <0x10000000>; // 256MB
         alignment = <0x2000>;
-        linux,cma-default; // <-- 此属性将其标记为全局默认池
+        linux,cma-default; // <-- This property marks it as a global default pool
     };
 };
 ```
 
-#### 设备独占预留
+#### 3.3.2 Device Exclusive Reservation
 
-#### 方法
+#### Method
 
-- 第一步：在 reserved-memory 中定义一个带标签的 CMA 区域。这个节点不能有 linux,cma-default 属性。
-- 第二步：在具体的设备节点中，通过 memory-region 属性引用该标签。
+- Step 1: Define a labeled CMA region in the reserved-memory. This node should not contain `linux,cma-default` property.
+- Step 2: Reference this label in the corresponding device node using the `memory-region` property.
 
-#### 示例
+#### Example
 
 ```c
 reserved-memory {
     /* ... */
-    vpu_cma_pool: vpu_cma@90000000 { // <-- "vpu_cma_pool" 是标签
+    vpu_cma_pool: vpu_cma@90000000 { // <-- "vpu_cma_pool" is a label
         compatible = "shared-dma-pool";
         reusable;
         reg = <0 0x90000000 0 0x8000000>; // 128MB
@@ -128,67 +126,67 @@ reserved-memory {
 vpu_node: vpu@12340000 {
     compatible = "vendor,vpu-driver";
     /* ... */
-    memory-region = <&vpu_cma_pool>; // <-- 引用上面定义的独占池
+    memory-region = <&vpu_cma_pool>; // <-- Reference the dedicated pool above
 };
 ```
 
-通过这种方式，`vpu_node` 的驱动在申请连续内存时，内核会定向到 `vpu_cma_pool` 这个专用的 128MB 池中进行分配，而不会使用全局的 CMA 池。
+With this configuration, when the `vpu_node` driver requests contiguous memory, the kernel will allocate  from the dedicated 128MB `vpu_cma_pool` rather than from the global CMA pool.
 
-## 调试与问题定位
+## 4. Debugging and Troubleshooting
 
-### 调试节点
+### 4.1 Node Debugging
 
-#### /proc/iomem
+#### 4.1.1 /proc/iomem
 
-/proc/iomem 是 Linux 内核视角下的物理地址空间地图。它详细列出了系统中所有的物理地址段，并标明了每个地址段当前被哪个组件“声明”或“占用”。
+`/proc/iomem` is a physical address space map from the Linux kernel perspective. It lists all physical address segments in the system, and indicates each segment is "claimed" or "occupied" by which component.
 
 ```c
 00000000-0007ffff : Reserved
 2ff40000-2fffffff : Reserved 
 ```
 
- 这是 no-map 内存，内核的伙伴系统不会管理这部分内存。
+ This is no-map memory, which is not managed by the kernel's buddy system.
 
-1. cat /proc/meminfo | grep "Cma"
+#### 4.1.2 cat /proc/meminfo | grep "Cma"
 
 ```c
-CmaTotal:         262144 kB  // 所有 CMA 区域的总大小
-CmaFree:          258048 kB  // CMA 区域中当前“空闲”的部分 
+CmaTotal:         262144 kB  // Total size of all CMA regions 
+CmaFree:          258048 kB  // Currently free portion of the CMA regions 
 ```
 
-- CmaTotal：所有 CMA 池大小的总和。
-- CmaFree：这部分内存或者是真正空闲的，或者是被内核“借走”用于可移动页。CmaTotal - CmaFree 的值，代表当前有多少内存被驱动程序通过 dma_alloc_* 等函数实际分配用于连续内存。
+- CmaTotal: Total size of all CMA pools
+- CmaFree: This memory is either truly free or borrowed by the kernel for movable pages. The value of `CmaTotal-CmaFree` indicates the amount of memory currently allocated by drivers for contiguous physical memory via functions like `dma_alloc_*`. 
 
-#### /sys/kernel/debug/cma
+#### 4.1.3 /sys/kernel/debug/cma
 
 ```c
 root@root:/sys/kernel/debug/cma/linux,cma# ls
 alloc  base_pfn  bitmap  count  free  maxchunk  order_per_bit  used
 ```
 
-关键节点解读：
+Key nodes introduction:
 
 ```
 cat /sys/kernel/debug/cma/linux,cma/used_bytes
 ```
 
-- 显示当前被驱动程序实际分配用于 DMA 的字节数。这个值非常精确，可以判断驱动是否存在内存泄漏。
+- Displays the number of byte currently allocated by drivers for DMA3. This value is highly precise, and can be used to determine whether memory leaks exists in the drivers. 
 
 ```
 cat /sys/kernel/debug/cma/linux,cma/count
 ```
 
-- 显示该 CMA 池总共包含的页面数量。
+- Displays the total number of pages contained in this CMA pool.
 
 ```
 cat /sys/kernel/debug/cma/linux,cma/bitmap
 ```
 
-- 提供一个底层的位图，显示池中每个页块的分配状态，用于分析内存碎片化等高级问题。
+- Provides an underlying bitmap that displays the allocation status of each page block, used for advanced issues like memory fragmentation analysis.   
 
-### 开机 log
+### 4.2 Boot log
 
-1.  dmesg | grep -i reserved
+#### 4.2.1 dmesg | grep -i reserved
 
 ```text
 root@root:~# dmesg | grep -i reserved
@@ -210,9 +208,9 @@ root@root:~# dmesg | grep -i reserved
 [    0.000000] OF: reserved mem: 0x000000007f000000..0x000000007fffffff (16384 KiB) map non-reusable framebuffer@7f000000
 ```
 
-可以查看 no-map、cma 的预留内存地址与大小。
+This command shows the reserved memory address and size of no-map and cma.
 
-#### dmesg | grep -i cma
+#### 4.2.2 dmesg | grep -i cma
 
 ```c
 dmesg | grep -i cma
@@ -221,4 +219,4 @@ dmesg | grep -i cma
 [    0.000000] OF: reserved mem: 0x0000000058000000..0x000000006fffffff (393216 KiB) map reusable linux,cma
 ```
 
-可以查看 cma 全局预留内存的地址与大小。
+This command shows the address and size of the global CMA reserved memory.
