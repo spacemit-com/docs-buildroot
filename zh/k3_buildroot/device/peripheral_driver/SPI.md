@@ -39,14 +39,14 @@ Linux SPI 驱动框架分为三层：**SPI Core**、**SPI 控制器驱动**、**
 | 特性 | 特性说明 |
 | :-----| :----|
 | 通信协议 | 支持 SSP/SPI/MicroWire/PSP 协议 |
-| 通信频率 | 最高频率支持 52Mbps, 最低频率支持 6.3Kbps |
+| 通信频率 | 最高频率支持 52Mbps, 最低频率支持 800Kbps |
 | 通信倍数 | x1 | 
 | 支持外设 | 支持 SPI-NOR 和 SPI-NAND 闪存 | 
 
 ### 性能参数
 
 - **通信频率**
-通讯频率只支持 51.2M / 25.6M / 12.8M / 6.4M / 3.2M / 1.6M / 1M / 200k
+通讯频率只支持 51.2M / 25.6M / 12.8M / 6.4M / 3.2M / 1.6M / 800k
 
 - **通信倍速**
 SPI 通信倍速支持 x1。
@@ -80,7 +80,8 @@ Device Drivers
 
 参考方案原理图，查找 SPI 所使用的引脚组。参考 [PINCTRL](01-PINCTRL.md)，确认所使用的引脚配置，例如：
 
-假设 spi3 可以直接采用 `k1-x_pinctrl.dtsi` 中定义 `pinctrl_ssp3_0` 组。
+假设 spi0 可以直接采用 `k3_pinctrl.dtsi` 中定义 `ssp0_2_cfg` 组。
+
 
 #### SPI 设备配置
 
@@ -99,9 +100,21 @@ SPI 设备 DTS 配置示例：
 以 SPI NOR 为例，配置最大通信频率为 26 MHz，收发均采用 x1 模式。
 
 ```c
-&spi3 {
-	pinctrl-0 = <&ssp3_0_cfg>;
+&pinctrl {
+	ssp0-2-cfg {
+		// 1V8
+		ssp0-0-pins {
+			power-source = <1800>;
+		};
+		ssp0-1-pins {
+			power-source = <1800>;
+		};
+	};
+};
+
+&spi0 {
 	pinctrl-names = "default";
+	pinctrl-0 = <&ssp0_2_cfg>;
 	status = "okay";
 
 	flash@0 {
@@ -110,10 +123,11 @@ SPI 设备 DTS 配置示例：
 		spi-max-frequency = <26500000>;
 		m25p,fast-read;
 		broken-flash-reset;
-		vcc-supply = <&vcc_3v3_sys>;
 		status = "okay";
 	};
+
 };
+
 ```
 
 ## 接口介绍
@@ -177,7 +191,7 @@ int spi_sync(struct spi_device *spi, struct spi_message *message);
 ### debugfs
 
 用于查看系统中 SPI 设备信息
-`/sys/kernel/debug/spi-nor/spi3.0`
+`/sys/kernel/debug/spi-nor/spi0.0`
 
 ## 测试介绍
 
