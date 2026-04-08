@@ -99,7 +99,7 @@ SPI 通信倍速支持 x1 模式。
 };
 ```
 
-## 接口介绍
+## 示例使用
 
 ### API 介绍
 
@@ -150,6 +150,9 @@ rt_err_t rt_spi_send_then_recv(struct rt_spi_device *device, const void
                                void *recv_buf, 
                                rt_size_t recv_length);
 ```
+## 应用开发
+
+请参考文件：bsp/spacemit/drivers/spi/k1x_spi_test.c
 
 ## Debug 介绍
 
@@ -188,3 +191,7 @@ uart0    Character Device     2
 
 - `spi_test 0`：使用默认频率进行读写测试。
 - `spi_test 1`：遍历使用 800k 到 51.2M 之间所有支持的频点进行读写测试。
+
+## 附录
+
+## FAQ
