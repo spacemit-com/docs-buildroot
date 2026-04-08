@@ -216,54 +216,9 @@ cd-gpios = <&gpio 2 22 GPIO_ACTIVE_LOW>;
 
 #### 作为 GPIO 中断使用
 
-K3 GPIO 中断的使用有 **两种常见方式**，这两种方式要区分开。
+设备先通过 `*-gpios` 获取 GPIO，再由驱动调用 `gpiod_to_irq()` / `gpio_to_irq()` 转成中断
 
-##### 方式一：设备节点直接把 GPIO 控制器作为 interrupt-parent
-
-当某个设备本身没有单独的 SoC 主中断资源，而是直接依赖某根 GPIO 作为中断输入时，可以直接写：
-
-```dts
-interrupt-parent = <&gpio>;
-interrupts = <1 11 IRQ_TYPE_EDGE_RISING>;
-```
-
-其三个 cell 的含义为：
-
-1. **bank 编号**
-2. **bank 内 offset**
-3. **中断触发类型**
-
-板级 dts 实际示例：
-
-```dts
-&ec {
-    status = "okay";
-    interrupt-parent = <&gpio>;
-    interrupts = <1 11 IRQ_TYPE_EDGE_RISING>;
-};
-```
-
-以及：
-
-```dts
-interrupt-parent = <&gpio>;
-interrupts = <3 31 IRQ_TYPE_EDGE_RISING>;
-```
-
-或者：
-
-```dts
-interrupt-parent = <&gpio>;
-interrupts = <0 26 IRQ_TYPE_EDGE_FALLING>;
-```
-
-这种方式本质上是：**设备把 GPIO 控制器当作自己的中断控制器** 来描述。
-
-##### 方式二：设备先通过 `*-gpios` 获取 GPIO，再由驱动调用 `gpiod_to_irq()` / `gpio_to_irq()` 转成中断
-
-这种方式在很多带有**自身主中断**的控制器中更常见。也就是说：
-
-- 设备本身已经有 SoC 主中断，例如 SDHCI 控制器在 `k3.dtsi` 中本来就有：
+例如 SDHCI 控制器在 `k3.dtsi` 中：
 
 ```dts
 sdcard: mmc@d4280000 {
@@ -274,9 +229,7 @@ sdcard: mmc@d4280000 {
 };
 ```
 
-- 但设备还可能额外使用一根 GPIO 作为功能辅助中断信号，例如 **card detect (cd-gpio)**
-
-这时 dts 并不会把该设备的 `interrupt-parent` 改成 `&gpio`，而是写成：
+- 但设备还需要额外使用一根 GPIO 作为功能辅助中断信号，例如 **card detect (cd-gpio)**
 
 ```dts
 cd-gpios = <&gpio 2 22 GPIO_ACTIVE_LOW>;
@@ -297,12 +250,6 @@ ret = mmc_of_parse(host->mmc);
 
 这说明像 `cd-gpios` 这一类标准 MMC GPIO 属性，是由 MMC 框架解析并进一步转换为 GPIO IRQ 使用的。
 
-因此这里要特别说明：
-
-- **`interrupt-parent = <&gpio>`** 适用于“设备的中断源本身就是一根 GPIO 中断线”
-- **`cd-gpios = <&gpio ...>` + `gpiod_to_irq()`** 适用于“设备本身已有主中断，但还额外借助 GPIO 实现某个辅助中断/检测功能”
-
-二者最终都可能用到 GPIO 中断能力，但 dts 写法和驱动处理路径是不一样的。
 ## dt-binding 说明
 
 K3 GPIO 当前使用的 binding 文件为：
