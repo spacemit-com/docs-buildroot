@@ -66,7 +66,7 @@ Device Drivers
         SPI support (SPI [=y])
 ```
 
-`CONFIG_SPI_K1`：为 K1/K3 SPI 控制器驱动提供支持，默认情况下，此选型为 `Y`
+`CONFIG_SPI_K1`：为 K1/K3 SPI 控制器驱动提供支持，默认情况下，此选项为 `Y`
 ```
 Device Drivers
         SPI support (SPI [=y])
@@ -81,7 +81,6 @@ Device Drivers
 参考方案原理图，查找 SPI 所使用的引脚组。参考 [PINCTRL](01-PINCTRL.md)，确认所使用的引脚配置，例如：
 
 假设 spi0 可以直接采用 `k3_pinctrl.dtsi` 中定义 `ssp0_2_cfg` 组。
-
 
 #### SPI 设备配置
 
