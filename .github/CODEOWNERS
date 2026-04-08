@@ -91,14 +91,14 @@
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
 
-/zh/**/device/peripheral_driver/08-SDHC.md @ljysy
-/en/**/device/peripheral_driver/08-SDHC.md @ljysy
+/zh/**/device/peripheral_driver/08-SDHC.md @ljysy @wanlong1981
+/en/**/device/peripheral_driver/08-SDHC.md @ljysy @wanlong1981
 
 /zh/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit @1024panda
 /en/**/device/peripheral_driver/09-GAMC.md @george-hu-spacemit @1024panda
 
-/zh/**/device/peripheral_driver/10-USB/ @rzbdz
-/en/**/device/peripheral_driver/10-USB/ @rzbdz
+/zh/**/device/peripheral_driver/10-USB/ @wanlong1981 @rzbdz
+/en/**/device/peripheral_driver/10-USB/ @wanlong1981 @rzbdz
 
 /zh/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
 /en/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
@@ -136,8 +136,8 @@
 /zh/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 /en/**/device/peripheral_driver/23-WDT.md @LittlepigNellJ @yhd0727
 
-/zh/**/device/peripheral_driver/BT.md @kevin-zhm
-/en/**/device/peripheral_driver/BT.md @kevin-zhm
+/zh/**/device/peripheral_driver/BT.md @kevin-zhm @wanlong1981
+/en/**/device/peripheral_driver/BT.md @kevin-zhm @wanlong1981
 
 /zh/**/device/peripheral_driver/ddr.md @zhouxl756
 /en/**/device/peripheral_driver/ddr.md @zhouxl756
@@ -154,8 +154,8 @@
 /zh/**/device/peripheral_driver/thermal.md @kevin-zhm @LittlepigNellJ
 /en/**/device/peripheral_driver/thermal.md @kevin-zhm @LittlepigNellJ
 
-/zh/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
-/en/**/device/peripheral_driver/WIFI.md @george-hu-spacemit
+/zh/**/device/peripheral_driver/WIFI.md @george-hu-spacemit @wanlong1981
+/en/**/device/peripheral_driver/WIFI.md @george-hu-spacemit @wanlong1981
 
 # Camera
 /zh/**/camera/ @qiang-fu-spacemit @haodong-xu-spacemit
