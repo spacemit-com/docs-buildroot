@@ -162,8 +162,8 @@
 /en/**/camera/ @qiang-fu-spacemit @haodong-xu-spacemit
 
 # Media
-/zh/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
-/en/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit
+/zh/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit @Vesperwu
+/en/**/media/ @qiang-fu-spacemit @binghan-meng-spacemit @Vesperwu
 
 /zh/**/media/mpp/05-CPP_ISP_MIPI-CSI.md @qiang-fu-spacemit @haodong-xu-spacemit
 /en/**/media/mpp/05-CPP_ISP_MIPI-CSI.md @qiang-fu-spacemit @haodong-xu-spacemit
