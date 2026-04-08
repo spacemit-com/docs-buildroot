@@ -8,4 +8,5 @@ slug: /media
 多媒体相关开发指南:
 
 - [多媒体开发指南](mpp/index.md)
+- [FFmpeg 用户使用指南](ffmpeg_user_guide.md)
 - [Gstreamer 用户使用指南](gstreamer_user_guide.md)
