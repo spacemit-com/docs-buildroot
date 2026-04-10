@@ -1,4 +1,5 @@
 sidebar_position: 4
 
-# Linux 内存预留指南
+# Linux Memory Reservation Guide
 
+Refer to [Linux Memory Reservation Guide](/en/k1_buildroot/kernel_debug/memory_reservation_guide.md) for details
