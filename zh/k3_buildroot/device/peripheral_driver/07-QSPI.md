@@ -88,7 +88,7 @@ Device Drivers
                 SPI memory extension (SPI_MEM [=y])
 ```
 
-- CONFIG_SPI_FSL_QUADSPI 为 K1 QSPI 控制器驱动提供支持，默认值为 `Y`
+- CONFIG_SPI_FSL_QUADSPI 为 K3 QSPI 控制器驱动提供支持，默认值为 `Y`
 ```
 Device Drivers
         SPI support (SPI [=y])
