@@ -98,7 +98,7 @@ SPI 通信倍速支持 x1 模式。
     pinctrl-names = "default";
     pinctrl-0 = <&rssp0_0_cfg>;
     clock-frequency = <26000000>; // 设置spi频率
-		k1x,ssp-disable-dma; // 是否使用dma，默认使用dma
+    k1x,ssp-disable-dma; // 是否使用dma，默认使用dma
 
     status = "okay";
 };
