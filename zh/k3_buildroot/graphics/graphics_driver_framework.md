@@ -6,17 +6,24 @@ sidebar_position: 2
 
 ![linux图形显示框架](./static/linuxGraphicsFramework.png#pic_center)
 
-## 环境配置及依赖
+## 驱动方案选择
 
-### Kernel
+K3 平台支持两种互斥的 PowerVR GPU 驱动方案：
 
-进入 Linux Kernel 源码目录，在 config 中启用 PowerVR：
+- **闭源方案（推荐）**：性能更强，功能完整，支持 DVFS 和温控
+- **开源方案**：基于 Mesa 和开源内核驱动，内核版本需 >= 6.12，Mesa 版本需 >= 26.1.0
+
+## 闭源驱动方案
+
+### Kernel 配置
+
+进入 Linux Kernel 源码目录，在 config 中启用 PowerVR Rogue：
 
 ```bash
 CONFIG_POWERVR_ROGUE=y # 启用 PowerVR Rogue
 ```
 
-也可通过 `make menuconfig` 在图形界面中启用。在 **Device Drivers -> Graphics support -> Direct Rendering Manager** 路径下，选择 **PowerVR GPU** 选项：
+或通过 `make menuconfig` 在 **Device Drivers -> Graphics support -> Direct Rendering Manager** 路径下启用：
 
 ```shell
 <*>   PowerVR GPU
@@ -25,15 +32,33 @@ CONFIG_POWERVR_ROGUE=y # 启用 PowerVR Rogue
 < >     null drm disp
 ```
 
-### PVR DDK
+**设备树（DTS）配置**：
+
+```dts
+imggpu: imggpu@cac00000 {
+    compatible = "img,rgx";
+    interrupt-names = "rgxirq";
+    interrupt-parent = <&saplic>;
+    interrupts = <75 IRQ_TYPE_LEVEL_HIGH>;
+    reg = <0x0 0xcac00000 0x0 0x80000>;
+    reg-names = "rgxregs";
+    power-domains = <&power K3_PMU_GPU_PWR_DOMAIN>;
+    clocks = <&syscon_apmu CLK_APMU_GPU>;
+    clock-names = "clk_rgx";
+    resets = <&syscon_apmu RESET_APMU_GPU>;
+    #cooling-cells = <2>;
+    thermal-zone = "thermal_gpu";
+    status = "okay";
+};
+```
+
+### PVR DDK 配置
 
 由于版权限制，PVR GPU 的 DDK（Device Development Kit）无法直接提供。用户层闭源代码以 so 动态库形式提供 OpenGLES、Vulkan 和 OpenCL API。
 
-在 Buildroot 和 Bianbu 上开启 PVR GPU 驱动的方式如下：
-
 #### Buildroot
 
-在编译 buildroot 时，将配置文件中启用：
+编译 buildroot 时，在配置文件中启用：
 
 ```shell
 BR2_PACKAGE_IMG_GPU_POWERVR=y
@@ -42,107 +67,230 @@ BR2_PACKAGE_IMG_GPU_POWERVR=y
 或通过 `make menuconfig` 手动勾选：
 **External options -> Bianbu config -> img-gpu-powervr**
 
-  ```shell
-  [*] rtk hciattach
-      *** spacemit mpp package ***
-  -*- spacemit mpp
-  [*] img-gpu-powervr # 启用 img-gpu-powervr
-      Output option (Wayland)  --->
-  [ ]   install examples
-  ```
+```shell
+[*] rtk hciattach
+    *** spacemit mpp package ***
+-*- spacemit mpp
+[*] img-gpu-powervr # 启用 img-gpu-powervr
+    Output option (Wayland)  --->
+[ ]   install examples
+```
 
 #### Bianbu
 
-由于涉及版权问题，闭源 GPU 代码以 `.so` 动态库形式通过 **img-gpu-powervr** deb 包提供。
-用户可通过以下命令安装 PVR GPU 驱动程序：
+闭源 GPU 代码以 `.so` 动态库形式通过 **img-gpu-powervr** deb 包提供：
 
 ```bash
 sudo apt install img-gpu-powervr
 ```
 
-> **注意**：GPU 驱动分为 内核层驱动 和 用户层驱动，二者版本必须保持一致，否则可能导致 GPU 功能异常。
-  
+> **注意**：GPU 驱动分为内核态驱动和用户态驱动，二者版本必须保持一致，否则可能导致 GPU 功能异常。
+
 查看版本方法：
 
-  ```bash
-    # 查看内核层驱动
-    ➜  ~ journalctl -b | grep "Initialized pvr"
-    [drm] Initialized pvr 24.2.6603887 for cac00000.imggpu on minor 0 # 版本为24.2
-    # 查看用户层驱动
-    ➜  ~ dpkg -s img-gpu-powervr
-    Package: img-gpu-powervr
-    Status: install ok installed
-    Priority: optional
-    Section: graphics
-    Installed-Size: 70314
-    Maintainer: bianbu <bo.deng@spacemit.com>
-    Architecture: all
-    Version: 24.2-6603887bb1 # 版本为24.2
-  ```
+```bash
+# 查看内核层驱动
+➜  ~ journalctl -b | grep "Initialized pvr"
+[drm] Initialized pvr 24.2.6603887 for cac00000.imggpu on minor 0 # 版本为24.2
 
-### Mesa3D
+# 查看用户层驱动
+➜  ~ dpkg -s img-gpu-powervr
+Package: img-gpu-powervr
+Status: install ok installed
+Priority: optional
+Section: graphics
+Installed-Size: 70314
+Maintainer: bianbu <bo.deng@spacemit.com>
+Architecture: all
+Version: 24.2-6603887bb1 # 版本为24.2
+```
 
-Mesa3D 提供 OpenGL ES API 接口及软件渲染实现。它向上对接应用程序对 OpenGL ES 渲染 API 的调用，向下对接 PowerVR GPU 驱动。
+### Mesa3D 配置
+
+Mesa3D 提供 OpenGL ES API 接口及硬件加速渲染实现。
 
 #### Buildroot
 
-在配置文件中启用以下选项，以使能 Mesa3D：
+在配置文件中启用以下选项：
 
-  ```bash
-    Symbol: BR2_PACKAGE_MESA3D [=y]
-    Symbol: BR2_PACKAGE_MESA3D_DRIVER [=y]
-    Symbol: BR2_PACKAGE_MESA3D_GALLIUM_DRIVER [=y]
-    Symbol: BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_PVR [=y]
-    Symbol: BR2_PACKAGE_MESA3D_GBM [=y]
-    Symbol: BR2_PACKAGE_MESA3D_OPENGL_EGL [=y]
-  ```
+```bash
+Symbol: BR2_PACKAGE_MESA3D [=y]
+Symbol: BR2_PACKAGE_MESA3D_DRIVER [=y]
+Symbol: BR2_PACKAGE_MESA3D_GALLIUM_DRIVER [=y]
+Symbol: BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_PVR [=y]
+Symbol: BR2_PACKAGE_MESA3D_GBM [=y]
+Symbol: BR2_PACKAGE_MESA3D_OPENGL_EGL [=y]
+```
 
 或在 **make menuconfig** 中手动勾选：
 **Target packages -> Graphic libraries and applications -> mesa3d**
 
-  ```shell
-    -*-   Gallium pvr driver
-    *** Gallium VDPAU state tracker needs X.org and gallium drivers r300, r600, radeonsi or nouveau ***
-    *** Vulkan drivers ***
-    *** Off-screen Rendering ***
-    [ ]   OSMesa (Gallium) library
-          *** OpenGL API Support ***
-    -*-   gbm
-    *** OpenGL GLX support needs X11 ***
-    -*-   OpenGL EGL
-    [ ]   OpenGL ES
-  ```
+```shell
+-*-   Gallium pvr driver
+*** Gallium VDPAU state tracker needs X.org and gallium drivers r300, r600, radeonsi or nouveau ***
+*** Vulkan drivers ***
+*** Off-screen Rendering ***
+[ ]   OSMesa (Gallium) library
+      *** OpenGL API Support ***
+-*-   gbm
+*** OpenGL GLX support needs X11 ***
+-*-   OpenGL EGL
+[ ]   OpenGL ES
+```
 
 #### Bianbu
 
-调用 PowerVR GPU 硬件依赖于 bianbu 源上的 Mesa deb 包，并按以下顺序进行安装：
+按以下顺序安装 Mesa deb 包：
 
-  ```bash
-        "libgl1-mesa-dev_*_riscv64.deb"
-        "libegl1-mesa_*_riscv64.deb"
-        "libegl1-mesa-dev_*_riscv64.deb"
-        "libglapi-mesa_*_riscv64.deb"
-        "libgbm1_*_riscv64.deb"
-        "libgbm-dev_*_riscv64.deb"
-        "libegl-mesa0_*_riscv64.deb"
-        "libgl1-mesa-dri_*_riscv64.deb"
-        "libgles2-mesa_*_riscv64.deb"
-        "libgles2-mesa-dev_*_riscv64.deb"
-        "libgl1-mesa-glx_*_riscv64.deb"
-        "libglx-mesa0_*_riscv64.deb"
-        "libosmesa6_*_riscv64.deb"
-        "libosmesa6-dev_*_riscv64.deb"
-        "libwayland-egl1-mesa_*_riscv64.deb"
-        "mesa-common-dev_*_riscv64.deb"
-  ```
+```bash
+sudo apt install \
+  libgl1-mesa-dev \
+  libegl1-mesa \
+  libegl1-mesa-dev \
+  libglapi-mesa \
+  libgbm1 \
+  libgbm-dev \
+  libegl-mesa0 \
+  libgl1-mesa-dri \
+  libgles2-mesa \
+  libgles2-mesa-dev \
+  libgl1-mesa-glx \
+  libglx-mesa0 \
+  libosmesa6 \
+  libosmesa6-dev \
+  libwayland-egl1-mesa \
+  mesa-common-dev \
+  libglvnd
+```
 
-同时需要安装 libglvnd：
+## 开源驱动方案
 
-  ```bash
-    sudo apt install libglvnd
-  ```
+### Kernel 配置
 
-## 其它
+内核版本需 >= 6.12。在 config 中启用 PowerVR DRM 驱动：
+
+```bash
+CONFIG_DRM_POWERVR=y # 启用 PowerVR DRM 驱动
+```
+
+或通过 `make menuconfig` 在 **Device Drivers -> Graphics support -> Direct Rendering Manager** 路径下启用：
+
+```bash
+<*>   Imagination Technologies PowerVR (Series 6 and later) & IMG Graphics
+< >   PowerVR GPU
+< >   null drm disp
+```
+
+**适配 k3 平台**
+
+为适配 SpacemiT K3 平台，需对内核驱动做如下修改：
+
+```diff
+index 571b56a11161..636f8ab3a54f 100644
+--- a/arch/riscv/boot/dts/spacemit/k3.dtsi
++++ b/arch/riscv/boot/dts/spacemit/k3.dtsi
+@@ -1659,7 +1659,7 @@ gmac_axi_setup: stmmac-axi-config {
+                };
+
+                imggpu: imggpu@cac00000 {
+-                       compatible = "img,rgx";
++                       compatible = "img,img-rogue";
+                        interrupt-names = "rgxirq";
+                        interrupt-parent = <&saplic>;
+                        interrupts = <75 IRQ_TYPE_LEVEL_HIGH>;
+@@ -1667,11 +1667,12 @@ imggpu: imggpu@cac00000 {
+                        reg-names = "rgxregs";
+                        power-domains = <&power K3_PMU_GPU_PWR_DOMAIN>;
+                        clocks = <&syscon_apmu CLK_APMU_GPU>;
+-                       clock-names = "clk_rgx";
++                       clock-names = "core";
+                        resets = <&syscon_apmu RESET_APMU_GPU>;
+                        status = "okay";
++                       img,core-clock-rate-hz = <1228000000>;
+                };
+diff --git a/drivers/gpu/drm/imagination/pvr_device.c b/drivers/gpu/drm/imagination/pvr_device.c
+index 78d6b8a0a450..8e490b3921f7 100644
+--- a/drivers/gpu/drm/imagination/pvr_device.c
++++ b/drivers/gpu/drm/imagination/pvr_device.c
+@@ -99,6 +99,9 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
+        struct clk *core_clk;
+        struct clk *sys_clk;
+        struct clk *mem_clk;
++       struct device *dev = drm_dev->dev;
++       u32 core_clk_rate = PVR_CORE_CLK_RATE_HZ;
++       int err;
+
+        core_clk = devm_clk_get(drm_dev->dev, "core");
+        if (IS_ERR(core_clk))
+@@ -115,6 +118,22 @@ static int pvr_device_clk_init(struct pvr_device *pvr_dev)
+                return dev_err_probe(drm_dev->dev, PTR_ERR(mem_clk),
+                                     "failed to get mem clock\n");
+
++       /* Optional: set core clock rate from device tree or fallback macro. */
++       if (!of_property_read_u32(dev->of_node, "img,core-clock-rate-hz", &core_clk_rate) &&
++           core_clk_rate > 0) {
++               err = clk_set_rate(core_clk, core_clk_rate);
++               if (err)
++                       return dev_err_probe(dev, err,
++                                            "failed to set core clock rate (%u Hz)\n",
++                                            core_clk_rate);
++       } else if (core_clk_rate > 0) {
++               err = clk_set_rate(core_clk, core_clk_rate);
++               if (err)
++                       return dev_err_probe(dev, err,
++                                            "failed to set core clock rate (%u Hz)\n",
++                                            core_clk_rate);
++       }
++
+        pvr_dev->core_clk = core_clk;
+        pvr_dev->sys_clk = sys_clk;
+        pvr_dev->mem_clk = mem_clk;
+diff --git a/drivers/gpu/drm/imagination/pvr_device.h b/drivers/gpu/drm/imagination/pvr_device.h
+index ec53ff275541..419d4bbf2df2 100644
+--- a/drivers/gpu/drm/imagination/pvr_device.h
++++ b/drivers/gpu/drm/imagination/pvr_device.h
+@@ -68,6 +68,16 @@ struct pvr_device_data {
+        const struct pvr_power_sequence_ops *pwr_ops;
+ };
+
++#ifndef PVR_CORE_CLK_RATE_HZ
++#define PVR_CORE_CLK_RATE_HZ 1228 * 1000 * 1000U
++#endif
++
+ /**
+  * struct pvr_device - powervr-specific wrapper for &struct drm_device
+  */
+diff --git a/drivers/gpu/drm/imagination/pvr_drv.c b/drivers/gpu/drm/imagination/pvr_drv.c
+index 916b40ced7eb..4306c182d99d 100644
+--- a/drivers/gpu/drm/imagination/pvr_drv.c
++++ b/drivers/gpu/drm/imagination/pvr_drv.c
+@@ -1532,4 +1534,5 @@ MODULE_LICENSE("Dual MIT/GPL");
+ MODULE_IMPORT_NS("DMA_BUF");
+ MODULE_FIRMWARE("powervr/rogue_33.15.11.3_v1.fw");
+ MODULE_FIRMWARE("powervr/rogue_36.52.104.182_v1.fw");
++MODULE_FIRMWARE("powervr/rogue_36.56.104.183_v1.fw");
+ MODULE_FIRMWARE("powervr/rogue_36.53.104.796_v1.fw");
+```
+
+**固件文件**：[rogue_36.56.104.183_v1.fw 固件文件](https://gitlab.freedesktop.org/imagination/linux-firmware/-/tree/powervr/powervr)需放置在 `/lib/firmware/powervr/` 目录。
+
+### Mesa3D 配置
+
+#### Buildroot
+
+最新 Mesa 已支持 IMG BXM-4-64 GPU。下载 [Mesa 源码](https://gitlab.freedesktop.org/mesa/mesa) 覆盖 buildroot-k3/package-src/mesa 后编译即可。
+
+#### Bianbu
+
+确保系统中安装的 Mesa deb 包版本>=26.1.0。例如：
+
+```bash
+sudo sudo apt install libgl1-mesa-dev=26.1.0-2ubuntu1
+```
+
+## 闭源驱动的高级配置
+
+> **注意**：本部分仅适用于闭源驱动方案。开源驱动不支持 DVFS、温控和 BlobCache。
 
 ### BlobCache 使用
 
@@ -150,13 +298,7 @@ GPU 的 BlobCache 是一种用于存储和重用 GPU 编译结果的数据缓存
 
 **配置方法**
 
-1. 打开配置文件：
-
-   ```bash
-   vim /etc/powervr.ini
-   ```
-
-2. 设置如下, 即可启用 BlobCache 功能
+打开配置文件`/etc/powervr.ini`并设置如下, 即可启用 BlobCache 功能：
 
 ```bash
 [default]
@@ -256,6 +398,12 @@ cat /sys/class/devfreq/cac00000.imggpu/governor
 
 # 查看可用调频策略
 cat /sys/class/devfreq/cac00000.imggpu/available_governors
+
+# 配置最小频率为 819MHz
+echo 819000000 > /sys/class/devfreq/cac00000.imggpu/min_freq
+
+# 配置最大频率为 1228MHz
+echo 1228000000 > /sys/class/devfreq/cac00000.imggpu/max_freq
 ```
 
 ### GPU 温控
