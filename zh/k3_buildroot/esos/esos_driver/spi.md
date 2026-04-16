@@ -89,7 +89,7 @@ SPI 通信倍速支持 x1 模式。
 
 #### pinctrl
 
-参考方案原理图，查找 `rspi` 所使用的引脚组，确认所使用的引脚配置，参考 [pinctrl](pinctrl.md) 。假设 `rspi0` 可以直接采用 `k3_pinctrl.dtsi` 中定义的 `rssp0_0_cfg` 组。
+参考方案原理图，如com260开发板，查找 `rspi` 所使用的引脚组，确认所使用的引脚配置，参考 [pinctrl](pinctrl.md) 。假设 `rspi0` 可以直接采用 `k3_pinctrl.dtsi` 中定义的 `rssp0_0_cfg` 组。
 
 #### 配置示例
 
@@ -97,6 +97,9 @@ SPI 通信倍速支持 x1 模式。
 &rspi0 {
     pinctrl-names = "default";
     pinctrl-0 = <&rssp0_0_cfg>;
+    clock-frequency = <26000000>; // 设置spi频率
+		k1x,ssp-disable-dma; // 是否使用dma，默认使用dma
+
     status = "okay";
 };
 ```
