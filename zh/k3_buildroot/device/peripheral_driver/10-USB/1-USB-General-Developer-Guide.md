@@ -28,8 +28,6 @@ sidebar_position: 1
 
 ## 模块概览
 
-### 模块概览
-
 K3 共有 5 个 USB 控制器，分别为：
 
 ![K3 USB子系统Block Diagram](./static/k3-usb.png)
@@ -200,8 +198,8 @@ Device Drivers
 ```
 Device Drivers
          -> USB support (USB_SUPPORT [=y])
-           -> DesignWare USB3.0 DRD Core Support (USB_DWC3 [=y]) 
-             -> DWC3 Generic Platform Driver (USB_DWC3_GENERIC_PLAT [=y]) 
+           -> DesignWare USB3.0 DRD Core Support (USB_DWC3 [=y])
+             -> DWC3 Generic Platform Driver (USB_DWC3_GENERIC_PLAT [=y])
 ```
 
 `CONFIG_USB_DWC3_DUAL_ROLE` 为 DWC3 控制器提供双模式支持，默认 `Y`，实际角色可以由设备树配置。也可选择配置为单 Host 模式或者单 Device 模式。
@@ -319,7 +317,7 @@ Device Drivers
 用户应尽量避免启用 `USB Gadget precomposed configurations` 菜单中的选项。这些选项会在系统启动后由内核自动创建对应的 USB Gadget 配置，容易与系统默认脚本、ADB 或用户自行基于 Configfs 的配置发生冲突。若无明确需求，请不要启用它们。
 
 ```
--> Device Drivers 
+-> Device Drivers
   -> USB support (USB_SUPPORT)
     -> USB Gadget Support (USB_GADGET)
       -> USB Gadget precomposed configurations
@@ -350,8 +348,8 @@ USB2.0 Host 控制器对应端口的 PIN 在原理图中通常命名为 USB2_DP 
 
 USB2.0 Host 作为 Host Only 模式工作时，可以通过 DTS 配置：
 
-1. enable `usb2_host_u2phy` 节点。
-2. enable `usb2_host` 节点。
+1. 使能 `usb2_host_u2phy` 节点。
+2. 使能 `usb2_host` 节点。
 3. 如果 Host 需要使用 GPIO 控制 VBUS 开关或板载 USB 设备上电，可结合 `regulator-fixed`、`onboard_usb_device` 等板级辅助节点配置。
 4. 可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器。默认启用该属性有利于降低休眠功耗。
 5. 可选属性 `wakeup-source`，该参数用于指定 USB 设备是否可以作为唤醒源。当设备处于低功耗状态时，若启用此选项，设备的活动将能够唤醒系统。此选项与 `reset-on-resume` 参数互斥。若启用 `wakeup-source`，则不能同时启用 `reset-on-resume`，反之亦然。
@@ -380,9 +378,11 @@ USB3.0 PortA 支持 DRD（Dual Role Device）功能，可配置为 Host、Device
 
 作为 device 模式工作时，需要配置 DTS：
 
-1. enable `usb3_porta_u2phy` 节点。
-2. enable `usb3_porta_u3phy` 节点（如果仅需要 USB2.0 速率，也需要启用）。
-3. enable `usb3_porta` 节点，配置 `dr_mode = "peripheral"`。
+1. 使能 `usb3_porta_u2phy` 节点。
+2. 使能 `usb3_porta_u3phy` 节点（如果仅需要 USB2.0 速率，也需要启用）。
+3. 使能 `usb3_porta` 节点，配置 `dr_mode = "peripheral"`（peripheral 即 Device 模式）。
+4. 可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器。启用后休眠功耗控制最低，对于 Device Only 模式，建议默认进行配置。
+5. 可选属性 `maximum-speed = "high-speed"`，用于将最大协商速率限制为 USB2.0 HighSpeed（480Mbps），不设置则默认支持 USB3.0 SuperSpeed（5Gbps），对于 PortA，限制  USB2.0 HighSpeed（480Mbps） 也需要使能 usb3_porta_u3phy。
 
 方案 DTS 配置如下：
 
@@ -410,10 +410,12 @@ PortA 和 PortB/C/D 不同，如果要限制 USB2.0 模式，只需要为 `usb3_
 
 作为 host 模式工作时，可以通过 DTS 配置：
 
-1. enable `usb3_porta_u2phy` 节点。
-2. enable `usb3_porta_u3phy` 节点。
-3. enable `usb3_porta` 节点，配置 `dr_mode = "host"`。
-4. 可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器。
+1. 使能 `usb3_porta_u2phy` 节点。
+2. 使能 `usb3_porta_u3phy` 节点。
+3. 使能 `usb3_porta` 节点，配置 `dr_mode = "host"`。
+4. 可选属性 `maximum-speed = "high-speed"`，用于将最大协商速率限制为 USB2.0 HighSpeed（480Mbps），不设置则默认支持 USB3.0 SuperSpeed（5Gbps），对于 PortA，限制  USB2.0 HighSpeed（480Mbps） 也需要使能 `usb3_porta_u3phy`。
+5. 可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器，启用后休眠功耗更低，不启用则可保持设备连接状态详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
+6. 可选属性 `wakeup-source`，详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
 
 ```c
 &usb3_porta_u2phy {
@@ -438,11 +440,12 @@ PortA 和 PortB/C/D 不同，如果要限制 USB2.0 模式，只需要为 `usb3_
 
 此配置模式适合大部分方案，可接入 Type-C 角色检测、GPIO 角色检测、用户手动切换等可选实现。
 
-需要为 `usb3_porta` 节点配置 `usb-role-switch` 属性，以启用对 role-switch 的支持。K3 DEB1 板使用 FUSB301 Type-C 芯片进行角色检测。
-
-`dr_mode` 属性配置为 `otg`。
-
-`role-switch-default-mode` 属性决定开机后的默认角色，可选 `host`、`peripheral`。
+1. 需要为 `usb3_porta` 节点配置 `usb-role-switch` 属性，以启用对 role-switch 的支持。K3 DEB1 板使用 FUSB301 Type-C 芯片进行角色检测。
+2. `dr_mode` 属性配置为 `otg`。
+3. `role-switch-default-mode` 属性决定开机后的默认角色，可选 `host`（主机模式）、`peripheral`（设备模式）。
+4. 可选属性 `maximum-speed = "high-speed"`，用于将最大协商速率限制为 USB2.0 HighSpeed（480Mbps），不设置则默认支持 USB3.0 SuperSpeed（5Gbps），对于 PortA，限制  USB2.0 HighSpeed（480Mbps） 也需要使能 `usb3_porta_u3phy`。
+5. 可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器，启用后休眠功耗更低，不启用则可保持设备连接状态详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
+6. 可选属性 `wakeup-source`，详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
 
 配置示例（参考 k3_deb1.dts）：
 
@@ -463,7 +466,7 @@ PortA 和 PortB/C/D 不同，如果要限制 USB2.0 模式，只需要为 `usb3_
         role-switch-default-mode = "peripheral";
         monitor-vbus;
         status = "okay";
-        
+
         ports {
                 #address-cells = <1>;
                 #size-cells = <0>;
@@ -528,6 +531,7 @@ K3 平台有三个 USB3.0 Host 控制器（PortB、PortC、PortD）。其中 Por
 
 其中 PortB/PortC/PortD 的 USB3.0 PHY 与 PCIe 共用。当板级将对应 PHY 分配给 PCIe 时，USB 端口只能工作在 High-Speed Only 模式。
 
+
 ##### 标准 USB3.0 Host 配置
 
 如果对应 PHY 未被 PCIe 占用，可以配置为完整的 USB3.0 Host：
@@ -547,6 +551,11 @@ K3 平台有三个 USB3.0 Host 控制器（PortB、PortC、PortD）。其中 Por
 };
 ```
 
+`usb3_portb/c/d` 节点可选属性 `reset-on-resume`，用于控制系统休眠唤醒后是否 reset 控制器，启用后休眠功耗更低，不启用则可保持设备连接状态详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
+
+`usb3_portb/c/d` 节点可选属性 `wakeup-source`，详见 [USB 休眠唤醒配置](#usb-休眠唤醒配置)。
+
+
 ##### High-Speed Only 配置（PCIe 占用 SuperSpeed PHY）
 
 当 PCIe 使用该端口的共享 PHY 时，USB 端口需要配置为 High-Speed Only 模式：
@@ -558,10 +567,11 @@ K3 平台有三个 USB3.0 Host 控制器（PortB、PortC、PortD）。其中 Por
 
 /* 不启用 USB3.0 PHY */
 &usb3_portb_u3phy {
-        status = "disabled"; 
+        status = "disabled";
 };
 
 &usb3_portb {
+        /* 先删除 SoC DTSI 中预置的双 PHY 引用，再重新配置为仅 USB2.0 PHY */
         /delete-property/ phys;
         /delete-property/ phy-names;
         maximum-speed = "high-speed";
@@ -572,7 +582,7 @@ K3 平台有三个 USB3.0 Host 控制器（PortB、PortC、PortD）。其中 Por
 };
 ```
 
-这里显式使用 `/delete-property/ phys;` 和 `/delete-property/ phy-names;` 的原因是：很多板级 DTSI 会在 SoC 默认节点中同时预置 USB2 和 USB3 两组 PHY 引用。切换到 High-Speed Only 模式时，需要先删除继承下来的原始双 PHY 配置，再重新写入仅包含 `usb2-phy` 的 `phys`/`phy-names`，否则可能仍会保留无效的 USB3 PHY 引用，导致驱动继续尝试初始化 SuperSpeed 链路。
+这里显式使用 `/delete-property/ phys;` 和 `/delete-property/ phy-names;` 的原因是：K3 SoC 级 DTSI 中会为 USB3.0 Host 节点同时预置 USB2 和 USB3 两组 PHY 引用。切换到 High-Speed Only 模式时，需要先删除继承下来的原始双 PHY 配置，再重新写入仅包含 `usb2-phy` 的 `phys`/`phy-names`，否则会保留无效的 USB3 PHY 引用，导致驱动尝试初始化已被 PCIe 占用的 SuperSpeed PHY 而失败。
 
 #### 通用 USB DTS 配置
 
@@ -581,8 +591,8 @@ K3 平台有三个 USB3.0 Host 控制器（PortB、PortC、PortD）。其中 Por
 K3 USB PHY 的常见使能方式如下：
 
 - `usb2_host`：仅涉及 USB2 PHY，通常只需使能 `usb2_host_u2phy`。
-- `usb3_porta`：若端口工作在 USB3.0 Host、Device 或 OTG 模式，一般同时使能 `u2phy` 和 `u3phy`。
-- `usb3_portb/c/d`：若需要完整 USB3.0 能力，则同时使能 `u2phy` 和 `u3phy`；若 USB3 PHY 已复用于 PCIe，则只使能 `u2phy`，并将控制器配置为 High-Speed Only。
+- `usb3_porta`：若端口工作在 USB3.0 Host、Device 或 OTG 模式，一般同时使能 `usb3_port*_u2phy` 和 `usb3_port*_u3phy`。
+- `usb3_portb/c/d`：若需要完整 USB3.0 能力，则同时使能 `usb3_port*_u2phy` 和 `usb3_port*_u3phy`；若 USB3 PHY 已复用于 PCIe，则只使能 `usb3_port*_u2phy`，禁用 `usb3_port*_u3phy`并将控制器配置为 High-Speed Only。
 
 建议在阅读原理图后，先确认每个端口是否实际连出了 USB3 SuperSpeed 差分对，以及对应 PHY 是否被 PCIe 占用，再决定是否保留 `u3phy`。
 
@@ -597,12 +607,13 @@ K3 USB 主要支持两种系统休眠策略：
   - 启用 wakeup 支持
   - 禁用 wakeup 支持
 
-USB 控制器需要在对应节点配置 `reset-on-resume` 属性使能 Reset Resume 策略。
+USB 控制器需要在对应节点配置 `reset-on-resume` 属性使能 Reset Resume 策略，启用后休眠功耗更低，但唤醒后下游 USB 设备会经历断开重连，可能增加唤醒时间（大部分设备此处的重连对应用层无感知）；不启用则可保持设备连接状态但休眠功耗增加。
 
 如果需要支持 USB Remote Wakeup（如键盘鼠标网卡唤醒）：
 
-- 需要对 USB 节点禁用 `reset-on-resume` 属性
+- 需要对 USB 节点禁用 `reset-on-resume` 属性（不配置）
 - 并且启用 `wakeup-source` 属性
+
 
 ```c
 &usb3_porta {
@@ -897,7 +908,7 @@ rfkill-usb-wwan {
         label = "m.2 WWAN"; /* B-Key */
         radio-type = "wwan";
         /* MODULE_TURN_ON_1V8 (FC_PWROFF#) */
-        shutdown-gpios = <&gpio 0 18 GPIO_ACTIVE_HIGH>; 
+        shutdown-gpios = <&gpio 0 18 GPIO_ACTIVE_HIGH>;
         /* WWAN_RESET#_1V8 (WWAN1V8_RST#) */
         reset-gpios = <&gpio 0 19 GPIO_ACTIVE_HIGH>;
         /* GPIO84 for CPU_W_DISABLE#1 (WWAN_DIS#) is not needed */
@@ -939,7 +950,7 @@ rfkill-usb-wwan {
 
 本节分析基于 Linux 6.6 系统在 K3 开发板上的内核日志。
 
-### Host 侧 USB Core 日志
+#### Host 侧 USB Core 日志
 
 `usbcore` 模块是内核的 USB 基本功能框架驱动。会在内核启动较早期进行打印。
 
@@ -957,7 +968,7 @@ rfkill-usb-wwan {
 
 如果启动日志中没有看到这三行打印，说明对应 CONFIG 未打开，系统将无法正常支持 USB。请优先检查内核 CONFIG `CONFIG_USB` 是否已使能。
 
-### Host 侧 USB 外设驱动日志分析
+#### Host 侧 USB 外设驱动日志分析
 
 在系统日志中 `grep` 出含有 "new interface driver" 的日志行：
 
