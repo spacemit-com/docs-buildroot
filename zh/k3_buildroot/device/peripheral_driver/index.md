@@ -66,6 +66,7 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [PINCTRL](01-PINCTRL.md)
 - [GPIO](02-GPIO.md)
 - [Clock](16-Clock.md)  
+- [Reset](Reset.md)
 - [DMA](21-DMA.md)
 - [RTC](rtc.md)
 - [DDR](ddr.md)
@@ -84,4 +85,4 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 
 其他驱动
 - [WDT](23-WDT.md)
-- [Reset](Reset.md)
+
