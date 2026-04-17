@@ -31,61 +31,9 @@ EtherCAT 相关代码位于 `drivers/net/ethercat` 目录下：
 |   |   |-- ec_k1x_emac.h
 |   |   `-- Makefile
 |   |-- K3                              # K3 芯片千兆以太网 EtherCAT 设备驱动
-|   |   |-- chain_mode-ethercat.c
-|   |   |-- common-ethercat.h
-|   |   |-- descs_com-ethercat.h
-|   |   |-- descs-ethercat.h
-|   |   |-- dwmac1000_core-ethercat.c
-|   |   |-- dwmac1000_dma-ethercat.c
-|   |   |-- dwmac1000-ethercat.h
-|   |   |-- dwmac100_core-ethercat.c
-|   |   |-- dwmac100_dma-ethercat.c
-|   |   |-- dwmac100-ethercat.h
-|   |   |-- dwmac4_core-ethercat.c
-|   |   |-- dwmac4_descs-ethercat.c
-|   |   |-- dwmac4_descs-ethercat.h
-|   |   |-- dwmac4_dma-ethercat.c
-|   |   |-- dwmac4_dma-ethercat.h
-|   |   |-- dwmac4-ethercat.h
-|   |   |-- dwmac4_lib-ethercat.c
-|   |   |-- dwmac5-ethercat.c
-|   |   |-- dwmac5-ethercat.h
-|   |   |-- dwmac_dma-ethercat.h
-|   |   |-- dwmac_lib-ethercat.c
+|   |   |-- ...
 |   |   |-- dwmac-spacemit-ethqos-ethercat.c
-|   |   |-- dwxgmac2_core-ethercat.c
-|   |   |-- dwxgmac2_descs-ethercat.c
-|   |   |-- dwxgmac2_dma-ethercat.c
-|   |   |-- dwxgmac2-ethercat.h
-|   |   |-- dwxlgmac2-ethercat.h
-|   |   |-- enh_desc-ethercat.c
-|   |   |-- hwif-ethercat.c
-|   |   |-- hwif-ethercat.h
-|   |   |-- Makefile
-|   |   |-- mmc_core-ethercat.c
-|   |   |-- mmc-ethercat.h
-|   |   |-- norm_desc-ethercat.c
-|   |   |-- ring_mode-ethercat.c
-|   |   |-- stmmac_est-ethercat.c
-|   |   |-- stmmac_est-ethercat.h
-|   |   |-- stmmac-ethercat.h
-|   |   |-- stmmac_ethtool-ethercat.c
-|   |   |-- stmmac_fpe-ethercat.c
-|   |   |-- stmmac_fpe-ethercat.h
-|   |   |-- stmmac_hwtstamp-ethercat.c
-|   |   |-- stmmac_main-ethercat.c
-|   |   |-- stmmac_mdio-ethercat.c
-|   |   |-- stmmac_pci-ethercat.c
-|   |   |-- stmmac_pcs-ethercat.h
-|   |   |-- stmmac_platform-ethercat.c
-|   |   |-- stmmac_platform-ethercat.h
-|   |   |-- stmmac_ptp-ethercat.c
-|   |   |-- stmmac_ptp-ethercat.h
-|   |   |-- stmmac_tc-ethercat.c
-|   |   |-- stmmac_vlan-ethercat.c
-|   |   |-- stmmac_vlan-ethercat.h
-|   |   |-- stmmac_xdp-ethercat.c
-|   |   `-- stmmac_xdp-ethercat.h
+|   |   `-- ...
 |   |-- Kconfig
 |   `-- Makefile
 |-- include
@@ -96,100 +44,99 @@ EtherCAT 相关代码位于 `drivers/net/ethercat` 目录下：
 |-- Kconfig
 |-- Makefile
 `-- master                              # IGH EtherCAT 主站实现
-    |-- cdev.c
-    |-- cdev.h
-    |-- coe_emerg_ring.c
-    |-- coe_emerg_ring.h
-    |-- datagram.c
-    |-- datagram.h
-    |-- datagram_pair.c
-    |-- datagram_pair.h
-    |-- debug.c
-    |-- debug.h
-    |-- device.c
-    |-- device.h
-    |-- domain.c
-    |-- domain.h
+    |-- cdev.c                          # 提供EtherCAT字符设备初始化接口
+    |-- cdev.h                 
+    |-- coe_emerg_ring.c                # 提供处理 CoE 紧急消息接口
+    |-- coe_emerg_ring.h       
+    |-- datagram.c                      # 提供构造 ECAT 数据报接口
+    |-- datagram.h             
+    |-- datagram_pair.c                 # 提供构造 ECAT 数据报对的接口
+    |-- datagram_pair.h        
+    |-- debug.c                         # 提供调试接口
+    |-- debug.h                
+    |-- device.c                        # 提供网卡设备抽象及管理设备的接口
+    |-- device.h               
+    |-- domain.c                        # 提供 EtherCAT domain 相关接口
+    |-- domain.h               
     |-- doxygen.c
     |-- eoe_request.c
-    |-- eoe_request.h
-    |-- ethernet.c
-    |-- ethernet.h
+    |-- eoe_request.h          
+    |-- ethernet.c                      # 实现EOE功能的核心文件
+    |-- ethernet.h             
     |-- flag.c
-    |-- flag.h
-    |-- fmmu_config.c
-    |-- fmmu_config.h
-    |-- foe.h
-    |-- foe_request.c
-    |-- foe_request.h
-    |-- fsm_change.c
-    |-- fsm_change.h
-    |-- fsm_coe.c
-    |-- fsm_coe.h
-    |-- fsm_eoe.c
-    |-- fsm_eoe.h
-    |-- fsm_foe.c
-    |-- fsm_foe.h
-    |-- fsm_master.c
-    |-- fsm_master.h
-    |-- fsm_pdo.c
-    |-- fsm_pdo_entry.c
-    |-- fsm_pdo_entry.h
-    |-- fsm_pdo.h
-    |-- fsm_sii.c
-    |-- fsm_sii.h
-    |-- fsm_slave.c
-    |-- fsm_slave_config.c
-    |-- fsm_slave_config.h
-    |-- fsm_slave.h
-    |-- fsm_slave_scan.c
-    |-- fsm_slave_scan.h
-    |-- fsm_soe.c
-    |-- fsm_soe.h
-    |-- globals.h
-    |-- ioctl.c
-    |-- ioctl.h
-    |-- Kconfig
-    |-- mailbox.c
-    |-- mailbox.h
-    |-- Makefile
-    |-- master.c
-    |-- master.h
-    |-- module.c
-    |-- module_of.c
-    |-- pdo.c
-    |-- pdo_entry.c
-    |-- pdo_entry.h
-    |-- pdo.h
-    |-- pdo_list.c
-    |-- pdo_list.h
-    |-- reg_request.c
-    |-- reg_request.h
-    |-- rtdm.c
-    |-- rtdm_details.h
-    |-- rtdm.h
-    |-- rtdm-ioctl.c
-    |-- rtdm_xenomai_v3.c
-    |-- rt_locks.h
-    |-- sdo.c
-    |-- sdo_entry.c
-    |-- sdo_entry.h
-    |-- sdo.h
-    |-- sdo_request.c
-    |-- sdo_request.h
-    |-- slave.c
-    |-- slave_config.c
-    |-- slave_config.h
-    |-- slave.h
-    |-- soe_errors.c
-    |-- soe_request.c
-    |-- soe_request.h
-    |-- sync.c
-    |-- sync_config.c
-    |-- sync_config.h
-    |-- sync.h
-    |-- voe_handler.c
-    `-- voe_handler.h
+    |-- flag.h                 
+    |-- fmmu_config.c                   # 提供构造 FMMU 配置报文接口
+    |-- fmmu_config.h          
+    |-- foe.h                  
+    |-- foe_request.c                   # FoE 请求处理接口
+    |-- foe_request.h          
+    |-- fsm_change.c                    # 状态切换状态机实现
+    |-- fsm_change.h           
+    |-- fsm_coe.c                       # CoE 协议状态机实现
+    |-- fsm_coe.h              
+    |-- fsm_eoe.c                       # EoE 协议状态机实现
+    |-- fsm_eoe.h              
+    |-- fsm_foe.c                       # FoE 协议状态机实现
+    |-- fsm_foe.h              
+    |-- fsm_master.c                    # 主状态机实现
+    |-- fsm_master.h           
+    |-- fsm_pdo.c                       # PDO 读写状态机实现
+    |-- fsm_pdo_entry.c                 # PDO 条目读写状态机实现
+    |-- fsm_pdo_entry.h        
+    |-- fsm_pdo.h              
+    |-- fsm_sii.c                       # 从站信息接口读写状态机实现
+    |-- fsm_sii.h              
+    |-- fsm_slave.c                     # 从状态机实现
+    |-- fsm_slave_config.c              # 从站配置状态机实现
+    |-- fsm_slave_config.h     
+    |-- fsm_slave.h            
+    |-- fsm_slave_scan.c                # 从站扫描状态机实现
+    |-- fsm_slave_scan.h       
+    |-- fsm_soe.c                       # SoE（Servo over EtherCAT）状态机实现
+    |-- fsm_soe.h              
+    |-- globals.h              
+    |-- ioctl.c                         # 提供 IOCTL 接口以支持用户态交互
+    |-- ioctl.h               
+    |-- Kconfig                
+    |-- mailbox.c                       # ECAT 邮箱报文接口
+    |-- mailbox.h              
+    |-- Makefile               
+    |-- master.c                        # 主站模块核心逻辑
+    |-- master.h               
+    |-- module.c                        # 主站模块的初始化和清理
+    |-- pdo.c                           # PDO 管理接口
+    |-- pdo_entry.c                     # PDO 条目管理接口
+    |-- pdo_entry.h            
+    |-- pdo.h                  
+    |-- pdo_list.c                      # PDO 链表管理接口
+    |-- pdo_list.h             
+    |-- reg_request.c                   # 从站寄存器读写请求接口 
+    |-- reg_request.h          
+    |-- rtdm.c                          # RTDM 支持
+    |-- rtdm_details.h         
+    |-- rtdm.h                 
+    |-- rtdm-ioctl.c                    # RTDM IOCTL 接口实现
+    |-- rtdm_xenomai_v3.c               # 支持 Xenomai v3 实时框架的接口
+    |-- rt_locks.h                      # 实时锁实现
+    |-- sdo.c                           # SDO 管理
+    |-- sdo_entry.c                     # SDO 条目管理
+    |-- sdo_entry.h            
+    |-- sdo.h                  
+    |-- sdo_request.c                   # SDO 请求
+    ├── sdo_request.h          
+    ├── slave.c                         # 从站状态管理逻辑
+    |-- slave_config.c                  # 提供从站配置接口
+    |-- slave_config.h         
+    |-- slave.h                
+    |-- soe_errors.c                    # 定义 SoE 协议错误码
+    |-- soe_request.c                   # SoE 请求相关接口
+    |-- soe_request.h          
+    |-- sync.c                          # 同步管理器相关接口
+    |-- sync_config.c                   # 配置同步管理器接口
+    |-- sync_config.h          
+    |-- sync.h                 
+    |-- voe_handler.c                   # VOE（Vendor-specific over EtherCAT）请求
+    |-- voe_handler.h          
 ```
 
 ## 关键特性
@@ -208,7 +155,7 @@ EtherCAT 相关代码位于 `drivers/net/ethercat` 目录下：
 
 ### Kconfig 配置
 
-- `ETHERCAT`：在 K3 平台如果要启用 EtherCAT 服务，首先将此选项配置为 `Y`。
+- `ETHERCAT`：在 K3 平台如果要启用 EtherCAT 服务，需将此选项配置为 `Y`。
 
 ```c
 menuconfig ETHERCAT
@@ -234,8 +181,6 @@ config EC_MASTER
 	  The master is controlled via a character device interface.
 	  If unsure, say N.
 
-if EC_MASTER
-
 config EC_MASTER_OF
 	bool "Use Device Tree for EtherCAT master setup"
 	depends on OF
@@ -250,8 +195,6 @@ config EC_MASTER_OF
 
 	  If disabled, the original upstream module-parameter based
 	  configuration path is used instead.
-
-if EC_MASTER_OF
 
 config EC_MASTER_RUN_ON_CPU
 	int "Run EtherCAT master on CPU"
@@ -270,25 +213,10 @@ config EC_MASTER_DEBUG_LEVEL
 	  0: No debug information.
 	  1: Error messages.
 	  2: Full debug information.
-
-endif # EC_MASTER_OF
-
-endif # EC_MASTER
 ```
-
-- `EC_DEVICE`：启用 EtherCAT 设备驱动。
 - `EC_GENERIC`：启用通用 EtherCAT 设备驱动。
 - `EC_K3_GMAC`：启用 K3 平台专用 EtherCAT 设备驱动。
-
 ```c
-menuconfig EC_DEVICE
-        tristate "EtherCAT device"
-        depends on ETHERCAT && EC_MASTER
-        help
-          Enable EtherCAT device support.
-
-if EC_DEVICE
-
 config EC_GENERIC
         tristate "Generic EtherCAT device support"
         depends on EC_MASTER
@@ -296,22 +224,16 @@ config EC_GENERIC
           Generic EtherCAT device support using the standard Linux networking
           stack. This is portable but may have higher latency/jitter.
 
-config EC_K1X_GMAC
-        tristate "Spacemit K1 GMAC EtherCAT device support"
-        depends on EC_MASTER && (SOC_SPACEMIT_K1 || COMPILE_TEST)
-        help
-          EtherCAT device support for the Spacemit K1X GMAC controller.
-
 config EC_K3_GMAC
         tristate "Spacemit K3 GMAC EtherCAT device support"
         depends on EC_MASTER && SOC_SPACEMIT_K3
         select PAGE_POOL
         help
           EtherCAT device support for Spacemit K3 GMAC controller.
-
-endif # EC_DEVICE
 ```
-> **注：** 对于 K3 平台，默认开启 `ETHERCAT`、`EC_MASTER`、`EC_DEVICE` ，`EC_K3_GMAC` 和 `EC_MASTER_OF`。
+> **注1：** 在 K3 平台上，若需使用 EtherCAT 功能，EtherCAT、EC_MASTER、EC_DEVICE、EC_K3_GMAC 是必选项。
+> 
+> **注2：** 在 K3 平台上，默认开启 EtherCAT、EC_MASTER、EC_DEVICE、EC_K3_GMAC 和 EC_MASTER_OF 选项，如无特殊需求，用户仅需在 DTS 中完成相应节点使能，即可使用 EtherCAT 功能（见下节）。
 
 另外，为获得更好的实时性能，建议在内核配置中启用 `CONFIG_PREEMPT_RT`。
 ```c
