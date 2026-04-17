@@ -216,39 +216,44 @@ cd-gpios = <&gpio 2 22 GPIO_ACTIVE_LOW>;
 
 #### 作为 GPIO 中断使用
 
-设备先通过 `*-gpios` 获取 GPIO，再由驱动调用 `gpiod_to_irq()` / `gpio_to_irq()` 转成中断
+设备可以通过 `*-gpios` 属性获取 GPIO，再由驱动调用 `gpiod_to_irq()` 将其转换为 IRQ 编号，从而使用 GPIO 中断。
 
-例如 SDHCI 控制器在 `k3.dtsi` 中：
+dts 示例：
 
 ```dts
-sdcard: mmc@d4280000 {
-    compatible = "spacemit,k3-sdhci";
-    interrupt-parent = <&saplic>;
-    interrupts = <99 IRQ_TYPE_LEVEL_HIGH>;
-    ...
+my_device: my-device@0 {
+    compatible = "vendor,my-device";
+    event-gpios = <&gpio 2 22 GPIO_ACTIVE_LOW>;
 };
 ```
 
-- 但设备还需要额外使用一根 GPIO 作为功能辅助中断信号，例如 **card detect (cd-gpio)**
-
-```dts
-cd-gpios = <&gpio 2 22 GPIO_ACTIVE_LOW>;
-```
-
-然后在驱动里：
-
-1. 先通过 `mmc_of_parse()` 解析 `cd-gpios`
-2. GPIO 框架获得对应的 GPIO descriptor
-3. 再通过 `gpiod_to_irq()`（或旧接口 `gpio_to_irq()`）把该 GPIO 转换成 IRQ
-4. 最终把这根 GPIO IRQ 当作插卡检测中断来使用
-
-K3 SDHCI 驱动 `drivers/mmc/host/sdhci-of-k1.c` 中，在 `spacemit_sdhci_probe()` 里可以看到：
+驱动中的通用流程：
 
 ```c
-ret = mmc_of_parse(host->mmc);
+/* 1. 获取 GPIO descriptor */
+struct gpio_desc *event_gpio;
+event_gpio = devm_gpiod_get(&pdev->dev, "event", GPIOD_IN);
+if (IS_ERR(event_gpio))
+    return PTR_ERR(event_gpio);
+
+/* 2. 将 GPIO 转换为 IRQ 编号 */
+int irq = gpiod_to_irq(event_gpio);
+if (irq < 0)
+    return irq;
+
+/* 3. 申请中断 */
+ret = devm_request_threaded_irq(&pdev->dev, irq, NULL, my_irq_handler,
+                                IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+                                "my-event-irq", priv);
+if (ret)
+    return ret;
 ```
 
-这说明像 `cd-gpios` 这一类标准 MMC GPIO 属性，是由 MMC 框架解析并进一步转换为 GPIO IRQ 使用的。
+说明：
+
+1. `devm_gpiod_get()` 的第二个参数 `"event"` 对应 dts 中的 `event-gpios` 属性（自动匹配 `*-gpios` 后缀）
+2. `gpiod_to_irq()` 将 GPIO descriptor 转换为 Linux IRQ 编号，底层会通过 GPIO irqchip 完成映射
+3. K3 GPIO 中断只支持边沿触发，trigger flag 应使用 `IRQF_TRIGGER_RISING`、`IRQF_TRIGGER_FALLING` 或两者组合
 
 ## dt-binding 说明
 
