@@ -3,17 +3,17 @@ slug: /
 sidebar_position: 1
 ---
 
-# 简介
+# Introduction
 
-基于Buildroot构建的 Linux SDK，适配 SpacemiT K 系列芯片。包含监管程序接口（OpenSBI）、引导加载程序（U-Boot/UEFI）、Linux 内核、根文件系统（包含各种中间件和库）以及示例等。其目标是为客户提供处理器 Linux 支持，并且可以开发驱动或应用。
+The Linux SDK built with Buildroot, adapted for SpacemiT K series chips. It consists of the supervisor program interface (OpenSBI), bootloader (U-Boot/UEFI), Linux kernel, root file system (containing various middleware and libraries), and examples. Its goal is to provide processor Linux support for customers and enable the development of drivers and applications.
 
-## 系统架构
+## System Architecture
 
 ![](static/bianbu-linux-arch.png)
 
-## 主要组件
+## Main Components
 
-SDK包含的组件如下：
+The following are the components of SDK:
 
 - OpenSBI
 - U-Boot
@@ -31,14 +31,14 @@ SDK包含的组件如下：
 - v2d-test: 2D Unit test program
 - factorytest: factory test app
 
-更多组件正在适配中。
+More is coming.
 
-## 快速指南
+## Quick Start Guide
 
-- [镜像](image.md)
-- [源码](source.md)
-- [工具](../tools.md)
+- [Image](image.md)
+- [Source](source.md)
+- [Tools](../tools.md)
 
-## 更新说明
+## Release Notes
 
-- [更新说明](release_notes/index.md)
+- [Release notes](release_notes/index.md)

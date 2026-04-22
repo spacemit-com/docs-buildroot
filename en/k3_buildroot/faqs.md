@@ -2,31 +2,30 @@
 sidebar_position: 12
 ---
 
-# 常见问题
+# FAQs
 
-## 组件
+## Components
 
-### 制作一个Linux发行版需要集成哪些组件？
+### What components are needed to create a Linux distribution?
+To create a Linux distribution, at a minimum, the following components need to be integrated for the system to boot to the command line.
 
-制作一个Linux发行版，至少需要集成以下组件，系统才能运行到命令行。
+- [opensbi](https://git.spacemit.com/buildroot-k3/opensbi)
+- [uboot-2022.10](https://git.spacemit.com/buildroot-k3/uboot)
+- [linux-6.18](https://git.spacemit.com/buildroot-k3/linux-6.18)
+- esos
 
-- [opensbi](https://gitee.com/spacemit-buildroot/opensbi)
-- [uboot-2022.10](https://gitee.com/spacemit-buildroot/uboot-2022.10)
-- [linux-6.1](https://gitee.com/spacemit-buildroot/linux-6.1)或[linux-6.6](https://gitee.com/spacemit-buildroot/linux-6.6)
-- esos.elf
+Among them, `esos` is the firmware for the RCPU (Real-Time CPU), responsible for initializing some hardware modules and forwarding HDMI audio interrupts. It depends on the Linux system, and the system will not boot without it. It is released in the [esos](https://git.spacemit.com/buildroot-k3/esos) and [esos-lite](https://git.spacemit.com/buildroot-k3/esos-lite) repositories. Compiling `esos` generates the `rt24_os0_rcpu.elf` and `rt24_os1_rcpu.elf` files, which need to be installed in the `/lib/firmware` directory of the initramfs.
 
-其中，`esos.elf`是RCPU (Real-Time CPU)的firmware，负责部分硬件模块初始化，以及HDMI Audio中断转发，被Linux内核依赖，缺失会无法启动。发布在[buildroot-ext](https://gitee.com/spacemit-buildroot/buildroot-ext)仓库，路径`board/spacemit/k1/target_overlay/lib/firmware/esos.elf`，需要安装到initramfs `/lib/firmware`目录。
+To support GPU, the following components need to be integrated:
 
-支持GPU，需要集成以下组件：
+- [img-gpu-powervr](https://git.spacemit.com/buildroot-k3/img-gpu-powervr)
+- [mesa](https://git.spacemit.com/buildroot-k3/mesa)
 
-- [img-gpu-powervr](https://gitee.com/spacemit-buildroot/img-gpu-powervr)
-- [mesa3d](https://gitee.com/spacemit-buildroot/mesa3d)
+To support video hardware acceleration, the following components need to be integrated:
 
-支持视频硬件加速，需要集成以下组件：
-
-- [k1x-vpu-firmware](https://gitee.com/spacemit-buildroot/k1x-vpu-firmware)
-- [mpp](https://gitee.com/spacemit-buildroot/mpp)
+- [k3x-vpu-firmware](https://git.spacemit.com/buildroot-k3/k3x-vpu-firmware)
+- [mpp](https://git.spacemit.com/buildroot-k3/mpp)
 - FFmpeg
 - GStreamer
 
-其中，FFmpeg和GStreamer的补丁在[buildroot](https://gitee.com/spacemit-buildroot/buildroot)仓库，路径分别是`package/ffmpeg`和`package/gstreamer1`。
+The patches for FFmpeg and GStreamer are in the [buildroot](https://git.spacemit.com/buildroot-k3/buildroot) repository, located in `package/ffmpeg` and `package/gstreamer1`, respectively.

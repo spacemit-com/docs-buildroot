@@ -2,14 +2,14 @@
 sidebar_position: 2
 ---
 
-# 镜像
+# Images
 
-我们每个发布的版本都会提供预编译好的镜像，供体验。Buildroot 默认的镜像是`zip`格式，适用于 Titan Flasher，亦可解压后，用 fastboot 刷机。
+We provide images for each released version for you to experience. The default image format for Buildroot is `zip`. It is suitable for Titan Flasher and can also be extracted and flashed using fastboot.
 
-## 下载
+## Download
 
-镜像地址：[Buildroot Image](https://archive.spacemit.com/image/k3/version/buildroot/)。
+Image URL: [Buildroot Image](https://archive.spacemit.com/image/k3/version/buildroot/).
 
-## 刷机
+## Flashing
 
-Titan Flasher刷机参考[刷机工具使用手册](https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md)。
+Refer to the [Flashing Tool User Manual](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md) for flashing via Titan Flasher.
