@@ -43,7 +43,7 @@ The controller driver code is located in the `drivers/spi` directory:
 | Communication Protocol | Supports SSP/SPI/MicroWire/PSP protocols |
 | Communication Frequency | Supports a maximum frequency of 102MHz and a minimum frequency of 30MHz |
 | Communication Multiplier | x1/x2/x4 |
-| Supported Peripherals  | Supports `spi-nor` and `spi-nand` |
+| Supported Peripherals  | Supports spi-nor and spi-nand |  
 
 ### Performance Parameters
 
@@ -102,7 +102,7 @@ Device Drivers
 
 Check the board schematic to determine which pin group is used by QSPI. You can refer to the **Pin Configuration Definitions** section in [PINCTRL](01-PINCTRL.md) to identify the QSPI pin group.
 
-Assume that QSPI can directly use the `pinctrl_qspi` group defined in `k3_pinctrl.dtsi`.
+Assuming QSPI can directly use the `pinctrl_qspi` group defined in `k3-x_pinctrl.dtsi`.
 
 #### SPI Device Configuration
 
