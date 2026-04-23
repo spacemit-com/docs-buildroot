@@ -167,8 +167,7 @@ compatible:
 
 并且 binding 还说明：
 
-- 当 compatible 包含 `spacemit,k1-pwm` 时
-- `#pwm-cells` 必须为 `3`
+当 compatible 包含 `spacemit,k1-pwm` 时, `#pwm-cells` 必须为 `3`
 
 这也是 K3 dtsi 中实际写法的来源。
 
