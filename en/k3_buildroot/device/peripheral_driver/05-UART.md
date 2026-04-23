@@ -88,7 +88,7 @@ Therefore, K3 UART documentation should use the following files as the primary r
 | Feature | Description |
 | :----- | :----- |
 | Supports multiple UARTs | K3 provides multiple UARTs in both the AP and RCPU domains |
-| Based on the 8250 OF platform driver | The current `compatible` configuration uses the `8250_of.c` driver path |
+| Based on the 8250 OF platform driver | The current `compatible` settings route the driver to `8250_of.c` |
 | Supports FIFO configuration | `fifo-size` and `tx-threshold` can be configured in DTS |
 | Supports dynamic clock adaptation | `8250 OF` includes SpacemiT clock-switching logic |
 | Supports RCPU UART differentiation | RCPU UARTs can be distinguished through the `spacemit,rcpu-uart` property |
@@ -226,7 +226,7 @@ clock-names = "core", "bus", "gate";
 
 In other words:
 
-- `core`: core functional clock
+- `core`: functional clock
 - `bus`: bus clock
 - `gate`: slow clock / gate-related clock
 
@@ -421,7 +421,8 @@ Under `CONFIG_SOC_SPACEMIT`, `8250_of.c` adds dedicated logic such as:
 
 Among them, `spacemit_8250_set_termios()` selects different serial clock strategies based on:
 
-- whether the current bund rate is `spacemit,rcpu-uart`.
+- the current baud rate
+- whether `spacemit,rcpu-uart` is present
 
 - **AP-domain UART**: Selects an appropriate clock source for common baud rates through a fixed lookup-table method
 - **RCPU-domain UART**: Uses `clk_round_rate()` / `clk_set_rate()` so the clock framework can choose the most suitable frequency
@@ -584,7 +585,7 @@ For the current K3 kernel, the correct references are:
 - the driver path:
   - `drivers/tty/serial/8250/8250_of.c`
 
-Therefore, when writing and using K3 UART, pay special attention to:
+Therefore, when documenting or using K3 UART, pay special attention to:
 
 - **Distinguishing between AP-domain and RCPU-domain UARTs**
 - **The `spacemit,rcpu-uart` property affects the clock-selection strategy**
