@@ -3,7 +3,7 @@ sidebar_position: 6
 slug: /device
 ---
 
-# 设备开发
+# Device Development Guides
 
 Buildroot 方案开发指南:
 
