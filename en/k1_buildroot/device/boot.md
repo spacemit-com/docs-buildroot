@@ -879,7 +879,7 @@ The **SPL-DTS configuration** is as follows:
 
 2. Configure Environment (env) Support
 
-   MTD(Memory Technology Device))-based systems require the env subsystem to retrieve MTD partition information after SPL (Secondary Program Loader) startup.
+   MTD(Memory Technology Device)-based systems require the env subsystem to retrieve MTD partition information after SPL (Secondary Program Loader) startup.
 
    - Run:
 
