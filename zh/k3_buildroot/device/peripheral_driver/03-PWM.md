@@ -39,46 +39,6 @@ Linux-6.18/
 - `k3-rdomain.dtsi` 定义 RCPU 域 RPWM 控制器节点
 - `k3-pinctrl.dtsi` 给出了 PWM/RPWM 对应的复用管脚配置
 
-## K1 与 K3 驱动关系
-
-这一点需要特别区分。
-
-K1 旧内核（如 `k1-sdk/linux-6.6`）中，PWM 节点常见的 compatible 是：
-
-```dts
-compatible = "spacemit,k1x-pwm";
-```
-
-对应驱动仍然是：
-
-```text
-drivers/pwm/pwm-pxa.c
-```
-
-而在 K3 当前内核 `k3-sdk/linux-6.18` 中，PWM 节点使用的是：
-
-```dts
-compatible = "spacemit,k1-pwm", "marvell,pxa910-pwm";
-```
-
-对应驱动仍然还是：
-
-```text
-drivers/pwm/pwm-pxa.c
-```
-
-并且 dt-binding 中也已经把 SpacemiT 的扩展 compatible 合并到了：
-
-```text
-Documentation/devicetree/bindings/pwm/marvell,pxa-pwm.yaml
-```
-
-因此可以认为：
-
-- **K1 与 K3 当前使用的是同一套 PWM 驱动实现**
-- **K3 不是单独新写了一份 PWM 驱动**
-- 差异主要体现在 **dts compatible、时钟/复位资源、节点数量、所在电源域以及板级 pinmux 用法** 上
-
 ## 关键特性
 
 | 特性 | 特性说明 |
