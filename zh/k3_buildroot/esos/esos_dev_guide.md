@@ -9,6 +9,7 @@ esos系统基于rt-thread开发，跑在rcpu上，其功能包含如下两部分
 
 ## ESOS目录结构
 ### SDK根目录结构
+=======
 ```
 |-- bsp-src
 |   |-- linux-6.18
@@ -32,7 +33,7 @@ esos系统基于rt-thread开发，跑在rcpu上，其功能包含如下两部分
     `-- ubuntu.mirror
 
 ```
-### ESOS内部目录结构
+=======
 ```.
 |-- AUTHORS
 |-- bsp

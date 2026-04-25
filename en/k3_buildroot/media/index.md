@@ -1,9 +1,9 @@
 ---
-sidebar_position: 8
+sidebar_position: 7
 slug: /media
 ---
 
-# 多媒体
+# Multimedia Development Guides
 
 多媒体相关开发指南:
 
