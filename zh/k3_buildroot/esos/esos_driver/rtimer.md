@@ -151,14 +151,7 @@ static rt_err_t spacemit_hwtimer_control(struct rt_hwtimer_device *timer,
                                           rt_uint32_t cmd, void *args);
 ```
 
-定时器信息（`hw_info`）：
 
-| 参数 | 值 | 说明 |
-|-----|---|------|
-| `maxfreq` | 1000000 | 最大工作频率 1 MHz |
-| `minfreq` | 1000000 | 最小工作频率 1 MHz（固定） |
-| `maxcnt` | 0xFFFFFFFF | 最大计数值 |
-| `cntmode` | `HWTIMER_CNTMODE_UP` | 向上计数模式 |
 
 ## 测试介绍
 
