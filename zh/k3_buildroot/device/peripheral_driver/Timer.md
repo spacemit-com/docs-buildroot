@@ -128,24 +128,6 @@ counter 子节点关键属性说明：
 };
 ```
 
-#### 看门狗定时器节点
-
-K3 还包含一个看门狗定时器，复用 `CLK_APBC_TIMERS0`：
-
-```dts
-watchdog: watchdog@d4014000 {
-    compatible = "spacemit-k1,wdt";
-    clocks = <&syscon_apbc CLK_APBC_TIMERS0>,
-             <&syscon_apbc CLK_APBC_TIMERS0_BUS>;
-    clock-names = "clk", "clk-bus";
-    resets = <&syscon_apbc RESET_APBC_TIMERS0>;
-    reg = <0x0 0xd4014000 0x0 0xff>,
-          <0x0 0xd4050000 0x0 0x1024>;
-    interrupts = <35 4>;
-    interrupt-parent = <&saplic>;
-    status = "okay";
-};
-```
 
 
 ## Debug 介绍
