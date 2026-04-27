@@ -7,8 +7,9 @@ esos系统基于rt-thread开发，跑在rcpu上，其功能包含如下两部分
 1. 配合大核完成能效管理，如调频调压、power-switch开关、系统reboot、系统休眠唤醒
 2. 配合大核完成实时任务处理，如控制电机转动、控制继电器开关等
 
-### ESOS目录结构
-#### SDK根目录结构
+## ESOS目录结构
+### SDK根目录结构
+=======
 ```
 |-- bsp-src
 |   |-- linux-6.18
@@ -32,7 +33,7 @@ esos系统基于rt-thread开发，跑在rcpu上，其功能包含如下两部分
     `-- ubuntu.mirror
 
 ```
-#### ESOS内部目录结构
+=======
 ```.
 |-- AUTHORS
 |-- bsp
