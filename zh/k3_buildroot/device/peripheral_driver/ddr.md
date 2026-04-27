@@ -134,7 +134,7 @@ const ddr_part_info ddr_parts_info[] = {
 
 > **警告**：本章节涉及的参数直接影响信号完整性，不当修改可能导致系统不稳定或无法启动。建议在硬件工程师指导下进行，修改后务必执行严格的内存稳定性测试。
 
-K3 DDR 驱动的电气参数通过 `ddr_config_t` 结构体统一配置，LPDDR5 和 LPDDR4X 共用同一套结构，默认参数定义在 `drivers/ddr/spacemit/k3/lpddr5_init.c` 的 `ddr_default_io_para[]` 数组中：
+K3 DDR 驱动的电气参数通过 `ddr_config_t` 结构体统一配置，LPDDR5 和 LPDDR4X 共用同一套结构，默认参数定义在 `drivers/ddr/spacemit/k3/ddr_init.c` 的 `ddr_default_io_para[]` 数组中：
 
 ```c
 static const ddr_config_t ddr_default_io_para[] = {
@@ -242,7 +242,7 @@ NT ODT 是 LPDDR5 相对于 LPDDR4/LPDDR4X 新增的特性，**LPDDR4X 不支持
 修改 `ddr_default_io_para[]` 中对应类型的行即可，LPDDR5 和 LPDDR4X 独立配置：
 
 ```c
-// drivers/ddr/spacemit/k3/lpddr5_init.c
+// drivers/ddr/spacemit/k3/ddr_init.c
 static const ddr_config_t ddr_default_io_para[] = {
     // 修改 LPDDR5 参数示例：将写驱动从 PHY_R_30 改为 PHY_R_40
     { DDR_TYPE_LPDDR5,  PHY_R_40, PHY_R_60, R_60, R_80, R_OFF, R_OFF, R_40, 1 },
