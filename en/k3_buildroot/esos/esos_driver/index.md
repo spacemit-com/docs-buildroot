@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# ESOS 驱动
+# ESOS Drivers
 
 - [GPIO](gpio.md)
 - [PWM](pwm.md)
