@@ -60,6 +60,8 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 存储接口驱动
 
 - [SDHC](08-SDHC.md)
+- [UFS](ufs.md)
+- [DDR](ddr.md)
 
 系统基础驱动
 
@@ -68,8 +70,7 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [Clock](16-Clock.md)  
 - [Reset](Reset.md)
 - [DMA](21-DMA.md)
-- [RTC](rtc.md)
-- [DDR](ddr.md)
+- [RTC](24-RTC.md)
 
 功耗子系统驱动
 
@@ -85,4 +86,5 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 
 其他驱动
 - [WDT](23-WDT.md)
+- [Timer](Timer.md)
 
