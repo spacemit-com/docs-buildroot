@@ -3,8 +3,7 @@ sidebar_position: 5
 # MIPI-CSI
 
 K3 平台在摄像头输入侧仅保留了 **MIPI-CSI 采集链路**，不包含 K1 平台中的 ISP 和 CPP 硬件模块。
-因此本章聚焦于 K3 的 `MIPI D-PHY + CCIC + CCIC DMA + Sensor` 驱动架构、
-设备树配置方式以及测试程序使用说明。
+因此本章聚焦于 K3 的 `MIPI D-PHY + CCIC + CCIC DMA + Sensor`驱动架构、设备树配置方式以及测试程序使用说明。
 
 ## 1 规格介绍
 
@@ -17,38 +16,45 @@ K3 平台在摄像头输入侧仅保留了 **MIPI-CSI 采集链路**，不包含
 - 支持 RAW8/RAW10/RAW12 格式，以及传统的 YUV420 8-bit 输入格式
 
 
-
-
-
 ## 2 DTS 配置说明
 
 ### 2.1 驱动代码结构
 
-K3 平台 MIPI-CSI 驱动核心代码位于 `cam_ccic/`，主要负责 CSI PHY、CCIC、DMA、视频节点和 IOMMU 相关实现。
+K3 平台 MIPI-CSI 相关代码位于 `linux-6.18/drivers/media/platform/spacemit/`，
+其中 `cam_ccic/` 负责 CSI PHY、CCIC、DMA、视频节点和 IOMMU，
+`cam_sensor/` 负责各类 sensor 的上电、寄存器初始化和用户态控制接口。
 
 代码目录结构如下：
 
 ```text
-drivers/media/platform/spacemit/
+linux-6.18/drivers/media/platform/spacemit/
 ├── cam_ccic/
 │   ├── Kconfig
 │   ├── Makefile
-│   ├── csiphy.c  //D-PHY 初始化
+│   ├── csiphy.c                  // D-PHY 初始化与链路参数配置
 │   ├── csiphy.h
-│   ├── ccic_drv.c  //CCIC驱动，负责探测、资源初始化和 path 管理
+│   ├── ccic_drv.c                // CCIC 主控驱动，负责探测、资源初始化和 path 管理
 │   ├── ccic_drv.h
-│   ├── ccic_hwreg.c  //CCIC 寄存器读写和底层硬件配置
+│   ├── ccic_hwreg.c              // CCIC 寄存器读写和底层硬件配置
 │   ├── ccic_hwreg.h
-│   ├── ccic_vdev.c //V4L2 视频节点实现
+│   ├── ccic_vdev.c               // V4L2 视频节点实现
 │   ├── ccic_vdev.h
-│   ├── ccic_dma.c  //DMA 通道管理和数据搬运
+│   ├── ccic_dma.c                // DMA 通道管理和 path 到 DMA 的绑定
 │   ├── ccic_dma.h
-│   ├── ccic_iommu.c  //IOMMU 相关实现
+│   ├── ccic_iommu.c              // IOMMU 相关实现
 │   ├── ccic_iommu.h
 │   ├── ccic_reg_iommu.h
 │   ├── dptc_drv.c
 │   ├── dptc_drv.h
 │   └── dptc_pll_setting.h
+└── cam_sensor/
+    ├── Kconfig
+    ├── Makefile
+    ├── imx219_sensor.c           // IMX219 sensor 驱动
+    ├── imx415_sensor.c           // IMX415 sensor 驱动
+    ├── ov5647_sensor.c           // OV5647 sensor 驱动
+    ├── ov2735_sensor.c           // OV2735 sensor 驱动
+    └── ov5640_max96724_max9295_sensor.c  // OV5640 GMSL sensor 驱动
 ```
 
 ### 2.2 配置思路
@@ -183,13 +189,33 @@ ccic_dma: cam_ccic_dma@d420f000 {
 
 
 ## 3 测试程序
-### 3.1 k3x-cam
-`k3x-cam` 提供了 K3 MIPI-CSI 的基础验证程序，编译后可执行程序为 `csi-test`。
+### 3.1 `csi-test`
+
+K3 的 MIPI-CSI 基础验证程序位于：
+
+```text
+package/csi-test/
+```
+
+程序入口为 `csi_test.c`，各 sensor case 位于 `case/` 子目录，当前 `CMakeLists.txt`
+包含：
+
+```text
+csi_test.c
+csi_path.c
+case/csi_test_case0.c
+case/csi_test_case1.c
+case/csi_test_case2.c
+case/csi_test_case3.c
+case/csi_test_case4.c
+self_buffer_manager.c
+```
 
 该程序本质上完成两部分工作：
 
 - 通过 sensor misc 设备节点控制具体传感器上电、初始化、开关流
 - 通过 `csiX_pathY` 视频节点配置 CCIC path 并接收 RAW 数据
+- 启动时扫描 `/dev/videoN`，通过 `VIDIOC_QUERYCAP` 将视频节点匹配为 `csiX_pathY`
 
 ### 3.2 采集链路
 
@@ -203,13 +229,13 @@ sensor -> CSI D-PHY -> CCIC -> CCIC DMA -> DDR
 
 ### 3.3 软件流程
 
-参考 `k3x-cam` 中测试程序，典型软件流程如下：
+参考 `package/csi-test/` 中测试程序，典型软件流程如下：
 
 1. 打开 sensor 设备节点，例如 `/dev/imx219-0`
 2. 对 sensor 依次执行 `power on -> detect -> init regs`
 3. 打开对应的 `csiX_pathY` 视频节点
 4. 通过 V4L2 设置图像格式
-5. 通过 `VIDIOC_S_PARM` 下发 lane、mipi data rate、VC/DT filter、dma channel 等私有路径参数
+5. 通过 `VIDIOC_S_PARM` 下发 lane、link frequency、work mode、VC/DT filter、dma channel 等私有路径参数
 6. 申请并 queue 采集 buffer
 7. 使能 CSI path
 8. 对 sensor 执行 `stream on`
@@ -231,11 +257,10 @@ Sensor init
 ### 3.4 测试程序使用说明
 #### 3.4.1 支持的测试场景
 
-从 `csi_test.c` 的帮助信息可知，当前包含如下场景：
+从 `package/csi-test/csi_test.c` 的帮助信息可知，当前包含如下场景：
 
-- `case 0-3`：单路sensor实例出流
-- `case 4`：两路实例并行
-- `case 5`：三路实例并行
+- `case 0-3`：sensor 单路raw出流
+- `case 4`：GMSL (OV5640+MAX96724+MAX9295) 的 4VC UYUV格式采集
 
 #### 3.4.2 基本命令格式
 
@@ -249,6 +274,7 @@ csi_test [options]
 - `-c, --csi`：CSI ID
 - `-l, --lane`：lane 数
 - `-b, --bit`：bit depth
+- `-r, --link-freq`：MIPI link frequency，单位 Mbps
 - `-a, --autostart`：是否自动开流，`1` 表示自动开流
 - `-f, --frame`：采集多少帧后自动退出
 - `-s, --sub-case`：多实例并发时为每个子进程指定 case
@@ -258,7 +284,7 @@ csi_test [options]
 ##### 单路 IMX219
 
 ```shell
-csi_test -n 0 -c 0 -l 2 -b 10 -a 1 -f 100
+csi_test -n 0 -c 0 -l 2 -b 10 -r 914 -a 1 -f 100
 ```
 
 表示：
@@ -267,13 +293,28 @@ csi_test -n 0 -c 0 -l 2 -b 10 -a 1 -f 100
 - 使用 `csi0`
 - 2 lane
 - RAW10
+- link frequency 914 mbps
 - 自动开流
 - 采集 100 帧后退出
+
+##### OV5640 GMSL 4VC
+
+```shell
+csi_test -n 4 -c 0 -l 4 -a 1 -f 100
+```
+
+表示：
+
+- 运行 GMSL `case 4`
+- 使用 `csi0`
+- 4 lane
+- 4 个 VC 映射到 `path0 ~ path3`
+- 默认按自定义 topo 绑定 DMA channel
 
 ##### 双路并行
 
 ```shell
-csi_test -n 4 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
+csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 ```
 
 表示同时启动两个子进程，例如：
@@ -357,13 +398,13 @@ csi_test -n 4 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 K3 当前 sensor 驱动目录为：
 
 ```text
-k3-041/linux-6.18/drivers/media/platform/spacemit/cam_sensor/
+linux-6.18/drivers/media/platform/spacemit/cam_sensor/
 ```
 
 建议按以下步骤进行：
 
 1. 新增驱动源文件
-   - 参考 `imx219_sensor.c`等新建 `<sensor>_sensor.c`
+   - 参考 `imx219_sensor.c`、`ov5647_sensor.c` 等新建 `<sensor>_sensor.c`
 2. 在 `cam_sensor/Kconfig` 增加新 sensor 配置项
    - 新增 `config SPACEMIT_K3_CAM_<SENSOR>`
    - 依赖一般保持 `SPACEMIT_K3_CCIC && I2C`
@@ -372,24 +413,9 @@ k3-041/linux-6.18/drivers/media/platform/spacemit/cam_sensor/
 4. 对齐 DTS 的 `compatible` 与驱动 `of_match_table`
    - 确保设备树能正确匹配到新增 driver
 5. 对齐 `csi-test` 的设备节点与 ioctl 定义
-   - 设备节点命名需与测试程序一致：`/dev/<sensor>-<csi_id>`
-   - 在 `csi-test` 新增或复用对应 `<sensor>.h` 的 ioctl 宏定义
-
-### 4.3 sensor 驱动主要完成的功能
-
-结合当前 `cam_sensor` 与 `csi-test` 的实现，sensor 驱动核心职责如下：
-
-1. I2C 寄存器访问
-   - 提供寄存器读写能力，用于检测芯片 ID、模式配置、开关流控制
-2. 电源与时钟时序控制
-   - 控制 regulator、reset/pwdn GPIO、mclk，上下电时满足传感器时序要求
-3. 初始化寄存器下发
-   - 按目标分辨率/帧率/bit depth/lane 配置寄存器表
-4. stream on/off 控制
-   - 提供稳定的开流与停流控制接口
-5. 用户态控制接口
-   - 通过 misc 设备节点和 ioctl 向 `csi-test` 暴露 `power/detect/init/stream` 能力
-6. 设备树参数解析
-   - 解析 `csi-id`、供电、GPIO、mux 等板级配置
-7. probe/remove 生命周期管理
-   - 资源申请与释放，保证多次加载/卸载及异常路径稳定
+   - 设备节点命名需与测试程序实际打开的节点一致，例如 `/dev/imx219-<csi_id>`
+   - 在 `package/csi-test/case/` 新增或复用对应 `<sensor>.h` 的 ioctl 宏定义
+6. 若需要新增测试 case
+   - 在 `package/csi-test/case/` 新增 `csi_test_caseX.c`
+   - 在 `csi_test.c` 中补充 case 分发和帮助信息
+   - 在 `CMakeLists.txt` 中加入新的 case 源文件
