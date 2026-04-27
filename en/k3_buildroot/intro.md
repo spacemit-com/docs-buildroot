@@ -24,7 +24,7 @@ The following are the components of SDK:
 - mesa3d
 - k3x-vpu-firmware: Video Process Unit firmware
 - k3x-vpu-test: Video Process Unit test program
-- k3x-cam: CSI Unit test progrom
+- k3x-cam: CMOS Sensor and ISP API
 - mpp: Media Process Platform
 - FFmpeg (with Hardware Accelerated)
 - GStreamer (with Hardware Accelerated)
