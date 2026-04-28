@@ -59,15 +59,17 @@ Low-speed expansion interface drivers
 Storage interface drivers
 
 - [SDHC](08-SDHC.md)
+- [UFS](ufs.md)
+- [DDR](ddr.md)
 
 System foundation drivers
 
 - [PINCTRL](01-PINCTRL.md)
 - [GPIO](02-GPIO.md)
-- [Clock](16-Clock.md)  
+- [Clock](16-Clock.md) 
+- [Reset](Reset.md) 
 - [DMA](21-DMA.md)
 - [RTC](rtc.md)
-- [DDR](ddr.md)
 
 Power subsystem drivers
 
@@ -83,3 +85,4 @@ Third-party peripheral drivers
 
 Other drivers
 - [WDT](23-WDT.md)
+- [Timer](Timer.md)
