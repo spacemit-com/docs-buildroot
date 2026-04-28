@@ -38,13 +38,11 @@ sidebar_position: 1
 - RTC
 - DMA
 - msgbox
-- spinlock
-- TCM
 
 **接口驱动**
 
 - USB 2.0/3.0
-- PCIe 2.1
+- PCIe 3.0
 - UART
 - I2C
 - SPI
@@ -54,8 +52,7 @@ sidebar_position: 1
 **存储驱动**
 
 - MMC (sdcard/eMMC/SDIO)
-- SPI NOR
-- NVMe SSD
+- QSPI
 - UFS
 
 **网络驱动**
@@ -69,27 +66,20 @@ sidebar_position: 1
 - DPU
 - GPU
 - MIPI DSI
-- HDMI 1.4
+- eDP/DP
 
 **多媒体驱动**
 
 - VPU
-- JPU
 - V2D
 - V4L2
 - CMOS Sensor
-- ISP
 - I2S
-- HDMI Audio
 
 **功耗管理**
 
 - cpufreq
 - thermal
 - PMIC
-
-**加密驱动**
-
-- AES
 
 ### 已知问题
