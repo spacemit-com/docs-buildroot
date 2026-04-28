@@ -1,15 +1,14 @@
 ---
 sidebar_position: 6
-slug: /device
 ---
 
 # Device Development Guides
 
-Buildroot 方案开发指南:
+Buildroot Device Development Guides:
 
-- [设备管理](device_management.md)
-- [方案管理](solution_management.md)
-- [启动](boot.md)
-- [外设驱动](peripheral_driver/index.md)
+- [Device Management](device_management.md)
+- [Solution Management](solution_management.md)
+- [Boot Development Guide](boot.md)
+- [Peripheral Drivers](peripheral_driver/index.md)
 - [Standby](standby.md)
-- [产线测试工具](plt.md)
+- [Product Line Tool](plt.md)
