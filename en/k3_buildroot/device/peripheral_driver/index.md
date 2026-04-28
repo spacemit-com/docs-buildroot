@@ -1,52 +1,51 @@
 ---
 sidebar_position: 6
-slug: /development_guide/peripheral_driver
 ---
 
-# 外设驱动
+# Peripheral Drivers
 
-本文档介绍编写目的、适用范围以及相关使用人员，并详细说明 SpacemiT K3 平台的外设驱动支持情况。
+This document describes the purpose of this guide, its intended scope, and the target audience. It also provides an overview of peripheral driver support on the SpacemiT K3 platform.
 
-## 编写目的
+## Purpose
 
-本手册旨在帮助开发者了解并快速上手 SpacemiT K3 CPU 的外设驱动，包括各接口的板级配置、内核配置（ CONFIG）、驱动测试方法、调试接口说明以及常见问题处理，方便开发者进行二次驱动开发和系统集成。
+This guide is intended to help developers understand and quickly get started with peripheral drivers for the SpacemiT K3 CPU. It covers board-level configuration for each interface, kernel configuration (`CONFIG`), driver test methods, debugging interfaces, and common issue handling, making follow-up driver development and system integration easier.
 
-## 使用范围
+## Scope
 
-适用于基于 SpacemiT K3 CPU 的平台及其软件开发套件。
+This guide applies to platforms based on the SpacemiT K3 CPU and their software development kits.
 
-## 相关人员
+## Target Audience
 
-- 驱动开发工程师  
-- 系统集成工程师
+- Driver development engineers  
+- System integration engineers
 
-## 功能介绍
+## Functional Description
 
-外设驱动（或设备驱动）是控制硬件设备与操作系统之间的接口。 Linux 系统中，外设驱动是一个模块化的组件，它充当了硬件和操作系统之间的桥梁，负责对硬件进行初始化、配置、管理、数据传输和错误处理等工作。
+Peripheral drivers, also called device drivers, provide the interface between hardware devices and the operating system. In Linux, peripheral drivers are modular components that act as the bridge between hardware and the operating system. They are responsible for hardware initialization, configuration, management, data transfer, and error handling.
 
-SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMAC、 SPI 等接口，提供了全面的外设连接选型，本文档覆盖了 K3 涉及到的高速扩展接口驱动、音视频接口驱动、工业扩展接口驱动、存储接口驱动等使用说明文档：
+SpacemiT K3 provides a wide range of I/O capabilities and integrates multiple interfaces such as PCIe, USB, GMAC, and SPI. This document covers usage guides for the interface drivers supported on K3, including high-speed expansion interfaces, audio and video interfaces, industrial control interfaces, and storage interfaces:
 
-- **高速扩展接口驱动**： PCIe、 USB、 GMAC 等
-- **音视频接口驱动**： DSI、 HDMI、 CSI 等
-- **工业控制接口驱动**： UART、 CAN-FD、 I2C、 SPI、 PWM 等  
-- **存储接口驱动**： SDHC、 SPI-Flash 等
+- **High-speed expansion interface drivers**: PCIe, USB, GMAC, and others
+- **Audio and video interface drivers**: DSI, HDMI, CSI, and others
+- **Industrial control interface drivers**: UART, CAN-FD, I2C, SPI, PWM, and others  
+- **Storage interface drivers**: SDHC, SPI Flash, and others
 
-## 快速索引
+## Quick Index
 
-高速扩展接口驱动
+High-speed expansion interface drivers
 
 - [GMAC](09-GMAC.md)
 - [EtherCAT](22-EtherCAT.md)  
 - [USB](10-USB/index.md)  
 - [PCIe](11-PCIe.md)
 
-音视频接口驱动
+Audio and video interface drivers
 
 - [Display](12-Display.md)  
 - [V2D](13-V2D.md)  
 - [Audio](17-Audio.md)
 
-低速扩展接口驱动
+Low-speed expansion interface drivers
 
 - [PWM](03-PWM.md)  
 - [IR-RX](04-IR-RX.md)
@@ -57,11 +56,11 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [CAN](15-CAN.md)
 - [GPADC](gpadc.md)
 
-存储接口驱动
+Storage interface drivers
 
 - [SDHC](08-SDHC.md)
 
-系统基础驱动
+System foundation drivers
 
 - [PINCTRL](01-PINCTRL.md)
 - [GPIO](02-GPIO.md)
@@ -70,17 +69,17 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [RTC](rtc.md)
 - [DDR](ddr.md)
 
-功耗子系统驱动
+Power subsystem drivers
 
 - [Thermal](thermal.md)  
 - [CPUFREQ](15-Cpufreq.md)  
 - [Standby](../standby.md)
 - [PMIC](14-PMIC.md)
 
-第三方外设驱动
+Third-party peripheral drivers
 
 - [WIFI](WIFI.md)
 - [BT](BT.md)
 
-其他驱动
+Other drivers
 - [WDT](23-WDT.md)
