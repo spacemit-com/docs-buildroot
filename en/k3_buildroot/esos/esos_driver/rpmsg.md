@@ -1,26 +1,26 @@
-# RPMsg Inter-Core Communication Development Guide
+# RPMsg 大小核通信开发指南
 
-## Overview
+## 概述
 
-RPMsg (Remote Processor Messaging) is an inter-processor communication mechanism built on the OpenAMP framework. It is used for message exchange between the primary core (Linux) and the secondary core (RT-Thread RTOS).
+RPMsg（Remote Processor Messaging）是基于 OpenAMP 框架的核间通信机制，用于大核（Linux）与小核（RT-Thread RTOS）之间的消息传递。
 
-Communication architecture:
+通信架构：
 
 ```
-User space               Kernel space              Secondary core (RTOS)
+用户空间                内核空间                  小核 (RTOS)
 ─────────────────────────────────────────────────────────────
-    Application
-    /dev/rpmsgX  <──>  rpmsg driver  <──>  virtio/vring  <──>  OpenAMP rpmsg
-    (ioctl/read/write) endpoint            shared memory         endpoint
+  应用程序
+  /dev/rpmsgX  <──>  rpmsg 驱动  <──>  virtio/vring  <──>  OpenAMP rpmsg
+  (ioctl/read/write)  endpoint          共享内存             endpoint
 ```
 
-Message size limit: the maximum size of a single message is **512 bytes**, including a maximum payload size of **496 bytes** and a 16-byte header.
+消息大小限制：单条消息最大 **512 字节**，其中 payload 最大 **496 字节**（头部占 16 字节）。
 
 ---
 
-## 1. Secondary-Core Development (RT-Thread)
+## 一、小核侧开发（RT-Thread）
 
-### 1.1 Required Header Files
+### 1.1 依赖头文件
 
 ```c
 #include <openamp/remoteproc.h>
@@ -29,12 +29,12 @@ Message size limit: the maximum size of a single message is **512 bytes**, inclu
 #include <openamp/rpmsg_virtio.h>
 ```
 
-### 1.2 Define the Service Structure
+### 1.2 定义服务结构体
 
 ```c
-#define SERVICE_NAME    "rpmsg:my_service"   /* service name agreed with the primary core */
-#define RPMSG_ADDR_SRC  888                  /* local endpoint address on the secondary core */
-#define RPMSG_ADDR_DST  666                  /* destination endpoint address on the primary core */
+#define SERVICE_NAME    "rpmsg:my_service"   /* 与大核约定的服务名 */
+#define RPMSG_ADDR_SRC  888                  /* 小核端点本地地址 */
+#define RPMSG_ADDR_DST  666                  /* 大核端点目标地址 */
 
 struct my_rpmsg_service {
     char *service_name;
@@ -42,18 +42,18 @@ struct my_rpmsg_service {
 };
 ```
 
-### 1.3 Implement the Receive Callback
+### 1.3 实现接收回调
 
-When the secondary core receives a message from the primary core, the framework automatically calls this callback:
+小核收到大核消息时，框架自动调用此回调：
 
 ```c
 static int rpmsg_endpoint_cb(struct rpmsg_endpoint *ept, void *data,
                              size_t len, uint32_t src, void *priv)
 {
-    /* data: received message payload, len: message length, src: sender address */
+    /* data: 收到的消息内容，len: 消息长度，src: 发送方地址 */
     rt_kprintf("received: %.*s\n", (int)len, (char *)data);
 
-    /* Optional reply */
+    /* 回复消息（可选） */
     rpmsg_send(ept, "ack", 3);
 
     return 0;
@@ -61,18 +61,18 @@ static int rpmsg_endpoint_cb(struct rpmsg_endpoint *ept, void *data,
 
 static void rpmsg_service_unbind(struct rpmsg_endpoint *ept)
 {
-    /* Called when the primary core closes the connection; cleanup can be performed here */
+    /* 大核关闭连接时调用，可在此做清理 */
 }
 ```
 
-`rpmsg_service_unbind` is the endpoint **destruction callback**. It is passed as the last parameter to `rpmsg_create_ept` and must not be `NULL`.
+`rpmsg_service_unbind` 是端点的**销毁回调**，作为 `rpmsg_create_ept` 的最后一个参数传入，不能为 `NULL`。
 
-This callback is triggered when the primary core closes or destroys the corresponding endpoint. In these cases, the OpenAMP framework notifies the secondary core by invoking this callback. Typical scenarios include:
-- The primary-core driver calls `rpmsg_destroy_ept`
-- The primary-core `remoteproc` instance is stopped (`echo stop > /sys/class/remoteproc/remoteproc0/state`)
-- The primary-core driver module is unloaded (`rmmod`)
+触发时机：大核侧关闭或销毁对应端点时，OpenAMP 框架调用此回调通知小核。具体场景包括：
+- 大核驱动调用 `rpmsg_destroy_ept`
+- 大核 remoteproc 停止（`echo stop > /sys/class/remoteproc/remoteproc0/state`）
+- 大核驱动模块被卸载（`rmmod`）
 
-If the secondary core may still call `rpmsg_send` after the connection is closed, a state flag must be set here. Otherwise, messages may be sent to an invalid endpoint:
+如果小核在连接断开后还可能调用 `rpmsg_send`，必须在此设置标志位，否则会向失效端点发送消息：
 
 ```c
 static void rpmsg_service_unbind(struct rpmsg_endpoint *ept)
@@ -80,14 +80,14 @@ static void rpmsg_service_unbind(struct rpmsg_endpoint *ept)
     struct my_rpmsg_service *svc =
         metal_container_of(ept, struct my_rpmsg_service, endp);
 
-    svc->connected = false;   /* prevent subsequent rpmsg_send calls */
-    rpmsg_destroy_ept(ept);   /* destroy the endpoint if reconnection is not required */
+    svc->connected = false;   /* 阻止后续 rpmsg_send */
+    rpmsg_destroy_ept(ept);   /* 不打算重连时销毁端点 */
 }
 ```
 
-### 1.4 Create an Endpoint
+### 1.4 创建端点
 
-`rpdev` is a global `struct rpmsg_device *`. It is assigned by the `rproc` driver after the handshake completes, so endpoint creation must wait until it becomes non-NULL:
+`rpdev` 是全局的 `struct rpmsg_device *`，由 rproc 驱动在握手完成后赋值，需等待其非空再创建端点：
 
 ```c
 extern struct rpmsg_device *rpdev;
@@ -97,7 +97,7 @@ void my_service_thread(void *parameter)
     struct my_rpmsg_service *svc = (struct my_rpmsg_service *)parameter;
     int ret;
 
-    /* Wait until primary-core remoteproc initialization completes */
+    /* 等待大核侧 remoteproc 初始化完成 */
     while (rpdev == RT_NULL)
         rt_thread_delay(10);
 
@@ -115,15 +115,15 @@ void my_service_thread(void *parameter)
 }
 ```
 
-### 1.5 Send Messages Proactively
+### 1.5 主动发送消息
 
-After the endpoint is created successfully, the secondary core can send messages to the primary core at any time:
+端点创建成功后，小核可随时主动向大核发送消息：
 
 ```c
-/* Send a string */
+/* 发送字符串 */
 rpmsg_send(&svc->endp, "hello from small core", 21);
 
-/* Send a structure */
+/* 发送结构体 */
 struct my_msg {
     uint32_t cmd;
     uint32_t data;
@@ -132,7 +132,7 @@ struct my_msg msg = { .cmd = 1, .data = 0x1234 };
 rpmsg_send(&svc->endp, &msg, sizeof(msg));
 ```
 
-### 1.6 Service Registration Entry Point
+### 1.6 服务注册入口
 
 ```c
 static int my_service_init(void)
@@ -158,26 +158,26 @@ static int my_service_init(void)
     return 0;
 }
 
-/* Start through an MSH command */
+/* 通过 MSH 命令触发 */
 MSH_CMD_EXPORT(my_service_init, start rpmsg service);
-/* Or initialize automatically during system startup */
+/* 或在系统启动时自动初始化 */
 /* INIT_APP_EXPORT(my_service_init); */
 ```
 
 ---
 
-## 2. Primary-Core Development (Linux)
+## 二、大核侧开发（Linux）
 
-There are two integration models on the primary-core side: **kernel driver** and **user-space application**.
+大核侧有两种使用方式：**内核驱动**和**用户空间程序**。
 
-### 2.1 Kernel Driver Model
+### 2.1 内核驱动方式
 
-#### 2.1.1 Header File and Service Name Declaration
+#### 2.1.1 头文件与服务名声明
 
 ```c
 #include <linux/rpmsg.h>
 
-/* The service name must match SERVICE_NAME on the secondary core */
+/* 服务名需与小核 SERVICE_NAME 一致 */
 static struct rpmsg_device_id my_rpmsg_id_table[] = {
     { .name = "rpmsg:my_service" },
     {},
@@ -185,9 +185,9 @@ static struct rpmsg_device_id my_rpmsg_id_table[] = {
 MODULE_DEVICE_TABLE(rpmsg, my_rpmsg_id_table);
 ```
 
-#### 2.1.2 Implement `probe` and `remove`
+#### 2.1.2 实现 probe / remove
 
-When the secondary-core endpoint is created successfully and the service name matches, the kernel automatically calls `probe`:
+当小核端点创建成功、服务名匹配时，内核自动调用 probe：
 
 ```c
 struct my_rpmsg_priv {
@@ -215,7 +215,7 @@ static void my_rpmsg_remove(struct rpmsg_device *rpdev)
 }
 ```
 
-#### 2.1.3 Implement the Receive Callback
+#### 2.1.3 实现接收回调
 
 ```c
 static int my_rpmsg_cb(struct rpmsg_device *rpdev, void *data,
@@ -223,14 +223,14 @@ static int my_rpmsg_cb(struct rpmsg_device *rpdev, void *data,
 {
     dev_info(&rpdev->dev, "received %d bytes from src %u\n", len, src);
 
-    /* Reply message */
+    /* 回复消息 */
     rpmsg_send(rpdev->ept, "ack", 3);
 
     return 0;
 }
 ```
 
-#### 2.1.4 Send Messages
+#### 2.1.4 发送消息
 
 ```c
 static void my_send_message(struct rpmsg_device *rpdev, void *buf, int len)
@@ -241,7 +241,7 @@ static void my_send_message(struct rpmsg_device *rpdev, void *buf, int len)
 }
 ```
 
-#### 2.1.5 Register the Driver
+#### 2.1.5 注册驱动
 
 ```c
 static struct rpmsg_driver my_rpmsg_driver = {
@@ -259,11 +259,11 @@ module_rpmsg_driver(my_rpmsg_driver);
 
 ---
 
-### 2.2 User-Space Model
+### 2.2 用户空间方式
 
-The kernel creates a `/dev/rpmsgX` character device for each RPMsg endpoint. User-space applications access it through standard file operations.
+内核为每个 rpmsg 端点创建 `/dev/rpmsgX` 字符设备，用户程序通过标准文件操作访问。
 
-#### 2.2.1 Open the Device and Bind an Endpoint
+#### 2.2.1 打开设备并绑定端点
 
 ```c
 #include <fcntl.h>
@@ -279,7 +279,7 @@ if (fd < 0) {
 
 struct rpmsg_endpoint_info ept_info = {
     .name = "rpmsg:my_service",
-    .src  = 0,           /* 0: the kernel assigns the source address automatically */
+    .src  = 0,           /* 0 表示由内核自动分配 */
     .dst  = 0xFFFFFFFF,  /* RPMSG_ADDR_ANY */
 };
 if (ioctl(fd, RPMSG_CREATE_EPT_IOCTL, &ept_info) < 0) {
@@ -289,7 +289,7 @@ if (ioctl(fd, RPMSG_CREATE_EPT_IOCTL, &ept_info) < 0) {
 }
 ```
 
-#### 2.2.2 Send Messages
+#### 2.2.2 发送消息
 
 ```c
 const char *msg = "hello from linux userspace";
@@ -298,10 +298,10 @@ if (n < 0)
     perror("write");
 ```
 
-#### 2.2.3 Receive Messages with Blocking Read
+#### 2.2.3 接收消息（阻塞读）
 
 ```c
-char buf[496];  /* maximum payload size: 496 bytes */
+char buf[496];  /* payload 最大 496 字节 */
 ssize_t n = read(fd, buf, sizeof(buf));
 if (n < 0)
     perror("read");
@@ -309,7 +309,7 @@ else
     printf("received %zd bytes: %.*s\n", n, (int)n, buf);
 ```
 
-#### 2.2.4 Use `poll` for Asynchronous Receive
+#### 2.2.4 使用 poll 异步接收
 
 ```c
 #include <poll.h>
@@ -323,11 +323,11 @@ int ret = poll(&pfd, 1, 1000 /* ms timeout */);
 if (ret > 0 && (pfd.revents & POLLIN)) {
     char buf[496];
     ssize_t n = read(fd, buf, sizeof(buf));
-    /* process the message */
+    /* 处理消息 */
 }
 ```
 
-#### 2.2.5 Destroy the Endpoint and Close the Device
+#### 2.2.5 销毁端点并关闭
 
 ```c
 ioctl(fd, RPMSG_DESTROY_EPT_IOCTL);
@@ -336,52 +336,52 @@ close(fd);
 
 ---
 
-## 3. Service Name and Address Conventions
+## 三、服务名与地址约定
 
-Communication between the primary and secondary cores requires both sides to use the **same service name**. Addresses may be fixed or negotiated automatically by using `RPMSG_ADDR_ANY` (`0xFFFFFFFF`).
+大小核通信的前提是双方使用**相同的服务名**，地址可以固定也可以使用 `RPMSG_ADDR_ANY`（`0xFFFFFFFF`）由框架自动协商。
 
-| Parameter | Secondary Core (RTOS) | Primary Core (Linux Kernel Driver) | Primary Core (Linux User Space) |
-| :---- | :---- | :---- | :---- |
-| Service name | `rpmsg_create_ept` (3rd parameter) | `rpmsg_device_id.name` | `rpmsg_endpoint_info.name` |
-| Local address | `RPMSG_ADDR_SRC` (fixed value) | Assigned by the framework | `ept_info.src = 0` |
-| Destination address | `RPMSG_ADDR_DST` (fixed value) | Assigned by the framework | `ept_info.dst = RPMSG_ADDR_ANY` |
-
----
-
-## 4. Complete Workflow for Adding a New Service
-
-### 4.1 Secondary-Core Side
-
-1. Refer to `rproc-test_esos.c` and create a new service file, for example `my_service_esos.c`.
-2. Define the service name macro and endpoint structure.
-3. Implement `rpmsg_endpoint_cb` for receive handling and `rpmsg_service_unbind`.
-4. In a thread, wait until `rpdev` is ready and then call `rpmsg_create_ept`.
-5. Add the new file to `SConscript`.
-
-### 4.2 Primary-Core Side (Kernel Driver)
-
-1. Create a new driver file, for example `my_service_linux.c`.
-2. Define the `rpmsg_device_id` table and use the same service name as the secondary core.
-3. Implement `probe`, `remove`, and `callback`.
-4. Register the `rpmsg_driver`.
-5. Add the required build options to `Kconfig` and `Makefile`.
-
-### 4.3 Primary-Core Side (User Space)
-
-1. Confirm that the kernel has loaded the `rpmsg_char` module (`modprobe rpmsg_char`).
-2. Open `/dev/rpmsg0` and bind the service name through `RPMSG_CREATE_EPT_IOCTL`.
-3. Use `read`, `write`, and `poll` to exchange messages.
+| 参数 | 小核（RTOS） | 大核（Linux 内核驱动） | 大核（Linux 用户空间） |
+|------|-------------|----------------------|----------------------|
+| 服务名 | `rpmsg_create_ept` 第三参数 | `rpmsg_device_id.name` | `rpmsg_endpoint_info.name` |
+| 本地地址 | `RPMSG_ADDR_SRC`（固定值） | 由框架分配 | `ept_info.src = 0` |
+| 目标地址 | `RPMSG_ADDR_DST`（固定值） | 由框架分配 | `ept_info.dst = RPMSG_ADDR_ANY` |
 
 ---
 
-## 5. Debugging Recommendations
+## 四、新增服务的完整步骤
 
-- Check registered RPMsg services: `cat /sys/bus/rpmsg/devices/*/name`
-- Check the `remoteproc` state: `cat /sys/class/remoteproc/remoteproc0/state`
-- Load or unload secondary-core firmware (currently not implemented):
+### 4.1 小核侧
+
+1. 参考 `rproc-test_esos.c`，新建服务文件（如 `my_service_esos.c`）
+2. 定义服务名宏、端点结构体
+3. 实现 `rpmsg_endpoint_cb`（接收处理）和 `rpmsg_service_unbind`
+4. 在线程中等待 `rpdev` 就绪后调用 `rpmsg_create_ept`
+5. 在 `SConscript` 中添加新文件
+
+### 4.2 大核侧（内核驱动）
+
+1. 新建驱动文件（如 `my_service_linux.c`）
+2. 定义 `rpmsg_device_id` 表，服务名与小核一致
+3. 实现 `probe`、`remove`、`callback`
+4. 注册 `rpmsg_driver`
+5. 在 `Kconfig`/`Makefile` 中添加编译选项
+
+### 4.3 大核侧（用户空间）
+
+1. 确认内核已加载 `rpmsg_char` 模块（`modprobe rpmsg_char`）
+2. 打开 `/dev/rpmsg0`，通过 `RPMSG_CREATE_EPT_IOCTL` 绑定服务名
+3. 使用 `read`/`write`/`poll` 收发消息
+
+---
+
+## 五、调试建议
+
+- 查看已注册的 rpmsg 服务：`cat /sys/bus/rpmsg/devices/*/name`
+- 查看 remoteproc 状态：`cat /sys/class/remoteproc/remoteproc0/state`
+- 加载/卸载小核固件(目前未实现)：
   ```bash
   echo "start" > /sys/class/remoteproc/remoteproc0/state
   echo "stop"  > /sys/class/remoteproc/remoteproc0/state
   ```
-- Check kernel logs: `dmesg | grep -i rpmsg`
-- Check secondary-core logs through the RT-Thread console over UART or JTAG
+- 内核日志：`dmesg | grep -i rpmsg`
+- 小核日志：通过串口或 JTAG 查看 RT-Thread 控制台输出
