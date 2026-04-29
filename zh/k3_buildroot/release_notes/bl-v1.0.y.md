@@ -83,3 +83,5 @@ sidebar_position: 1
 - PMIC
 
 ### 已知问题
+
+- Suspend to ram功能尚不完善
