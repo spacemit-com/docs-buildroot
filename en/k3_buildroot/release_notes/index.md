@@ -1,8 +1,7 @@
 sidebar_position: 4
 
-# 更新说明
+# Release Notes
 
-以下是 Buildroot 各版本更新说明：
+The following release notes are available for Buildroot versions:
 
-- [Buildroot x.x 更新说明](bl-vx.x.md) [长期支持版本]
-
+- [Buildroot 1.0 Release Notes](bl-v1.0.y.md) [Long-Term Support Release]
