@@ -8,7 +8,7 @@ We provide images for each released version for you to experience. The default i
 
 ## Download
 
-Image URL: [Buildroot Image](https://archive.spacemit.com/image/k3/version/buildroot/).
+Image URL: [Buildroot Image](https://spacemit.com/community/resources-download/Images%20Collects/K3/Buildroot).
 
 ## Flashing
 
