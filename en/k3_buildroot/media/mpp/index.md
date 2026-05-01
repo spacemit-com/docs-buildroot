@@ -29,4 +29,4 @@ slug: /media/mpp
 - [多媒体框架](01-multimedia_framework.md)
 - [MPP](02-MPP.md)
 - [VPU](03-VPU.md)
-- [CPP & ISP & MIPI-CSI](05-CPP_ISP_MIPI-CSI.md)
+- [MIPI-CSI](05-MIPI-CSI.md)
