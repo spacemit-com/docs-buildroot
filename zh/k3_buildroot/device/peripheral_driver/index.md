@@ -55,7 +55,6 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 - [QSPI](07-QSPI.md)
 - [SPI](SPI.md)
 - [CAN](15-CAN.md)
-- [GPADC](gpadc.md)
 
 存储接口驱动
 
@@ -87,4 +86,3 @@ SpacemiT K3 包含了各种丰富的 IO 能力，集成多套 PCIe， USB， GMA
 其他驱动
 - [WDT](23-WDT.md)
 - [Timer](Timer.md)
-
