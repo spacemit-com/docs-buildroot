@@ -54,7 +54,6 @@ Low-speed expansion interface drivers
 - [QSPI](07-QSPI.md)
 - [SPI](SPI.md)
 - [CAN](15-CAN.md)
-- [GPADC](gpadc.md)
 
 Storage interface drivers
 
