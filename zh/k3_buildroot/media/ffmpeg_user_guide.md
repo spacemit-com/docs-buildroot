@@ -530,23 +530,50 @@ ffmpeg -f v4l2 -input_format mjpeg -framerate 30 -video_size 1920x1080 -i /dev/v
 
 ### 播放调试
 
+`ffplay` 是一个轻量级的媒体播放器，用于实时预览和调试媒体文件或码流。在使用 `ffplay` 进行播放调试时，建议显式指定 `-c:v` 参数选择硬件解码器 (`stcodec`)，以充分利用平台硬件解码能力。
+
+#### 可用的硬件解码器（stcodec）
+
+播放调试时可使用以下硬件解码器：
+
+| 编码格式 | 解码器 |
+| -------- | ------ |
+| H.264 | `h264_stcodec` |
+| H.265 / HEVC | `hevc_stcodec` |
+| MJPEG | `mjpeg_stcodec` |
+| MPEG-2 | `mpeg2_stcodec` |
+| MPEG-4 | `mpeg4_stcodec` |
+| VP8 | `vp8_stcodec` |
+| VP9 | `vp9_stcodec` |
+
 #### 播放本地视频
 
 ```shell
-ffplay input.mp4
+ffplay -c:v h264_stcodec input.mp4
 ```
+
+**参数说明：**
+- `-c:v h264_stcodec`：指定使用 H.264 硬件解码器，可根据需要替换为上表中的其他编码格式对应的解码器
 
 #### 循环播放视频
 
 ```shell
-ffplay -loop 0 input.mp4
+ffplay -c:v h264_stcodec -loop 0 input.mp4
 ```
+
+**参数说明：**
+- `-c:v h264_stcodec`：指定使用 H.264 硬件解码器
+- `-loop 0`：循环播放（0 表示无限循环）
 
 #### 无音频播放
 
 ```shell
-ffplay -an input.mp4
+ffplay -c:v h264_stcodec -an input.mp4
 ```
+
+**参数说明：**
+- `-c:v h264_stcodec`：指定使用 H.264 硬件解码器
+- `-an`：禁用音频输出
 
 ## 常见问题
 
