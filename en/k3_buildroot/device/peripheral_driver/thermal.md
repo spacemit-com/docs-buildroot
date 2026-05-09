@@ -2,12 +2,12 @@
 
 This document describes the thermal management functions of the K3 SoC and their usage model.
 
-## Module Overview
+## Overview
 
 Thermal refers to a driver framework for temperature monitoring and thermal control.
 The Linux Thermal framework is the standard Linux architecture for temperature management and is mainly used to address the increasing thermal challenges that come with higher device performance.
 
-### Functional Overview
+### Functionality
 
 ![](static/thermal.png)
 
@@ -185,7 +185,7 @@ Thermal-zone configuration is defined in the board-level DTS files. The example 
 };
 ```
 
-## Interface Description
+## Interface
 
 ### API Overview
 

@@ -2,11 +2,11 @@
 
 This document describes the K3 platform reset system, including its architecture, driver implementation, device tree configuration, usage, and common debugging methods.
 
-## Module Overview
+## Overview
 
 The reset system controls reset signals for internal SoC modules. It returns modules to a known state and ensures correct initialization.
 
-### Functional Overview
+### Functionality
 
 #### Reset Framework
 

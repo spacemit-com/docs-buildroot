@@ -1,78 +1,76 @@
 # RTC
 
-本文介绍 RTC（实时时钟）的基本原理、配置方法以及调试方式。
+This document introduces the basic principles, configuration methods, and debugging procedures of the RTC (Real-Time Clock). 
 
-## 模块介绍  
+## Overview
 
-**RTC（Real-Time Clock，实时时钟）**是一种用于记录和维护系统时间的硬件模块。
+**RTC (Real-Time Clock)** is a hardware module used to record and maintain system time.
 
-RTC 可以在系统断电或休眠状态下继续工作（通常由备用电池供电），保持时间的连续性。系统启动后可以从 RTC 读取当前时间，确保系统时间的准确性。
+The RTC can continue operating when the system is powered off or in a sleep state (usually powered by a backup battery), maintaining time continuity. After the system boots, it reads the current time from the RTC to ensure system time accuracy. 
 
-### 功能说明 
+### Functionality
 
-K3 平台使用 **RPMI（RISC-V Platform Management Interface）** 协议实现 RTC 功能。RPMI RTC 通过 mailbox 机制与固件通信，实现时间的读取、设置和闹钟功能。
+The K3 platform uses the **RPMI (RISC-V Platform Management Interface)** protocol to implement RTC functionality.
+The RPMI RTC communicates with firmware through the mailbox mechanism to implement time reading, time setting, and alarm functions.
 
-内核通过 **RTC 框架接口** 将 RTC 驱动注册到系统，并生成设备节点 `/dev/rtc0`。  
+The kernel registers the RTC driver with the system via the **RTC framework interface**, creating the device nodes `/dev/rtc0`.
 
-用户层程序可通过以下方式操作 RTC：
+User-space applications can operate the RTC in the following ways:
 
-- 读取当前时间
-- 设置系统时间
-- 设置和管理闹钟
-- 通过 sysfs 接口查看 RTC 状态
+- Read the current time
+- Set the system time
+- Set and manage alarms
+- Check RTC status via the sysfs interface
 
-### 源码结构介绍
+### Source Code Structure
 
-RTC 驱动代码位于内核目录 `drivers/rtc` 下：
+The RTC driver code is located in the kernel directory `drivers/rtc`:
 
 ```
 drivers/rtc
-|--rtc-core.c           # RTC 框架核心代码
-|--rtc-dev.c            # RTC 字符设备接口
-|--rtc-sysfs.c          # RTC sysfs 接口
-|--rtc-rpmi.c           # K3 RPMI RTC 驱动  
+|--rtc-core.c           # RTC framework core code 
+|--rtc-dev.c            # RTC character device interface 
+|--rtc-sysfs.c          # RTC sysfs interface 
+|--rtc-rpmi.c           # K3 RPMI RTC driver  
 ```
 
-### RPMI RTC 架构
+### RPMI RTC Architecture
 
-RPMI RTC 基于 mailbox 通信机制：
+The RPMI RTC is based on the mailbox communication mechanism:
 
 ```
-用户空间
+User-space
     ↓
-RTC 框架
+RTC framework
     ↓
-RPMI RTC 驱动
+RPMI RTC driver
     ↓
-Mailbox 子系统
+Mailbox subsystem
     ↓
 MPXY Mailbox
     ↓
-硬件 RTC
+Hardware RTC
 ```
 
-## 关键特性  
+## Key Features 
 
-- 支持读取和设置系统时间
-- 支持闹钟功能（Alarm）
-- 支持中断通知
-- 基于 RPMI 协议通信
-- 通过 mailbox 与固件交互
-- 支持系统休眠唤醒
+- Supports reading and setting system time
+- Supports alarm functionality
+- Supports interrupt notifications
+- Communicates based on the RPMI protocol
+- Interacts with firmware via mailbox
+- Supports system sleep and wake-up
 
-## 配置介绍
+## Configuration
 
-RTC 的使用主要涉及两部分配置：
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-- **内核 CONFIG 配置**
-- **设备树（DTS）配置**
+### Kconfig Configuration
 
-### 内核 CONFIG 配置
+#### Enable the RTC Framework
 
-#### 启用 RTC 框架
-
-`CONFIG_RTC_CLASS` 为内核 RTC 框架提供支持，用于启用内核的 RTC 子系统。
-在使用 K3 RTC 驱动时，该选项必须设置为 `y`。
+`CONFIG_RTC_CLASS` provides support for the kernel RTC framework, enabling the kernel RTC subsystem.
+When using the K3 RTC driver, this option must be set to `y`.
 
 ```
 Symbol: RTC_CLASS [=y]
@@ -80,9 +78,9 @@ Device Drivers
       -> Real Time Clock (RTC_CLASS [=y])
 ```
 
-#### 启用 RPMI RTC 驱动
+#### Enable the RPMI RTC Driver
 
-在启用 RTC 框架后，需要将 `CONFIG_RTC_DRV_RPMI` 设置为 `y`，以支持 K3 的 RPMI RTC 驱动。
+After enabling the RTC framework, set `CONFIG_RTC_DRV_RPMI` to `y` to support the K3 RPMI RTC driver.
 
 ```
 Symbol: RTC_DRV_RPMI [=y]
@@ -91,14 +89,14 @@ Device Drivers
             -> RISC-V RPMI RTC (RTC_DRV_RPMI [=y])
 ```
 
-### DTS 配置
+### DTS Configuration
 
-#### DTSI 配置示例
+#### DTSI Configuration Example
 
-在 `dtsi` 文件中定义 RPMI RTC 的 mailbox 通道和中断资源。
-通常情况下，该部分**无需修改**。
+Define the mailbox channel and interrupt resources for the RPMI RTC in the `dtsi` file.
+This part usually **does not need to be modified**.
 
-**RPMI RTC 节点（k3.dtsi）**
+**RPMI RTC Node (k3.dtsi)**
 
 ```dts
 rpmi_rtc: rpmi_rtc@0 {
@@ -111,21 +109,21 @@ rpmi_rtc: rpmi_rtc@0 {
 };
 ```
 
-**属性说明：**
+**Property Description:**
 
-- `compatible`：兼容字符串，标识为 RPMI RTC 设备
-- `mboxes`：mailbox 通道配置，用于与固件通信
-  - `&mpxy_mbox`：mailbox 控制器
-  - `0xe`：RTC 服务 ID
-  - `0x0`：通道参数
-- `interrupts`：中断号配置（用于闹钟中断）
-- `interrupt-names`：中断名称
+- `compatible`: Compatible string identifying the device as an RPMI RTC device
+- `mboxes`: Mailbox channel configuration used for communication with firmware
+    - `&mpxy_mbox`: Mailbox controller
+    - `0xe`: RTC service ID
+    - `0x0`: Channel parameter
+- `interrupts`: Interrupt number configuration, used for alarm interrupts
+- `interrupt-names`: Interrupt name
 
-#### DTS 配置示例
+#### DTS Configuration Example
 
-通常 RPMI RTC 在 dtsi 中已经默认启用（`status = "okay"`），板级 DTS 无需额外配置。
+Usually, the RPMI RTC is enabled by default in the `dtsi` (`status = "okay"`), so no additional configuration is required in the board-level DTS.
 
-如需禁用 RTC，可在板级 DTS 中设置：
+To disable the RTC, set the following configuration in the board-level DTS:
 
 ```dts
 &rpmi_rtc {
@@ -133,93 +131,93 @@ rpmi_rtc: rpmi_rtc@0 {
 };
 ```
 
-## 接口说明
+## Interface
 
-### 内核 API
+### Kernel API
 
-RTC 驱动实现了标准的 `rtc_class_ops` 接口：
+The RTC driver implements the standard `rtc_class_ops` interface:
 
 ```c
 static const struct rtc_class_ops rpmi_rtc_ops = {
-    .read_time = rpmi_read_time,      // 读取时间
-    .set_time = rpmi_set_time,        // 设置时间
-    .read_alarm = rpmi_read_alarm,    // 读取闹钟
-    .set_alarm = rpmi_set_alarm,      // 设置闹钟
-    .alarm_irq_enable = rpmi_alarm_irq_enable,  // 使能闹钟中断
+    .read_time = rpmi_read_time,      // Read time
+    .set_time = rpmi_set_time,        // Set time
+    .read_alarm = rpmi_read_alarm,    // Read alarm
+    .set_alarm = rpmi_set_alarm,      // Set alarm
+    .alarm_irq_enable = rpmi_alarm_irq_enable,  // Enable alarm interrupt
 };
 ```
 
-### RPMI 服务 ID
+### RPMI Service ID
 
-RPMI RTC 支持以下服务：
+The RPMI RTC supports the following services:
 
-| 服务 ID | 服务名称 | 功能说明 |
+| Service ID | Service Name | Function |
 |---------|---------|---------|
-| 0x01 | ENABLE_NOTIFICATION | 使能通知 |
-| 0x02 | SET_TIME | 设置时间 |
-| 0x03 | GET_TIME | 获取时间 |
-| 0x04 | SET_ALARM | 设置闹钟 |
-| 0x05 | GET_ALARM | 获取闹钟 |
-| 0x06 | ALARM_GET_EN | 获取闹钟使能状态 |
-| 0x07 | ALARM_SET_EN | 设置闹钟使能 |
-| 0x08 | QUERY_PENDING | 查询待处理事件 |
-| 0x09 | CLR_PENDING | 清除待处理事件 |
+| 0x01 | ENABLE_NOTIFICATION | Enable notifications |
+| 0x02 | SET_TIME | Set time |
+| 0x03 | GET_TIME | Get time |
+| 0x04 | SET_ALARM | Set alarm |
+| 0x05 | GET_ALARM | Get alarm |
+| 0x06 | ALARM_GET_EN | Get alarm enable state |
+| 0x07 | ALARM_SET_EN | Set alarm enable |
+| 0x08 | QUERY_PENDING | Query pending events |
+| 0x09 | CLR_PENDING | Clear pending events |
 
-### 用户空间接口
+### User-Space Interface
 
-#### 命令行工具
+#### Command-Line Tools
 
-使用 `hwclock` 命令操作 RTC：
+Use the `hwclock` command to operate the RTC:
 
 ```bash
-# 读取 RTC 时间
+# Read RTC time
 hwclock -r
 
-# 将系统时间写入 RTC
+# Write system time to RTC
 hwclock -w
 
-# 将 RTC 时间同步到系统时间
+# Synchronize RTC time to system time
 hwclock -s
 
-# 设置 RTC 时间
+# Set RTC time
 hwclock --set --date="2025-04-22 18:30:00"
 ```
 
-使用 `date` 命令操作系统时间：
+Use the `date` command to operate the system time:
 
 ```bash
-# 查看系统时间
+# View system time
 date
 
-# 设置系统时间
+# Set system time
 date -s "2025-04-22 18:30:00"
 
-# 设置系统时间后同步到 RTC
+# Set the system time and then synchronize it to the RTC
 date -s "2025-04-22 18:30:00" && hwclock -w
 ```
 
-#### sysfs 接口
+#### sysfs Interface
 
-通过 sysfs 查看和操作 RTC：
+View and operate the RTC through sysfs:
 
 ```bash
-# 查看 RTC 时间
+# View RTC time
 cat /sys/class/rtc/rtc0/time
 cat /sys/class/rtc/rtc0/date
 
-# 查看 RTC 设备信息
+# View RTC device information
 cat /sys/class/rtc/rtc0/name
 
-# 查看闹钟设置
+# View alarm settings
 cat /sys/class/rtc/rtc0/wakealarm
 
-# 设置闹钟（10 秒后触发）
+# Set alarm (trigger after 10 seconds) 
 echo +10 > /sys/class/rtc/rtc0/wakealarm
 ```
 
-#### 编程接口
+#### Programming Interface
 
-使用 ioctl 操作 RTC：
+Use ioctl to operate RTC:
 
 ```c
 #include <linux/rtc.h>
@@ -230,42 +228,42 @@ echo +10 > /sys/class/rtc/rtc0/wakealarm
 int fd;
 struct rtc_time rtc_tm;
 
-// 打开 RTC 设备
+// Open RTC device
 fd = open("/dev/rtc0", O_RDONLY);
 
-// 读取 RTC 时间
+// Read RTC time
 ioctl(fd, RTC_RD_TIME, &rtc_tm);
 
-// 设置 RTC 时间
+// Set RTC time
 ioctl(fd, RTC_SET_TIME, &rtc_tm);
 
-// 读取闹钟
+// Read alarm
 struct rtc_wkalrm alarm;
 ioctl(fd, RTC_WKALM_RD, &alarm);
 
-// 设置闹钟
+// Set alarm
 ioctl(fd, RTC_WKALM_SET, &alarm);
 
 close(fd);
 ```
 
-## Debug 说明
+## Debugging
 
-### 基本测试
+### Basic Testing
 
-1. 检查 RTC 设备是否存在
+1. Check whether the RTC device exists
 
    ```bash
    ls -l /dev/rtc*
    ```
 
-2. 查看 RTC 驱动加载情况
+2. View RTC driver loading state
 
    ```bash
    dmesg | grep -i rtc
    ```
 
-3. 查看 RTC 设备信息
+3. View RTC device information
 
    ```bash
    cat /sys/class/rtc/rtc0/name
@@ -273,36 +271,36 @@ close(fd);
    cat /sys/class/rtc/rtc0/time
    ```
 
-### 时间读写测试
+### Time Read and Write Test
 
 ```bash
-# 读取当前 RTC 时间
+# Read current RTC time
 hwclock -r
 
-# 设置系统时间
+# Set system time
 date -s "2025-04-22 18:30:00"
 
-# 将系统时间写入 RTC
+# Write system time to RTC
 hwclock -w
 
-# 验证 RTC 时间
+# Verify RTC time
 hwclock -r
 ```
 
-### 闹钟测试
+### Alarm Testing
 
 ```bash
-# 设置 10 秒后触发闹钟
+# Set alarm to trigger after 10 seconds
 echo +10 > /sys/class/rtc/rtc0/wakealarm
 
-# 查看闹钟设置
+# View alarm settings
 cat /sys/class/rtc/rtc0/wakealarm
 
-# 等待闹钟触发，查看内核日志
+# Wait for the alarm to trigger and check the kernel logs
 dmesg | tail
 ```
 
-### 测试程序示例
+### Test Program Example
 
 ```c
 #include <stdio.h>
@@ -318,14 +316,14 @@ int main(void)
     int fd, ret;
     struct rtc_time rtc_tm;
 
-    // 打开 RTC 设备
+    // Open RTC device
     fd = open("/dev/rtc0", O_RDONLY);
     if (fd < 0) {
         perror("open /dev/rtc0");
         return -1;
     }
 
-    // 读取 RTC 时间
+    // Read RTC time
     ret = ioctl(fd, RTC_RD_TIME, &rtc_tm);
     if (ret < 0) {
         perror("RTC_RD_TIME");
@@ -346,105 +344,105 @@ int main(void)
 }
 ```
 
-## 测试说明
+## Test Guide
 
-### 时间保持测试
+### Time Retention Test
 
-1. 设置 RTC 时间
-2. 系统重启
-3. 启动后检查 RTC 时间是否保持
+1. Set the RTC time
+2. Reboot the system
+3. Check if the RTC time is retained after startup
 
 ```bash
-# 设置时间
+# Set the time
 date -s "2025-04-22 18:30:00"
 hwclock -w
 
-# 重启系统
+# Reboot the system
 reboot
 
-# 启动后检查
+# Check after startup
 hwclock -r
 ```
 
-### 闹钟唤醒测试
+### Alarm Wake-up Test
 
-1. 设置闹钟
-2. 系统进入休眠
-3. 闹钟触发后系统唤醒
+1. Set the alarm 
+2. System enters sleep mode
+3. The system wakes up when the alarm is triggered
 
 ```bash
-# 设置 60 秒后触发闹钟
+# Set alarm to trigger after 60 seconds
 echo +60 > /sys/class/rtc/rtc0/wakealarm
 
-# 系统休眠（如果支持）
+# Enter system sleep state (if supported)
 echo mem > /sys/power/state
 
-# 等待闹钟唤醒系统
+# Wait for the alarm to wake up system
 ```
 
 ## FAQ
 
-### RTC 设备不存在
+### RTC Device Not Found 
 
-检查以下几点：
+Check the following items:
 
-1. 确认内核配置已启用 `CONFIG_RTC_CLASS` 和 `CONFIG_RTC_DRV_RPMI`
-2. 确认 DTS 中 rpmi_rtc 节点 status 为 "okay"
-3. 检查 mailbox 驱动是否正常加载：`dmesg | grep -i mbox`
-4. 查看内核日志：`dmesg | grep -i rtc`
+1. Confirm that the kernel configuration options `CONFIG_RTC_CLASS` and `CONFIG_RTC_DRV_RPMI` are enabled
+2. Confirm that the status of the `rpmi_rtc` node in the DTS is set to "okay"
+3. Check if the mailbox driver is loaded correctly: `dmesg | grep -i mbox`
+4. View the kernel logs: `dmesg | grep -i rtc`
 
-### RTC 时间不准确
+### RTC Time Not Accurate
 
-可能的原因：
+Possible causes:
 
-1. RTC 未正确初始化，需要手动设置时间
-2. 系统时间与 RTC 时间不同步
-3. 固件 RTC 实现问题
+1. The RTC has not been initialized correctly; manual time setting is required.
+2. The system time is not synchronized with the RTC time.
+3. Firmware RTC implementation issues
 
-解决方法：
+Solution:
 
 ```bash
-# 设置正确的系统时间
+# Set the correct system time
 date -s "2025-04-22 18:30:00"
 
-# 同步到 RTC
+# Synchronize to RTC
 hwclock -w
 
-# 验证
+# Verify
 hwclock -r
 ```
 
-### 闹钟不工作
+### Alarm Not Working
 
-检查以下几点：
+Check the following items:
 
-1. 确认中断配置正确：`cat /proc/interrupts | grep rtc`
-2. 检查闹钟是否已使能：`cat /sys/class/rtc/rtc0/wakealarm`
-3. 查看内核日志是否有错误信息
+1. Confirm if the interrupt configuration is correct: `cat /proc/interrupts | grep rtc`
+2. Confirm that the alarm is enabled: `cat /sys/class/rtc/rtc0/wakealarm`
+3. Check whether there are error messages in the kernel logs
 
-### 系统时间与 RTC 时间不同步
+### System time not synchronized with RTC time
 
-系统启动时，通常会自动从 RTC 读取时间。如果不同步：
+At system startup, the time is usually read automatically from the RTC. If they are not synchronized:
 
 ```bash
-# 手动从 RTC 同步到系统时间
+# Manually synchronize system time from RTC
 hwclock -s
 
-# 或者从系统时间同步到 RTC
+# Or synchronize RTC from the system time
 hwclock -w
 ```
 
-### RPMI 通信失败
+### RPMI Communication Failure
 
-如果出现 RPMI 通信错误：
+If an RPMI communication error occurs:
 
-1. 检查 mailbox 驱动是否正常：`dmesg | grep mpxy`
-2. 确认固件版本是否支持 RPMI RTC
-3. 查看详细错误信息：`dmesg | grep -i "rpmi\|rtc"`
+1. Check if the mailbox driver is working properly: `dmesg | grep mpxy`
+2. Confirm if the firmware version supports RPMI RTC
+3. View detailed error information: `dmesg | grep -i "rpmi\|rtc"`
 
-### 如何在启动时自动同步 RTC 时间
+### How to Automatically Synchronize RTC Time on Startup
 
-在系统启动脚本中添加：
+Add the following to the system startup script:
 
 ```bash
 # /etc/init.d/S01rtc
@@ -462,10 +460,10 @@ case "$1" in
 esac
 ```
 
-## 注意事项
+## Notes
 
-1. **RPMI 依赖**：RPMI RTC 依赖于固件支持，确保固件版本正确
-2. **Mailbox 通道**：RTC 使用 mailbox 通道 0xe，不要与其他设备冲突
-3. **中断共享**：RPMI RTC 与 RPMI PWRKEY 共享中断 64，这是正常的
-4. **时间格式**：RTC 时间使用 UTC 时间，需要考虑时区转换
-5. **备用电源**：RTC 在断电后需要备用电池供电才能保持时间
+1. **RPMI dependency**: RPMI RTC depends on firmware support, so make sure the firmware version is correct.
+2. **Mailbox channel**: The RTC uses mailbox channel `0xe`. Make sure it does not conflict with other devices.
+3. **Interrupt Sharing**: RPMI RTC shares interrupt 64 with RPMI PWRKEY. This is normal.
+4. **Time format**: The RTC uses UTC time, so time zone conversion must be considered.
+5. **Backup power**: The RTC depends on a backup battery to maintain time when the system is powered off.

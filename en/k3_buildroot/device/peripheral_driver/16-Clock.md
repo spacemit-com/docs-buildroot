@@ -2,11 +2,11 @@
 
 This document describes the K3 platform clock system, including its architecture, driver implementation, Device Tree configuration, usage model, and common debugging methods.
 
-## Module Overview
+## Overview
 
 The clock system provides operating clocks for internal SoC modules and supports clock selection, division, and enable control.
 
-### Functional Overview
+### Functionality
 
 #### Clock Framework
 
@@ -172,9 +172,9 @@ The K3 clock driver implements three main clock types:
 
 ## Configuration
 
-Configuration mainly includes **kernel CONFIG options** and **Device Tree configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Options
+### Kconfig Configuration
 
 - `CONFIG_COMMON_CLK`: enables support for the Common Clock Framework. By default, this option is set to `Y`.
 
@@ -329,7 +329,7 @@ The DTS configuration is shown below:
 
 These nodes declare themselves as clock providers through the `#clock-cells = <1>` property. Device nodes reference the required clock resources through the `clocks` and `clock-names` properties.
 
-## Interface Description
+## Interface
 
 ### Clock API Overview
 

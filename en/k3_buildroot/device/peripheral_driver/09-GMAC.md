@@ -2,7 +2,7 @@
 
 This document describes the K3 GMAC features and usage.
 
-## Module Overview
+## Overview
 
 The K3 GMAC module is based on the Synopsys DesignWare Ethernet QoS controller (version 5.40a). It complies with IEEE 802.3-2015, supports 10/100/1000 Mbps communication, and provides a broad set of advanced networking features.
 
@@ -13,7 +13,7 @@ Typical application scenarios include:
 - network interface cards
 - data center networking equipment
 
-### Functional Overview
+### Functionality
 
 ![](static/net.png)
 

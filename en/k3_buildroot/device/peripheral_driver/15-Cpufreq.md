@@ -2,11 +2,11 @@
 
 This document describes the CPUFREQ functionality of the K3 SoC and its usage.
 
-## Module Overview
+## Overview
 
 The CPUFREQ subsystem dynamically adjusts CPU frequency and voltage while the CPUs are running. Its purpose is to minimize power consumption while maintaining the required level of performance.
 
-### Functional Overview
+### Functionality
 
 ![](static/cpufreq.png)
 

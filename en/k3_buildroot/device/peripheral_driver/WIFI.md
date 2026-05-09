@@ -2,7 +2,7 @@
 
 This document describes common Wi-Fi module porting methods for the K3 platform and summarizes the main integration considerations.
 
-## Module Overview
+## Overview
 
 The K3 platform requires an **external Wi-Fi module** to provide wireless connectivity. Supported interfaces include SDIO, PCIe, and USB.
 
@@ -149,7 +149,7 @@ sdio_pwrseq: sdio-pwrseq {
 };
 ```
 
-## Interface Description
+## Interface
 
 ### User-Space Interface
 

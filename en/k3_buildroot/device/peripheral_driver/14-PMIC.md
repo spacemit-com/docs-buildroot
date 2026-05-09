@@ -2,14 +2,14 @@
 
 This document describes the PMIC (Power Management IC) features and usage on the K3 platform based on the RPMI protocol.
 
-## Module Overview
+## Overview
 
 The **PMIC (Power Management IC)** is an integrated circuit responsible for system power management. It controls power-rail enablement and voltage adjustment through the Regulator subsystem.
 
 The K3 platform implements PMIC functionality through **RPMI (RISC-V Platform Management Interface)**. 
 The RPMI PMIC communicates with firmware through a mailbox mechanism to provide dynamic power management.
 
-### Functional Overview
+### Functionality
 
 K3 RPMI PMIC architecture:
 
@@ -80,7 +80,7 @@ Main power domains on the K3 platform include:
 
 ## Configuration
 
-Configuration mainly consists of **kernel CONFIG options** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
 ### Kernel CONFIG Options
 
@@ -299,7 +299,7 @@ Configure rail properties in the board-level DTS. The following example uses `k3
 | `regulator-boot-on` | Enables the rail during boot |
 | `regulator-ramp-delay` | Voltage transition delay in microseconds per volt |
 
-## Interface Overview
+## Interface
 
 ### RPMI Service IDs
 
