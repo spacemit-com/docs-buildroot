@@ -14,4 +14,4 @@ sidebar_position: 2
 - [RUART](ruart.md)
 - [RGMAC](rgmac.md)
 - [DMA](dma.md)
-- [RPMsg](r[msg.md])
+- [RPMsg](rpmsg.md])
