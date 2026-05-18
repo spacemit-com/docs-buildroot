@@ -2,46 +2,45 @@ sidebar_position: 5
 
 # MIPI-CSI
 
-K3 平台在摄像头输入侧仅保留了 **MIPI-CSI 采集链路**，不包含 K1 平台中的 ISP 和 CPP 硬件模块。
-因此本章聚焦于 K3 的 `MIPI D-PHY + CCIC + CCIC DMA + Sensor`驱动架构、设备树配置方式以及测试程序使用说明。
+On the camera input side, K3 retains only the **MIPI-CSI capture path** and does not include the ISP and CPP hardware modules available on K1.
+This section describes K3 usage, including the `MIPI D-PHY + CCIC + CCIC DMA + Sensor` driver architecture, device tree configuration, and test program.
 
-## 1 规格介绍
+## 1. Specification
 
 ### MIPI CSI (CSI-2 V1.1) 4 lane (x3)
 
-- 支持多种 Lane 组合模式：
+- Supports multiple lane combination modes:
   - 4 Lane + 4 Lane + 4 Lane
   - 4 Lane + 4 Lane + 2 Lane + 2 Lane
-- DPHY V1.1，最高速率可达 1.5 Gbps/lane
-- 支持 RAW8/RAW10/RAW12 格式，以及传统的 YUV420 8-bit 输入格式
+- D-PHY V1.1, with a maximum data rate of up to 1.5 Gbps/lane.
+- Supports RAW8, RAW10, and RAW12 formats, as well as the traditional 8-bit YUV420 input format.
 
+## 2. DTS Configuration
 
-## 2 DTS 配置说明
+### 2.1 Driver Code Structure
 
-### 2.1 驱动代码结构
+The MIPI-CSI code for K3 is located at `linux-6.18/drivers/media/platform/spacemit/`.  
+`cam_ccic/`: responsible for CSI PHY, CCIC, DMA, video nodes, and the IOMMU.
+`cam_sensor/`: responsible for sensor power-up, register initialization, and user-space control interfaces.
 
-K3 平台 MIPI-CSI 相关代码位于 `linux-6.18/drivers/media/platform/spacemit/`，
-其中 `cam_ccic/` 负责 CSI PHY、CCIC、DMA、视频节点和 IOMMU，
-`cam_sensor/` 负责各类 sensor 的上电、寄存器初始化和用户态控制接口。
-
-代码目录结构如下：
+Code directory structure:
 
 ```text
 linux-6.18/drivers/media/platform/spacemit/
 ├── cam_ccic/
 │   ├── Kconfig
 │   ├── Makefile
-│   ├── csiphy.c                  // D-PHY 初始化与链路参数配置
+│   ├── csiphy.c                  // D-PHY initialization and link parameter configuration
 │   ├── csiphy.h
-│   ├── ccic_drv.c                // CCIC 主控驱动，负责探测、资源初始化和 path 管理
+│   ├── ccic_drv.c                // CCIC core driver: detecting, resource initialization and path management 
 │   ├── ccic_drv.h
-│   ├── ccic_hwreg.c              // CCIC 寄存器读写和底层硬件配置
+│   ├── ccic_hwreg.c              // CCIC register read/write and low-level hardware configuration 
 │   ├── ccic_hwreg.h
-│   ├── ccic_vdev.c               // V4L2 视频节点实现
+│   ├── ccic_vdev.c               // V4L2 video node implementation 
 │   ├── ccic_vdev.h
-│   ├── ccic_dma.c                // DMA 通道管理和 path 到 DMA 的绑定
+│   ├── ccic_dma.c                // DMA channel management and binding from path to DMA
 │   ├── ccic_dma.h
-│   ├── ccic_iommu.c              // IOMMU 相关实现
+│   ├── ccic_iommu.c              // IOMMU-related implementation
 │   ├── ccic_iommu.h
 │   ├── ccic_reg_iommu.h
 │   ├── dptc_drv.c
@@ -50,38 +49,38 @@ linux-6.18/drivers/media/platform/spacemit/
 └── cam_sensor/
     ├── Kconfig
     ├── Makefile
-    ├── imx219_sensor.c           // IMX219 sensor 驱动
-    ├── imx415_sensor.c           // IMX415 sensor 驱动
-    ├── ov5647_sensor.c           // OV5647 sensor 驱动
-    ├── ov2735_sensor.c           // OV2735 sensor 驱动
-    └── ov5640_max96724_max9295_sensor.c  // OV5640 GMSL sensor 驱动
+    ├── imx219_sensor.c           // IMX219 sensor driver
+    ├── imx415_sensor.c           // IMX415 sensor driver
+    ├── ov5647_sensor.c           // OV5647 sensor driver
+    ├── ov2735_sensor.c           // OV2735 sensor driver
+    └── ov5640_max96724_max9295_sensor.c  // OV5640 GMSL sensor driver
 ```
 
-### 2.2 配置思路
+### 2.2 Configuration Flow
 
-K3 的摄像头 DTS 配置可以按下面的顺序理解：
+The camera DTS configuration for the K3 platform follows this workflow:
 
-1. SoC 公共 `.dtsi` 中先定义好 `csiphy`、`ccic`、`ccic_dma`
-2. 板级 `.dts` 中打开需要使用的 `&csiphyX` 和 `&ccicX`
-3. 在对应的 I2C 控制器下添加具体 sensor 节点
-4. 用 `csi-id` 把 sensor 绑定到某一路 CSI 控制器
+1. Define `csiphy`, `ccic`, and `ccic_dma` in the SoC common `.dtsi`.
+2. Enable the required `&csiphyX` and `&ccicX` nodes in the board-level `.dts`.
+3. Add the specific sensor node under the corresponding I2C controller.
+4. Bind the sensor to a CSI controller using `csi-id`.
 
-### 2.3 SoC 公共节点
+### 2.3 SoC Common Nodes
 
-K3 SoC 公共摄像头节点位于 `k3-camera.dtsi`，主要包含三类节点：
+The K3 SoC common camera nodes are located in `k3-camera.dtsi`:
 
 - `csiphy0` ~ `csiphy2`
 - `ccic0` ~ `ccic3`
 - `ccic_dma`
 
-说明：
+Description:
 
-- `k3-camera.dtsi` 中这些 camera 公共节点一般不做板级修改，通常保持 SoC 公共定义。
-- 板级适配主要在 `.dts` 中完成：使能/关闭对应 `&csiphyX`、`&ccicX`，并新增/调整 sensor 节点。
+- These common camera nodes in `k3-camera.dtsi` generally do not require board-level modification and should remain at their default SoC definitions.
+- Board-level adaptation is completed in the `.dts`: enable or disable the corresponding `&csiphyX` and `&ccicX` nodes, and add or modify sensor nodes.
 
-#### 2.3.1 `csiphy` 节点
+#### 2.3.1 `csiphy` Node
 
-典型写法如下：
+Typical usage example:
 
 ```dts
 csiphy0: csiphy@d420a000 {
@@ -99,9 +98,9 @@ csiphy0: csiphy@d420a000 {
 };
 ```
 
-#### 2.3.2 `ccic` 节点
+#### 2.3.2 `ccic` Node
 
-典型写法如下：
+Typical usage example:
 
 ```dts
 ccic0: cam_ccic@d420a000 {
@@ -128,12 +127,12 @@ ccic0: cam_ccic@d420a000 {
 };
 ```
 
-特别的，对于 `ccic2` 和 `ccic3`，两者共用同一个D-PHY，需要按两种 lane 组合来配置：
+**Note:** `ccic2` and `ccic3` share the same D-PHY and must be configured according to one of the following lane combinations:
 
-- `2lane + 2lane`（`csi2` 与 `csi3` 同时使用）
-  - `ccic2` 与 `ccic3` 的 `spacemit,csiphy` 都指向 `&csiphy2`
-  - `&csiphy2` 的 `spacemit,bifmode-enable` 设为 `<1>`
-  - 同时使能 `&ccic2` 和 `&ccic3`
+- `2lane + 2lane` (when both `csi2` and `csi3` are used simultaneously)
+  - The `spacemit,csiphy` property of both `ccic2` and `ccic3` must point to `&csiphy2`
+  - Set `spacemit,bifmode-enable` of `&csiphy2` to `<1>`
+  - Enable both `&ccic2` and `&ccic3`
 
 ```dts
 &csiphy2 {
@@ -150,10 +149,11 @@ ccic0: cam_ccic@d420a000 {
 };
 ```
 
-- `4lane`（只使用 `csi2` 或 `csi3` 其中一路）
-  - 使用的那一路 `ccic` 仍指向 `&csiphy2`
-  - `&csiphy2` 的 `spacemit,bifmode-enable` 设为 `<0>`
-  - 未使用的那一路 `ccic` 设为 `disabled`
+- `4lane` (when only one of `csi2` or `csi3` is used)
+  - The `ccic` controller in use still points to `&csiphy2`
+  - Set `spacemit,bifmode-enable` of `&csiphy2` to `<0>`
+  - Set the unused `ccic` controller to `disabled`
+
 ```dts
 &csiphy2 {
 	spacemit,bifmode-enable = <0>;
@@ -169,9 +169,9 @@ ccic0: cam_ccic@d420a000 {
 };
 ```
 
-#### 2.3.3 `ccic_dma` 节点
+#### 2.3.3 `ccic_dma` Node
 
-典型写法如下：
+Typical usage example:
 
 ```dts
 ccic_dma: cam_ccic_dma@d420f000 {
@@ -186,19 +186,16 @@ ccic_dma: cam_ccic_dma@d420f000 {
 };
 ```
 
-
-
-## 3 测试程序
+## 3. Test Program
 ### 3.1 `csi-test`
 
-K3 的 MIPI-CSI 基础验证程序位于：
+The basic verification program for K3 MIPI-CSI is located at:
 
 ```text
 package/csi-test/
 ```
 
-程序入口为 `csi_test.c`，各 sensor case 位于 `case/` 子目录，当前 `CMakeLists.txt`
-包含：
+The program entry is `csi_test.c`. Sensor cases are located in the `case/` subdirectory. Currently, the `CMakeLists.txt` includes:
 
 ```text
 csi_test.c
@@ -211,38 +208,38 @@ case/csi_test_case4.c
 self_buffer_manager.c
 ```
 
-该程序本质上完成两部分工作：
+This program performs the following main tasks:
 
-- 通过 sensor misc 设备节点控制具体传感器上电、初始化、开关流
-- 通过 `csiX_pathY` 视频节点配置 CCIC path 并接收 RAW 数据
-- 启动时扫描 `/dev/videoN`，通过 `VIDIOC_QUERYCAP` 将视频节点匹配为 `csiX_pathY`
+- Controls the sensor power-up, initialization, and stream on/off via the sensor misc device node.
+- Configures the CCIC path and receives RAW data through the `csiX_pathY` video device node.
+- Scans `/dev/videoN` at startup and matches the video node to `csiX_pathY` through `VIDIOC_QUERYCAP`.
 
-### 3.2 采集链路
+### 3.2 Capture Path
 
-K3 的 MIPI-CSI 采集流程如下：
+K3 MIPI-CSI capture path:
 
 ```shell
 sensor -> CSI D-PHY -> CCIC -> CCIC DMA -> DDR
 ```
 
-- 用户空间通过 V4L2 视频节点获取 RAW 数据，没有ISP和CPP 图像处理链路。
+- User space captures RAW data through the V4L2 video node, without using the ISP or CPP image-processing path.
 
-### 3.3 软件流程
+### 3.3 Software Flow
 
-参考 `package/csi-test/` 中测试程序，典型软件流程如下：
+Refer to the test programs in `package/csi-test/`. The typical software flow is as follows:
 
-1. 打开 sensor 设备节点，例如 `/dev/imx219-0`
-2. 对 sensor 依次执行 `power on -> detect -> init regs`
-3. 打开对应的 `csiX_pathY` 视频节点
-4. 通过 V4L2 设置图像格式
-5. 通过 `VIDIOC_S_PARM` 下发 lane、link frequency、work mode、VC/DT filter、dma channel 等私有路径参数
-6. 申请并 queue 采集 buffer
-7. 使能 CSI path
-8. 对 sensor 执行 `stream on`
-9. 驱动采集 RAW 数据并通过 `DQBUF` / callback 返回用户空间
-10. 停流时按 `sensor stream off -> disable path -> 释放 buffer -> power off sensor` 的顺序退出
+1. Enable the sensor device node, for example `/dev/imx219-0`.
+2. Perform `power on -> detect -> init regs` for the sensor.
+3. Enable the corresponding `csiX_pathY` video node.
+4. Set the image format through V4L2.
+5. Configure private path parameters such as lane count, link frequency, work mode, VC/DT filter, and DMA channel through `VIDIOC_S_PARM`.
+6. Request and queue capture buffers.
+7. Enable the CSI path.
+8. Execute `stream on` for the sensor.
+9. The driver captures RAW data and returns it to user space through `DQBUF` or a callback.
+10. When streaming stops, exit in the following order: `sensor stream off -> disable path -> release buffers -> power off sensor`.
 
-可简化表示为：
+This can be simplified as:
 
 ```shell
 Sensor init
@@ -254,48 +251,48 @@ Sensor init
     -> stream off / disable path / release
 ```
 
-### 3.4 测试程序使用说明
-#### 3.4.1 支持的测试场景
+### 3.4 Test Program Usage Guide
+#### 3.4.1 Supported Test Scenarios
 
-从 `package/csi-test/csi_test.c` 的帮助信息可知，当前包含如下场景：
+According to `package/csi-test/csi_test.c`, the following scenarios are supported:
 
-- `case 0-3`：sensor 单路raw出流
-- `case 4`：GMSL (OV5640+MAX96724+MAX9295) 的 4VC UYUV格式采集
+- `case 0-3`: sensor single-channel raw stream output
+- `case 4`: 4VC UYUV format capture for GMSL (`OV5640 + MAX96724 + MAX9295`)
 
-#### 3.4.2 基本命令格式
+#### 3.4.2 Basic Command Format
 
 ```shell
 csi_test [options]
 ```
 
-常用参数如下：
+Common parameters:
 
-- `-n, --case`：测试用例编号
-- `-c, --csi`：CSI ID
-- `-l, --lane`：lane 数
-- `-b, --bit`：bit depth
-- `-r, --link-freq`：MIPI link frequency，单位 Mbps
-- `-a, --autostart`：是否自动开流，`1` 表示自动开流
-- `-f, --frame`：采集多少帧后自动退出
-- `-s, --sub-case`：多实例并发时为每个子进程指定 case
+- `-n, --case`: Test case number
+- `-c, --csi`: CSI ID
+- `-l, --lane`: Number of lanes
+- `-b, --bit`: Bit depth
+- `-r, --link-freq`: MIPI link frequency (Mbps)
+- `-a, --autostart`: Whether to start streaming automatically (`1` indicates auto-start)
+- `-f, --frame`: Number of frames to capture before auto-exit
+- `-s, --sub-case`: Specifies the case for each child process in multi-instance concurrent scenarios
 
-#### 3.4.3 使用示例
+#### 3.4.3 Usage Examples
 
-##### 单路 IMX219
+##### Single-Channel IMX219
 
 ```shell
 csi_test -n 0 -c 0 -l 2 -b 10 -r 914 -a 1 -f 100
 ```
 
-表示：
+This command indicates:
 
-- 运行 case 0
-- 使用 `csi0`
-- 2 lane
+- run case 0
+- use `csi0`
+- 2 lanes
 - RAW10
-- link frequency 914 mbps
-- 自动开流
-- 采集 100 帧后退出
+- link frequency 914 Mbps
+- auto-start streaming
+- exit after capturing 100 frames
 
 ##### OV5640 GMSL 4VC
 
@@ -303,34 +300,34 @@ csi_test -n 0 -c 0 -l 2 -b 10 -r 914 -a 1 -f 100
 csi_test -n 4 -c 0 -l 4 -a 1 -f 100
 ```
 
-表示：
+This command indicates:
 
-- 运行 GMSL `case 4`
-- 使用 `csi0`
-- 4 lane
-- 4 个 VC 映射到 `path0 ~ path3`
-- 默认按自定义 topo 绑定 DMA channel
+- run GMSL `case 4`
+- use `csi0`
+- 4 lanes
+- 4 VCs mapped to `path0 ~ path3`
+- DMA channels are bound by default according to a custom topology
 
-##### 双路并行
+##### Dual-channel Parallel Capture
 
 ```shell
 csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 ```
 
-表示同时启动两个子进程，例如：
+This command starts two child processes simultaneously. For example:
 
-- 一个执行 case 0，绑定 `csi0`
-- 一个执行 case 1，绑定 `csi1`
+- One process runs case 0, bound to `csi0`
+- One process runs case 1, bound to `csi1`
 
-## 4 如何适配一个新的sensor
+## 4. How to Adapt a New Sensor
 
-### 4.1 板级 DTS 需要配置哪些内容
+### 4.1 Board-level DTS Configuration Overview
 
-板级 DTS 主要做三件事：
+The board-level DTS performs three main tasks:
 
-#### 4.1.1 使能csi控制器对应的 `csiphy`
+#### 4.1.1 Enable the `csiphy` corresponding to the CSI controller
 
-例如：
+For example:
 
 ```dts
 &csiphy0 {
@@ -338,9 +335,9 @@ csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 };
 ```
 
-#### 4.1.2 使能对应的 `ccic`
+#### 4.1.2 Enable the corresponding `ccic`
 
-例如：
+For example:
 
 ```dts
 &ccic0 {
@@ -348,11 +345,10 @@ csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 };
 ```
 
-如果该板子没有用到某一路 CCIC，应将其保持为 `disabled`，避免无效探测。
+If a `ccic` is not used on the board, it should remain disabled to avoid invalid probe attempts.
 
-#### 4.1.3 在 I2C 下增加 sensor 节点
+#### 4.1.3 Add the sensor node under the corresponding I2C
 
-例如：
 
 ```dts
 &i2c5 {
@@ -369,53 +365,53 @@ csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 };
 ```
 
-其中：
+Here,
 
 - `compatible`
-  - 决定匹配哪颗 sensor 驱动
+  - Determines which sensor driver to match
 - `reg`
-  - sensor 的 I2C 地址
+  - The I2C address of the sensor
 - `csi-id`
-  - 指定这颗 sensor 接到哪一路 CSI
+  - Specifies which CSI path the sensor is connected to
 - `vdd-supply`
-  - sensor 供电
+  - sensor supply
 - `pwdn-gpios`
-  - power-down 控制脚
+  - power-down control pin
 - `reset-gpios`
-  - 若硬件需要，可增加 reset 脚
+  - Reset pin, can be added if required by the hardware
 - `pinctrl-names` / `pinctrl-0`
-  - sensor 本身需要的 pinctrl 配置
-  - 如果这颗 sensor 所在接口还挂了一个 mux 控制脚，也通常在这里引用对应的 mux pinctrl
+  - The pinctrl configuration required by the sensor itself
+  - If the interface where the sensor is connected also has a mux control pin, the corresponding mux pinctrl is usually referenced here
 - `i2c-mux-gpios`
-  - 若板上通过 GPIO 控制 I2C mux，用于在两颗 sensor 之间切换 I2C 通路，需要在 sensor 节点里配置这个属性
-  - 这个属性应和 `pinctrl-0` 一起理解，mux 控制脚的 pinmux 也属于 sensor 节点配置的一部分
+  - If an I2C mux controlled by GPIO is used on the board to switch the I2C path between two sensors, this attribute needs to be configured in the sensor node
+  - This attribute should be understood together with `pinctrl-0`; the pinmux of the mux control pin is also part of the sensor node configuration
 - `status`
-  - 是否使能该 sensor
+  - Enables/disables this sensor
 
-### 4.2 在 `cam_sensor` 中添加 sensor 驱动
+### 4.2 Add a New Sensor Driver in `cam_sensor`
 
-除 DTS 配置外，适配新 sensor 还需要在内核 `cam_sensor` 中补齐驱动代码。  
-K3 当前 sensor 驱动目录为：
+In addition to DTS configuration, adapting a new sensor also requires implementing the driver code in the kernel `cam_sensor` directory.
+The current sensor driver directory for the K3 platform is:
 
 ```text
 linux-6.18/drivers/media/platform/spacemit/cam_sensor/
 ```
 
-建议按以下步骤进行：
+It is recommended to follow these steps:
 
-1. 新增驱动源文件
-   - 参考 `imx219_sensor.c`、`ov5647_sensor.c` 等新建 `<sensor>_sensor.c`
-2. 在 `cam_sensor/Kconfig` 增加新 sensor 配置项
-   - 新增 `config SPACEMIT_K3_CAM_<SENSOR>`
-   - 依赖一般保持 `SPACEMIT_K3_CCIC && I2C`
-3. 在 `cam_sensor/Makefile` 增加编译项
-   - 增加 `obj-$(CONFIG_SPACEMIT_K3_CAM_<SENSOR>) += <sensor>_sensor.o`
-4. 对齐 DTS 的 `compatible` 与驱动 `of_match_table`
-   - 确保设备树能正确匹配到新增 driver
-5. 对齐 `csi-test` 的设备节点与 ioctl 定义
-   - 设备节点命名需与测试程序实际打开的节点一致，例如 `/dev/imx219-<csi_id>`
-   - 在 `package/csi-test/case/` 新增或复用对应 `<sensor>.h` 的 ioctl 宏定义
-6. 若需要新增测试 case
-   - 在 `package/csi-test/case/` 新增 `csi_test_caseX.c`
-   - 在 `csi_test.c` 中补充 case 分发和帮助信息
-   - 在 `CMakeLists.txt` 中加入新的 case 源文件
+1. Add the driver source file.
+   - Create a new `<sensor>_sensor.c` (refer to `imx219_sensor.c`、`ov5647_sensor.c`)
+2. Add a new sensor configuration option in `cam_sensor/Kconfig`.
+   - Add `config SPACEMIT_K3_CAM_<SENSOR>`
+   - Dependencies typically remain `SPACEMIT_K3_CCIC && I2C`
+3. Add the build option in `cam_sensor/Makefile`.
+   - Add `obj-$(CONFIG_SPACEMIT_K3_CAM_<SENSOR>) += <sensor>_sensor.o`
+4. Align the `compatible` string in the DTS with the driver's `of_match_table`.
+   - Ensure the device tree node can correctly match the new driver
+5. Align the device node and `ioctl` definitions with `csi-test`.
+   - The device node name must match what the test program actually opens, e.g., `/dev/imx219-<csi_id>`
+   - Add or reuse the corresponding `<sensor>.h` ioctl macro definitions in `package/csi-test/case/`
+6. If a new test case is needed:
+   - Add `csi_test_caseX.c` in `package/csi-test/case/`
+   - Supplement case dispatch and help information in `csi_test.c`
+   - Add the new case source file to `CMakeLists.txt`
