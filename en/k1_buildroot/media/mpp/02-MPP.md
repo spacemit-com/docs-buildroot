@@ -387,11 +387,11 @@ From the perspective of functionality, it is divided into：
 
 ### 3.1 Decoding Process
 
-![](static/JI81bbaDyo42MaxuLJUcFGtynkP.png)
+![](static/decode.png)
 
 ### 3.2 Encoding Process
 
-![](static/OeWFbJXHDo1o4px5ftTcniJynve.png)
+![](static/encode.png)
 
 ## 4. Data Structures
 
