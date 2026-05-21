@@ -13,3 +13,4 @@ Buildroot 方案开发指南:
 - [外设驱动](peripheral_driver/index.md)
 - [Standby](standby.md)
 - [产线测试工具](plt.md)
+- [HMP 异构多处理](hmp.md)
