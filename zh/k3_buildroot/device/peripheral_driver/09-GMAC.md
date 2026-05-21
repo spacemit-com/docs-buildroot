@@ -28,8 +28,6 @@ drivers/net/ethernet/stmicro/stmmac
 
 ## 关键特性
 
-### 硬件特性
-
 | 特性 | 特性说明 |
 | :----- | :---- |
 | 支持 MII/RMII/RGMII 接口 | 支持多种 PHY 接口 |
@@ -71,10 +69,10 @@ drivers/net/ethernet/stmicro/stmmac
 | 支持 ARP 卸载 | 硬件响应 ARP 请求 |
 | 支持 CRC 卸载 | 硬件自动生成和校验 CRC |
 | 支持按优先级分流 | 按优先级分配通道 |
-> **注：** 对于表格第一个特性，具体来说，K3 平台支持四路 GMAC（GMAC0-GMAC3），仅 GMAC0\GMAC1 完整支持 MII/RMII/RGMII 接口；GMAC0\GMAC1 仅支持 RGMII/RMII 接口。
+> **注：** K3 平台支持四路 GMAC（GMAC0-GMAC3），仅 GMAC0/GMAC1 完整支持 MII/RMII/RGMII 接口；GMAC2/GMAC3 仅支持 RGMII/RMII 接口。
 
-### 性能参数
-
+## 性能参数
+**吞吐**
 | 协议 | 测试模式 | Tx 吞吐（Mbps） | Rx 吞吐（Mbps） |
 | :--: | :--: | :--: | :--: |
 | TCP | 单向传输 | 942 | 941 |
@@ -82,61 +80,232 @@ drivers/net/ethernet/stmicro/stmmac
 | UDP | 单向传输 | 956 | 956 |
 | UDP | 双向传输 | 956 | 955 |
 
-**注：** 双向打流情形下测试带宽具有一定波动
+**PTP 同步精度**
+| 协议 | 时间戳方式 | 稳态同步精度 |
+|---|---|---|
+| IEEE 802.3/L2  | 硬件时间戳 | < 250 ns |
+| UDP/IPv4 | 硬件时间戳 | < 250 ns |
 
-### 性能测试
+**注：** 双向打流情形下测试吞吐具有一定波动
 
-#### 测试环境
+## 性能测试
 
-**测试设备：** 2 块 k3 deb1 板子，分别记为 `deb1 A`、`deb1 B`
+### 吞吐测试
+
+**测试设备：** 2 块 k3 deb1 板，分别记为 `deb1 A`、`deb1 B`
 
 **网络拓扑：** `deb1 A`、`deb1 B` 的千兆网口通过网线直连
 
-**IP设置：** 2 块板子千兆网口 IP 地址配置在同一网段，`deb1 A` 启动 iperf3 服务端
+**环境要求：** `deb1 A`、`deb1 B` 需安装 iperf3
+
+**Step1：** 2 块板子千兆网口 IP 地址配置在同一网段，`deb1 A` 启动 iperf3 服务端
 
 ```bash
-# Set IP for deb1 A
+# deb1 A shell: set interface IP to 192.168.0.1
 ifconfig end0 192.168.0.1 netmask 255.255.255.0
 
-# Set IP for deb1 B
-ifconfig end0 192.168.0.2 netmask 255.255.255.0
-
-# Start iperf3 server on deb1 A
+# deb1 A shell: start iperf3 server
 iperf3 -s -B 192.168.0.1
 ```
 
-#### 测试方法
-
-##### 基于TCP协议单向打流
-
 ```bash
-#TX:
+# deb1 B shell: set interface IP to 192.168.0.2
+ifconfig end0 192.168.0.2 netmask 255.255.255.0
+```
+
+**Step2：** 基于 TCP 协议单向打流
+```bash
+# deb1 B shell: test TCP TX throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 60
-#RX:
+# deb1 B shell: test TCP RX throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 60 -R
 ```
 
-##### 基于TCP协议双向打流
+**Step3：** 基于 TCP 协议双向打流
 
 ```bash
-#TX\RX:
+# deb1 B shell: test TCP full-duplex throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 100 --bidir
 ```
 
-##### 基于UDP协议单向打流
+**Step4：** 基于 UDP 协议单向打流
 
 ```bash
-#TX:
+# deb1 B shell: test UDP TX throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60
-#RX:
+# deb1 B shell: test UDP RX throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60 -R
 ```
 
-##### 基于UDP协议双向打流
+**Step5：** 基于 UDP 协议双向打流
 ```bash
-#TX\RX:
+# deb1 B shell: test UDP full-duplex throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60 --bidir
 ```
+
+### PTP测试
+
+**测试设备：** 2 块 k3 deb1 板，分别记为 `deb1 A`、`deb1 B`
+
+**网络拓扑：** `deb1 A`、`deb1 B` 的千兆网口通过网线直连
+
+**环境要求：** `deb1 A`、`deb1 B` 需安装 linuxptp
+
+**Step1：** 基于 L2 以太网帧进行时间同步
+```bash
+# deb1 A shell: start PTP master over L2 Ethernet frames
+ptp4l -i end0 -2 -H -m
+# deb1 B shell: start PTP slave over L2 Ethernet frames
+ptp4l -i end0 -2 -H -m -s
+```
+
+**Step2：** 基于 UDP/IPv4 进行时间同步
+```bash
+# deb1 A shell: set interface IP to 192.168.0.1
+ifconfig end0 192.168.0.1 netmask 255.255.255.0
+
+# deb1 A shell: start PTP master over UDP/IPv4
+ptp4l -i end0 -4 -H -m
+
+# deb1 B shell: set interface IP to 192.168.0.2
+ifconfig end0 192.168.0.2 netmask 255.255.255.0
+
+# deb1 B shell: start PTP slave over UDP/IPv4
+ptp4l -i end0 -4 -H -m -s
+```
+
+## 功能测试
+这里主要测试 TSN 功能
+
+**测试设备：** 2 块 k3 deb1 板，分别记为 `deb1 A`、`deb1 B`
+
+**网络拓扑：** `deb1 A`、`deb1 B` 的千兆网口通过网线直连
+
+**环境要求** `deb1 A` 需安装 iperf3、tcpdump; `deb1 B` 需安装 iperf3、netsniff-ng、linuxptp、ethtool
+
+**Step1：** 2 块板子千兆网口 IP 地址配置在同一网段
+
+```bash
+# deb1 A shell: set interface IP to 192.168.0.1
+ifconfig end0 192.168.0.1 netmask 255.255.255.0
+
+# deb1 B shell: set interface IP to 192.168.0.2
+ifconfig end0 192.168.0.2 netmask 255.255.255.0
+```
+
+**Step2：** 在 `deb1 B` 端同步系统时间和 GMAC 硬件时间
+```bash
+# deb1 B shell: /dev/ptp1 is the PTP clock node for end0
+phc2sys -s /dev/ptp1 -c CLOCK_REALTIME -O 0 -m > ptp.txt 2>&1 &
+
+# deb1 B shell: check sync accuracy is below 1 us
+tail -n 10 ptp.txt
+```
+期望结果: CLOCK_REALTIME phc offset < 1000, 如下
+```bash
+phc2sys[137.942]: CLOCK_REALTIME phc offset       -51 s2 freq     +28 delay    250
+phc2sys[138.942]: CLOCK_REALTIME phc offset       -12 s2 freq     +52 delay    291
+phc2sys[139.942]: CLOCK_REALTIME phc offset        29 s2 freq     +90 delay    291
+phc2sys[140.943]: CLOCK_REALTIME phc offset      -101 s2 freq     -32 delay    291
+phc2sys[141.943]: CLOCK_REALTIME phc offset       101 s2 freq    +140 delay    291
+phc2sys[142.943]: CLOCK_REALTIME phc offset       -21 s2 freq     +48 delay    292
+phc2sys[143.943]: CLOCK_REALTIME phc offset        32 s2 freq     +95 delay    291
+phc2sys[144.944]: CLOCK_REALTIME phc offset       -85 s2 freq     -12 delay    291
+phc2sys[145.944]: CLOCK_REALTIME phc offset        36 s2 freq     +83 delay    291
+phc2sys[146.944]: CLOCK_REALTIME phc offset        10 s2 freq     +68 delay    292
+```
+
+**Step3：** 用 tc 工具配置门控调度算法，因 K3 默认配置 2 个 TX 队列，下面脚本配置 2 个 TC，并分别映射到 2 个 TX 队列
+```bash
+#!/bin/sh
+
+NOW=$(date +%s)
+BASE_TIME=$((NOW + 2))
+NOW_NS=$((BASE_TIME * 1000000000))
+echo "Base Time (ns): $NOW_NS"
+
+tc qdisc replace dev end0 parent root stab overhead 24 linklayer ethernet taprio \
+    num_tc 2 \
+    map 0 0 0 0 0 0 0 1 \
+    queues 1@0 1@1 \
+    base-time $NOW_NS \
+    sched-entry S 0x2 50000 \
+    sched-entry S 0x1 450000 \
+    fp P E \
+    flags 0x2
+```
+
+**Step4：** 开启 FPE，并等待验证完成
+```bash
+# deb1 A shell: enable FPE
+ethtool --set-mm end0 pmac-enabled on tx-enabled on verify-enabled on verify-time 128
+
+# deb1 B shell: enable FPE
+ethtool --set-mm end0 pmac-enabled on tx-enabled on verify-enabled on verify-time 128
+```
+开启后等待1-2分钟时间，让硬件进行一个 Verification
+```bash
+ethtool --show-mm end0
+```
+期望结果：
+```bash
+MAC Merge layer state for end0:
+pMAC enabled: on
+TX enabled: on
+TX active: on
+TX minimum fragment size: 60
+RX minimum fragment size: 60
+Verify enabled: on
+Verify time: 128
+Max verify time: 128
+Verification status: SUCCEEDED
+```
+
+**Step5：** 利用 iperf3 制造背景流量
+```bash
+# deb1 A shell: start iperf3 server on deb1 A
+iperf3 -s -B 192.168.0.1
+
+# deb1 B shell: start iperf3 client on deb1 B
+iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 10000
+```
+
+**Step6：** 利用 mausezahn 制造关键流量
+```bash
+# deb1 B shell: start critical traffic with priority=7, UDP=5000, payload=18B, period=1 ms
+sudo mausezahn end0 -q -c 0 -d 1000 \
+  -R 7 \
+  -a own \
+  -b 50:0a:52:0b:ca:26 \
+  -A 192.168.0.2 \
+  -B 192.168.0.1 \
+  -t udp "sp=4000,dp=5000" \
+  -P "CCCCCCCCCCCCCCCCCC"
+```
+
+**Step7：** 在 `deb1 A` 端抓关键流量包，间隔应当在 1ms 左右
+```bash
+sudo tcpdump -i end0 -e -n \
+  'udp and src host 192.168.0.2 and dst host 192.168.0.1 and src port 4000 and dst port 5000 and less 100'
+```
+输出结果：
+```bash
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on end0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+17:30:55.691980 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.692981 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.693982 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.694980 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.695978 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.697398 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.698398 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.699398 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.700396 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.701398 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.702397 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+17:30:55.703397 fe:fe:fe:ec:26:7c > 50:0a:52:0b:ca:26, ethertype IPv4 (0x0800), length 60: 192.168.0.2.4000 > 192.168.0.1.5000: UDP, length 18
+```
+**注：**：这里的测量是一个粗糙测量，tcpdump是在协议栈抓取的包，具备一定误差，精确测量需专用的 TSN 协议分析仪抓线上数据
 
 ## 配置介绍
 
@@ -187,7 +356,7 @@ gmac0_cfg: gmac0-cfg {
 			 <K3_PADCONF(13, 1)>;    /* gmac0 mdio */
 
 		bias-disable;                /* normal bias disable */
-		drive-strength = <25>;       /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 
 	/* RGMII extra pins: add on top of base pins */
@@ -199,7 +368,7 @@ gmac0_cfg: gmac0-cfg {
 			 <K3_PADCONF(10, 1)>;    /* gmac0 tx d3 */
 
 		bias-disable;                /* normal bias disable */
-		drive-strength = <25>;       /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 
 	/* MII extra pins: add on top of (base + rgmii extra pins) */
@@ -210,7 +379,7 @@ gmac0_cfg: gmac0-cfg {
 			 <K3_PADCONF(18, 1)>;     /* gmac0 col */
 
 		bias-disable;                 /* normal bias disable */
-		drive-strength = <25>;        /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 
 	/* Optional int pins */
@@ -218,7 +387,7 @@ gmac0_cfg: gmac0-cfg {
 		pinmux = <K3_PADCONF(14, 1)>; /* gmac0 int (from phy) */
 
 		bias-disable;                 /* normal bias disable */
-		drive-strength = <25>;        /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 
 	/* Optional pps pins */
@@ -226,7 +395,7 @@ gmac0_cfg: gmac0-cfg {
 		pinmux = <K3_PADCONF(19, 1)>; /* gmac0 pps (tsn/1588) */
 
 		bias-disable;                 /* normal bias disable */
-		drive-strength = <25>;        /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 
 	/* Optional reference clock output */
@@ -234,7 +403,7 @@ gmac0_cfg: gmac0-cfg {
 		pinmux = <K3_PADCONF(20, 1)>; /* gmac0 clk ref */
 
 		bias-disable;                 /* normal bias disable */
-		drive-strength = <25>;        /* DS8 */
+		drive-strength = <9>;	     /* DS4 */
 	};
 };
 ```
@@ -296,7 +465,7 @@ gmac0_cfg: gmac0-cfg {
 其中，复位保持时间为 20us，解除复位后的等待时间为 100us，具体时序参数应满足对应 PHY 芯片手册要求。
 #### phy 配置
 
-phy 相关的配置主要有 `phy-mode`、`phy-handle`、`phy` 子节点。在`phy` 子节点中通过 `compatible` 中的 PHY ID 完成设备匹配，同时需可通过 `reg` 属性配置 phy address 以及提供可选的 `LED` 配置，以k3 deb1 为例，其配置如下：
+phy 相关的配置主要有 `phy-mode`、`phy-handle`、`phy` 子节点。在 `phy` 子节点中通过 `compatible` 中的 PHY ID 完成设备匹配，同时需可通过 `reg` 属性配置 phy address 以及提供可选的 `LED` 配置，以k3 deb1 为例，其配置如下：
 
 ```c
 &eth0 {
@@ -384,26 +553,6 @@ spacemit,clk-tuning-by-clk-revert
 ```
 **注：** 配置该属性后，控制器可以响应唤醒事件并产生中断信号通知 CPU；未配置时，控制器仍能响应唤醒事件，但唤醒中断被屏蔽
 
-3. Enable TSO：使能 TCP 分段
-```c
-&eth0 {
-	...
-	snps,tso;
-	...
-};
-```
-**注：** 硬件分段对降低 CPU 负载的作用是很大的，因此默认 enable
-
-4. Enable Store-and-Forward mode：使能存储转发模式
-```c
-&eth0 {
-	...
-	snps,force_sf_dma_mode;
-	...
-};
-```
-**注：** 很多硬件 offload 特性需在存储转发模式下才能启用，如果追求更低延迟，可配置为 Threshold 模式。
-
 #### 完整 DTS 配置
 
 综上所述，完整的配置如下。
@@ -415,10 +564,6 @@ spacemit,clk-tuning-by-clk-revert
 	pinctrl-0 = <&gmac0_cfg>;
 
 	max-speed = <1000>;
-	tx-fifo-depth = <8192>;
-	rx-fifo-depth = <8192>;
-	snps,tso;
-	snps,force_sf_dma_mode;
 	phy-mode = "rgmii";
 	phy-handle = <&gmac0_phy>;
 	snps,reset-gpios = <&gpio 0 15 GPIO_ACTIVE_LOW>;
