@@ -163,15 +163,15 @@ $ make envconfig
 Available buildroot-ext/configs:
   1. spacemit_k3_ci_defconfig
   2. spacemit_k3_defconfig
-  3. spacemit_k3_fpga_defconfig
-  4. spacemit_k3_plt_defconfig
+  3. spacemit_k3_plt_defconfig
+  4. spacemit_k3_rt_defconfig
 
 Your choice (1-4):
 
 ```
 
 To build Buildroot 1.0, enter `2` and press Enter.
-
+To build Buildroot 1.0 PREEMPT_RT Linux, enter `4` and press Enter.
 **Notes:**
 
 1. Builds run in a container by default. For direct host-side builds, set the environment variable `export DIRECT_BUILD=1`. When switching between container builds and host builds, clean the `output` directory first.
@@ -189,7 +189,7 @@ To build Buildroot 1.0, enter `2` and press Enter.
         Buildroot Build System - Help
 
         Available solutions:
-        k3 k3_ci k3_fpga k3_plt
+        k3 k3_ci k3_rt k3_plt
 
         Development Commands:
         make vars                          # Show project information
