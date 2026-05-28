@@ -2,7 +2,7 @@
 
 This document describes the functionality and usage of **K3 PINCTRL**.
 
-## Module Overview
+## Overview
 
 PINCTRL is the **controller for the PIN module**. It is responsible for pin multiplexing selection, electrical attribute configuration, and some wake-up interrupt capabilities on the K3 SoC.
 
@@ -85,9 +85,9 @@ pinctrl: pinctrl@d401e000 {
 
 ## Configuration
 
-This mainly includes **driver enablement configuration** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 - **CONFIG_PINCTRL**: Provides generic support for pin controllers. The default value is `Y`.
 - **CONFIG_PINCTRL_SPACEMIT_K1**: Provides support for SpacemiT K1/K3 pinctrl controllers.
@@ -733,7 +733,7 @@ Therefore, when adding or modifying K3 pinctrl configuration, it is recommended 
 - `arch/riscv/boot/dts/spacemit/k3-pinctrl.dtsi`
 - the actual reference method in the corresponding board DTS
 
-## Interface Description
+## Interface
 
 ### API Description
 

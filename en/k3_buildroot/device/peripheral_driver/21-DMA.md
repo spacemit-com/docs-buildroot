@@ -2,13 +2,13 @@
 
 This document describes DMA controller configuration and how peripherals use DMA through DMA-Slave.
 
-## Module Overview
+## Overview
 
 **DMA (Direct Memory Access)** is a high-speed data transfer method that does not require direct CPU control. It establishes a hardware data path between the source and destination addresses, thereby improving system efficiency.
 
 This module covers the DMA controller (that is, the DMA master), which is mainly responsible for scheduling DMA channel resources and carrying out data-transfer tasks.
 
-### Functional Overview
+### Functionality
 
 ![](static/dma.JPEG)
 
@@ -52,7 +52,7 @@ The PDMA driver file used on K3 is `mmp_pdma.c`, with `compatible = "spacemit,k1
 
 It mainly includes **driver enablement configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 `CONFIG_DMADEVICES`: provides support for the kernel DMA framework. To support the DMA driver, this option should be set to `Y`.
 

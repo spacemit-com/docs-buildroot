@@ -2,11 +2,11 @@
 
 This document describes the functionality and usage of **K3 GPIO**.
 
-## Module Overview
+## Overview
 
 GPIO is **the controller that manages the GPIO module**, and is responsible for GPIO direction configuration, input/output level read and write operations, and GPIO interrupt handling.
 
-### Functional Description
+### Functionality
 
 The Linux GPIO subsystem driver framework mainly consists of three parts:
 
@@ -51,9 +51,9 @@ arch/riscv/boot/dts/spacemit/k3.dtsi
 
 ## Configuration
 
-This section mainly covers driver **CONFIG options** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 - **CONFIG_GPIOLIB**: Provides generic support for GPIO controllers, and is typically enabled by default as `Y`
 
@@ -442,7 +442,7 @@ Although K1 and K3 share the same GPIO IP and use a common new driver, the follo
    - Although the binding file name is still `spacemit,k1-gpio.yaml`
    - The actual writing for K3 has switched to `spacemit,k3-gpio`
 
-## Interface Description
+## Interface
 
 ### Kernel API
 

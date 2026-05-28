@@ -2,11 +2,11 @@
 
 This document describes the features and usage of the Display module on the SpacemiT platform.
 
-## Module Overview
+## Overview
 
 The Display module on the SpacemiT platform is built on the **DRM framework (Direct Rendering Manager)**. DRM is the standard display subsystem architecture in Linux. It is designed for modern display hardware and supports framebuffer management, display timing configuration, layer composition, and related functions.
 
-### Functional Overview
+### Functionality
 
 The DRM framework consists of both **user space** and **kernel space** components.
 
@@ -266,7 +266,7 @@ freq: 59.12Hz
 
 ## Configuration
 
-Configuration mainly includes **Display driver enablement** and **DTS configuration**. The K3 chip provides two display pipelines:
+This mainly includes **Kconfig configuration** and **DTS configuration**. The K3 chip provides two display pipelines:
 
 - Pipeline 0 supports the MIPI DSI interface or the DP/eDP interface.
 - Pipeline 1 supports the DP/eDP interface.
@@ -1202,7 +1202,7 @@ The following example uses the `k3_deb1` design to configure DP and eDP.
 };
 ```
 
-## Interface Overview
+## Interface
 
 ### API Overview
 

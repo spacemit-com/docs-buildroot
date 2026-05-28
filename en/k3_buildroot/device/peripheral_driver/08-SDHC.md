@@ -10,7 +10,7 @@ SDHC is the host controller for MMC/SD/SDIO devices. On the K3 platform, SDHC ma
 - **SDIO**
 - **eMMC**
 
-### Functional Overview
+### Functionality
 
 ![](static/mmc.png)
 
@@ -65,9 +65,9 @@ Slot 1 supports SD/SDIO (1-bit or 4-bit), Slot 2 supports SDIO/eMMC (1-bit or 4-
 
 ## Configuration
 
-This primarily includes kernel configuration and DTS configuration.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 Common K3 SDHC configuration options are as follows:
 

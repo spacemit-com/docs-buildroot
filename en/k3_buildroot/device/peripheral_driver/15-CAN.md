@@ -2,12 +2,12 @@
 
 This document describes CAN configuration, debugging, and validation methods.
 
-## Module Overview
+## Overview
 
 CAN (Controller Area Network) is a serial communication protocol for communication between controllers and peripheral devices.
 It is widely used in automotive systems, industrial automation, medical equipment, aerospace systems, robotics, and similar applications.
 
-### Functional Overview
+### Functionality
 
 The CAN controller supports both CAN 2.0 and CAN FD and can handle multiple frame types, including:
 
@@ -47,7 +47,7 @@ drivers/net/can
 
 ## Configuration
 
-Configuration mainly includes **driver enablement** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
 ### CONFIG Options
 
@@ -298,7 +298,7 @@ The complete DTS configuration is shown below. Clock frequencies of 20 MHz, 40 M
 };
 ```
 
-## Interface Overview
+## Interface
 
 ### API Overview
 

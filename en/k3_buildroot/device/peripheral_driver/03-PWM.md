@@ -2,11 +2,11 @@
 
 This document describes the functionality and usage of PWM.
 
-## Module Overview
+## Overview
 
 PWM (Pulse Width Modulation) outputs pulse signals with configurable period and duty cycle, and is commonly used for scenarios such as backlight dimming, motor speed control, and buzzer driving.
 
-### Functional Overview
+### Functionality
 
 The Linux PWM subsystem typically consists of two parts:
 
@@ -92,9 +92,9 @@ Therefore:
 
 ## Configuration
 
-This mainly includes driver `CONFIG` enablement and DTS configuration.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 The core configuration options required by K3 PWM are:
 
@@ -395,7 +395,7 @@ This indicates that K3 provides many PWM resources. In actual use, pay special a
 - Which syscon provides the corresponding clock/reset resources
 - Whether the corresponding pinmux can be routed to the required board-level pins
 
-## Debugging Suggestions
+## Debugging
 
 If PWM has no output, debug it in the following order:
 

@@ -2,11 +2,11 @@
 
 This document describes UART configuration and usage.
 
-## Module Overview
+## Overview
 
 UART is a universal asynchronous serial communication interface. It is commonly used for console output, debug logging, Bluetooth module communication, MCU communication, and similar scenarios.
 
-### Functional Overview
+### Functionality
 
 In Linux, UART support mainly consists of the following two parts:
 
@@ -99,7 +99,7 @@ Therefore, K3 UART documentation should use the following files as the primary r
 
 This mainly includes driver **CONFIG enablement** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 Since K3 UART currently uses the 8250 OF framework, the following configuration options usually need to be checked:
 
@@ -561,7 +561,7 @@ From the current contents of `k3.dtsi` and `k3-rdomain.dtsi`, the following can 
 
 Therefore, when mapping debug UARTs, device node names, and console output ports, always refer to the alias definitions.
 
-## Debugging Suggestions
+## Debugging
 
 If UART is not working properly, it is recommended to check the following in order:
 

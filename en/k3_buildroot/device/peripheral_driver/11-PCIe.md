@@ -2,7 +2,7 @@
 
 This document describes PCIe functionality and usage.
 
-## Module Overview
+## Overview
 
 PCIe (Peripheral Component Interconnect Express) is a high-speed serial computer expansion bus standard. It uses high-speed serial point-to-point, dual-channel, high-bandwidth transmission, and each connected device has exclusive access to its channel bandwidth.
 
@@ -10,7 +10,7 @@ The K3 platform provides 5 PCIe controllers (Port A ~ Port E) and 6 independent 
 
 **Note:** Port D and USB3 controller share the same PHY hardware resource, so they cannot be enabled simultaneously. You must enable either PCIe or USB3 in the device tree according to actual requirements.
 
-### Functional Overview
+### Functionality
 
 ![](static/linux_pcie.png)
 
@@ -91,9 +91,9 @@ fio --name=nvme_rand_write --filename=/mnt/nvme_vfat/fiotest.bin --size=1G --bs=
 
 ## Configuration
 
-This mainly includes **driver enablement configuration** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 `CONFIG_PCI` provides support for the PCI and PCIe bus protocols. This option defaults to `Y`.
 
@@ -440,7 +440,7 @@ This issue can be resolved using **restricted DMA pool + dma-ranges address mapp
 2. Use the PCIe Address Translation Unit (ATU) to map the 32-bit bus addresses visible to the endpoint device to this physical memory region
 3. The endpoint device performs DMA operations using 32-bit bus addresses, and the PCIe controller automatically handles address translation
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 The following kernel configurations should be enabled:
 

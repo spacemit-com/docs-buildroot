@@ -2,7 +2,7 @@
 
 This document describes the features and usage of K3 Audio.
 
-## Module Overview
+## Overview
 
 The K3 Audio module provides:
 
@@ -890,7 +890,7 @@ Notes:
 - Because the DP audio interface also requires BCLK = 64 * fs and MCLK = 512 * fs, `format` can be configured only as `left_j` or `right_j`.
 - `simple-audio-card,mclk-fs` must be set to `512`.
 
-## Interface Description
+## Interface
 
 ### API Description
 

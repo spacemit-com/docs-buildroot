@@ -2,7 +2,7 @@
 
 This document describes IR-RX (infrared receiver) configuration and debugging.
 
-## Module Overview
+## Overview
 
 The IR-RX (infrared receiver) module handles infrared signal reception.
 
@@ -304,7 +304,7 @@ ir0_0_cfg: ir0-0-cfg {
 
 > **Note**: Select the appropriate `pinctrl` group based on the hardware schematic, such as `ir0_0_cfg`, `ir0_1_cfg`, `ir1_0_cfg`, or `ir1_1_cfg`.
 
-## Interface Description
+## Interface
 
 ### Kernel API
 

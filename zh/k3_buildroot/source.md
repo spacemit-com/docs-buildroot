@@ -161,14 +161,15 @@ $ make envconfig
 Available buildroot-ext/configs:
   1. spacemit_k3_ci_defconfig
   2. spacemit_k3_defconfig
-  3. spacemit_k3_fpga_defconfig
-  4. spacemit_k3_plt_defconfig
+  3. spacemit_k3_plt_defconfig
+  4. spacemit_k3_rt_defconfig
 
 Your choice (1-4):
 
 ```
 
 编译 Buildroot 1.0 版本，输入 `2`，然后回车即开始编译。
+编译 Buildroot 1.0 PREEMPT_RT Linux版本，输入 `4`，然后回车即开始编译。
 
 **注意：**
 
@@ -182,7 +183,7 @@ Your choice (1-4):
         Buildroot Build System - Help
 
         Available solutions:
-        k3 k3_ci k3_fpga k3_plt
+        k3 k3_ci k3_rt k3_plt
 
         Development Commands:
         make vars                          # Show project information

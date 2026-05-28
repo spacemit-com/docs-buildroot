@@ -54,7 +54,6 @@ Low-speed expansion interface drivers
 - [QSPI](07-QSPI.md)
 - [SPI](SPI.md)
 - [CAN](15-CAN.md)
-- [GPADC](gpadc.md)
 
 Storage interface drivers
 
@@ -69,7 +68,7 @@ System foundation drivers
 - [Clock](16-Clock.md) 
 - [Reset](Reset.md) 
 - [DMA](21-DMA.md)
-- [RTC](rtc.md)
+- [RTC](24-RTC.md)
 
 Power subsystem drivers
 

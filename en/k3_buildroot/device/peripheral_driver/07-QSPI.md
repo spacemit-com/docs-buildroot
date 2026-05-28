@@ -2,11 +2,11 @@
 
 This document describes QSPI functionality and usage.
 
-## Module Overview
+## Overview
 
 QSPI (Quad SPI) is a serial interface bus between the SoC and peripheral devices that supports x4 mode. SPI supports both master and slave modes. Typically, one master device is connected to one or more slave devices. The master selects the target slave for communication, provides the clock, and initiates all read and write operations. K3 QSPI currently supports master mode only.
 
-### Functional Overview
+### Functionality
 
 ![](static/linux_spi.png)  
 
@@ -73,7 +73,7 @@ Use an oscilloscope or logic analyzer to measure the SCK frequency and confirm t
 
 Configuration mainly includes driver enablement and DTS settings.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 - `CONFIG_SPI`: Provides support for the SPI bus protocol. The default value is `Y`.
 ```
