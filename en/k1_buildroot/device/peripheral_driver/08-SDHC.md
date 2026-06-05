@@ -24,7 +24,7 @@ The controller driver code is located in the `drivers/mmc/host`  directory:
 ```
 drivers/mmc/host
 |-- sdhci.c         # Standard sdhci code
-|-- sdhci-pltfm.c   # sdhci platform laye
+|-- sdhci-pltfm.c   # sdhci platform layer
 |-- sdhci-of-k1x.c  # K1 sdhci driver
 ```
 
@@ -40,7 +40,7 @@ drivers/mmc/host
 
 ### Performance Parameters
 
-| eeMMC Model | Sequential Read (MB/s) | Sequential Write (MB/s) | Random Read (MB/s) | Random Write (MB/s) |
+| eMMC Model | Sequential Read (MB/s) | Sequential Write (MB/s) | Random Read (MB/s) | Random Write (MB/s) |
 | :-----| :----| :----: | :----: |:----: |
 | KLMAG1JETD-B041 | 295 | 53.3 | 65.4 | 45.2 |
 | EMDME008G-A8A39 | 304 | 107 | 32.3 | 44 |
@@ -142,7 +142,7 @@ SD detection uses GPIO and the GPIO for card detection needs to be configured ac
 };
 ```
 
-For example, if the solution uses gpio80 for card detection, the pintcl function of gpio80 also needs to be configured.
+For example, if the solution uses gpio80 for card detection, the pinctrl function of gpio80 also needs to be configured.
 
 ```c
 &pinctrl {

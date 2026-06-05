@@ -107,8 +107,6 @@ echo 4096 > /sys/devices/platform/soc/cac81000.ethernet/net/eth1/queues/rx-0/rps
 
 Use the eth0 port for single network card testing and bind the current iperf3 process to CPU6.
 
-##### Half-Duplex/TX
-
 ```
 iperf3 -c 192.168.1.100 -B 192.168.1.200 -t 100 -A 6
 ```

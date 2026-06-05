@@ -76,7 +76,7 @@ drivers/net/bluetooth
 |-- smp.h
 ```
 
-**HCI driver source code** is located in the following directory:：
+**HCI driver source code** is located in the following directory:
 
 ```
 drivers/bluetooth

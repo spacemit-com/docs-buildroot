@@ -11,9 +11,9 @@ The term 'regulator' refers to a device that controls voltage and current output
 ![](static/regulator.png)  
 
 1. **Regulator Consumer:** Devices powered by regulators, which consume the electricity provided by the regulators.
-2. **Regulator Framework:** Provides standard kernel interfaces to control the system's voltage/current regulators and 3. offers mechanisms for switching, voltage, and current settings.
+2. **Regulator Framework:** Provides standard kernel interfaces to control the system's voltage/current regulators and offers mechanisms for switching, voltage, and current settings.
 3. **Regulator Driver:** The driver code for regulators, responsible for registering devices with the framework and communicating with the underlying hardware.
-3. Machine: Configures regulator properties for the target hardware.
+4. Machine: Configures regulator properties for the target hardware.
 
 ### Source Code Structure
 

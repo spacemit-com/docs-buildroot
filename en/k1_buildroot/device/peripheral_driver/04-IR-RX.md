@@ -40,7 +40,7 @@ Symbol: IR_SPACEMIT [=y]
 Device Drivers
     -> Remote Controller support (RC_CORE [=y])
   -> Remote Controller devices (RC_DEVICES [=y])
-   -> SPACEMIT IR remote Recriver control (IR_SPACEMIT [=y])
+   -> SPACEMIT IR remote Receiver control (IR_SPACEMIT [=y])
 ```
 
 ### DTS Configuration

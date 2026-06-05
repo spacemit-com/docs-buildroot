@@ -2,7 +2,7 @@ sidebar_position: 2
 
 # GStreamer User Guide
 
-## GStreamer Intruduction
+## GStreamer Introduction
 
 GStreamer is an open-source multimedia framework. Designed based on plugins, it enables all plugins to be linked to any predefined data stream pipeline.
 
@@ -29,7 +29,7 @@ GStreamer codes are divided into different code repos according to functional mo
 | `gst-plugins-ugly` | Plugins with license issues, which are optional for users according to local laws and regulations                              |
 | `gst-libav`        | Codec plugins based on libav                     |
 
-This structure ensures that each repo is independent, yet all depend on `gstreamer` and `get-plugins-base`.
+This structure ensures that each repo is independent, yet all depend on `gstreamer` and `gst-plugins-base`.
 
 ### GStreamer Installation
 
@@ -98,7 +98,7 @@ Video encoder converts raw data into an encoded video format, such as H.264. **S
 
 #### Video Sink Plugins
 
-Video sink plugins displays processed data by visual output. **SpacemiT GStreamer optimizes glimagesink/gtkglsink/way landsink plugins, whch help users achieve superior results.**
+Video sink plugins displays processed data by visual output. **SpacemiT GStreamer optimizes glimagesink/gtkglsink/waylandsink plugins, which help users achieve superior results.**
 
 | Video Encoder  | Package          | Description                                             | Bianbu OS(Y/N) | Buildroot(Y/N) |
 |----------------|------------------|---------------------------------------------------------|----------------|-------------------|
@@ -277,7 +277,7 @@ There are some common usage examples (mainly includes GStreamer plugins adapted 
 
   As shown, the command outputs various critical information, such as camera resolution, frame rate, supported formats and corresponding video capture codes for the UVC camera.
 
-  Alternatively, relevent information can be obtained using `v412-ct1`, which will not be detailed here.
+  Alternatively, relevent information can be obtained using `v4l2-ctl`, which will not be detailed here.
 
   ```
   $ v4l2-ctl --list-devices
@@ -321,7 +321,7 @@ There are some common usage examples (mainly includes GStreamer plugins adapted 
     gst-launch-1.0 v4l2src device=/dev/video20 num-buffers=600  ! "image/jpeg,framerate=30/1,width=640,height=480" ! typefind ! spacemitdec ! waylandsink sync=0 render-rectangle="<0,0,1280,720>"
     ```
 
-  - Decode the image and re-encoded it before saving it as file.
+  - Decode the image and re-encode it before saving it as file.
 
     ```
     gst-launch-1.0 v4l2src device=/dev/video20 num-buffers=600  ! "image/jpeg,framerate=30/1,width=640,height=480" ! typefind ! spacemitdec !  spacemith264enc ! filesink location=test.h264
@@ -329,7 +329,7 @@ There are some common usage examples (mainly includes GStreamer plugins adapted 
 
 ##### MIPI Camera Usage Examples
 
-There are examples using GStream to output 1080P@NV12 from MIPI camera with OV16A10. These examples assume that the JSON configuration file for spascemitsrc has been correctly set up. For detailed configurations, please refer to [Camera developement guide](/en/k1_buildroot/camera/camera_development_guide.md).
+There are examples using GStreamer to output 1080P@NV12 from MIPI camera with OV16A10. These examples assume that the JSON configuration file for spacemitsrc has been correctly set up. For detailed configurations, please refer to [Camera development guide](/en/k1_buildroot/camera/camera_development_guide.md).
 
 - After image capture, the frame is sent for display at a resolution of 720p. (The display position cannot be configured for now.)
 
@@ -560,7 +560,7 @@ This describes some basic pipelines for audio output using GStreamer.
 
 - Audio Playback
 
-  Audio playback refers to the process of playing a specific audio file according to its corresponding format. The pipeline below uses the `audiotestscr` plugin to output standard audio to the headphone jack.
+  Audio playback refers to the process of playing a specific audio file according to its corresponding format. The pipeline below uses the `audiotestsrc` plugin to output standard audio to the headphone jack.
 
   ```
   gst-launch-1.0 audiotestsrc wave=5 ! alsasink device=plughw:1  
@@ -610,7 +610,7 @@ This describes some basic pipelines for image output using GStreamer.
    ```
 
 - Image capture
-  For image capture, image can be acquisited from the camera.
+  For image capture, images can be acquired from the camera.
 
   - JPG format
 
@@ -678,7 +678,7 @@ This describes how to configure and run basic transcoding pipelines.
 
 ## Gstreamer Debugging Method
 
-This introduces common GStreamer debugging tools and thier usage scenarios.
+This introduces common GStreamer debugging tools and their usage scenarios.
 
 ### Use GStreamer Logging system
 
@@ -686,7 +686,7 @@ When a pipeline encounters errors or behaves unexpectedly, GStreamer's built-in 
 
 - `GST_DEBUG`
 
-   GStreamer framework and its plugins provide different levels of log information, which includes timestampes, process IDs, thread IDs, types, source code line numbers, function names, Element information and corresponding log messages. For example:
+   GStreamer framework and its plugins provide different levels of log information, which includes timestamps, process IDs, thread IDs, types, source code line numbers, function names, Element information and corresponding log messages. For example:
 
    ```
    $ GST_DEBUG=2 gst-launch-1.0 playbin uri=file:///x.mp3Setting pipeline to PAUSED ...
@@ -706,17 +706,17 @@ When a pipeline encounters errors or behaves unexpectedly, GStreamer's built-in 
    - Level 7：TRACE information
    - Level 8：MEMDUMP information, the highest log level
 
-   When in use, only set `GST_DEBUG` to specified level, all log messages at or below this level will be output. For example: `GST_DEBUG=2` will display logs of ERROR level and WAENING level.
+   When in use, only set `GST_DEBUG` to specified level, all log messages at or below this level will be output. For example: `GST_DEBUG=2` will display logs of ERROR level and WARNING level.
 
    The above settings apply when all modules use the same level. If you need to set level for specified plugins individually, use the format of  **module name:level**. For example:
    `GST_DEBUG=2,audiotestsrc:6` indicates that the global level is set to 2, and only the log level of the audiotestsrc element is set to 6.
 
    In this case, the value of GST\_DEBUG consists of "module name:level" key-value pairs separated by commas. You can add a default log level for all unspecified modules at the very beginning, and multiple module names can be separated by commas. Additionally, the value of GST\_DEBUG also supports the "\*" wildcard character.
 
-   The value of `GST_DEBUG` consists of "module nameC:Level" seperated by commas, and supports the following feratures:
+   The value of `GST_DEBUG` consists of "module name:Level" separated by commas, and supports the following features:
 
    - A default level can be set at the beginning (unspecified modules will use this level);
-   - Supports seperate settings dor multiple modules;
+   - Supports separate settings for multiple modules;
    - Supports `*` wildcard for fuzzy matching.
 
    Example:
@@ -776,16 +776,16 @@ There are some common methods for debugging GStreamer display and decoding issue
 
    - **Bianbu OS**
      Executes the command via the serial port to enable preview.
-     You need to log into the desktop first, then add `WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/1000` before the GStremer command. For example:
+     You need to log into the desktop first, then add `WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/1000` before the GStreamer command. For example:
 
      ```
      WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/run/user/1000 gst-launch-1.0 filesrc location=/root/3840x2160_24bits_30fps_266p.h265 ! h265parse ! spacemitdec ! fpsdisplaysink video-sink='glsinkbin sink='gtkglsink sync=0''
      ```
 
-2. **Troubleshooting decoding issues: rule out source stream abnomalies**
+2. **Troubleshooting decoding issues: rule out source stream abnormalities**
 
    When decoding fails with dedicated hardware decoder plugins such as `spacemitdec`, you should first confirm whether the source stream (raw stream) itself is problematic. It is recommended to troubleshoot in the following order:
    - Use a general GStreamer plugin to replace the SpacemiT decoder plugin for debugging.
-   - Use `ffplay` to decade the source stream and check for issues.
+   - Use `ffplay` to decode the source stream and check for issues.
    - Use the built-in test tool of MPP to decode the source stream and check for issues.
     Refer to [SpacemiT MPP](./mpp/02-MPP.md)  to perform decoding tests using test tools it provides.

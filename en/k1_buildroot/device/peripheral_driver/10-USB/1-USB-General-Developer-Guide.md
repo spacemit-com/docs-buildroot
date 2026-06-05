@@ -51,7 +51,7 @@ drivers/usb
 |   |-- phy-k1x-ci-otg.c      # OTG driver, used to implement the switching between EHCI Host and K1X UDC modes.
 |   |-- phy/phy-k1x-ci-usb2.c # PHY driver.
 |-- host/
-|   |-- ehci-k1x-ci.c         # EEHCI Host mode platform driver, needs to be used in combination with the EHCI Host driver.
+|   |-- ehci-k1x-ci.c         # EHCI Host mode platform driver, needs to be used in combination with the EHCI Host driver.
 |-- gadget/
     |-- udc/
         |-- k1x_udc_core.c    # Device mode driver.
