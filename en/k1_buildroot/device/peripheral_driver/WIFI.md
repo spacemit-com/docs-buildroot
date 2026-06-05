@@ -3,7 +3,7 @@ Wi-Fi Porting and Usage Guide.
 
 ## Overview
 
-The K1 platform implements Wi-Fi via external modules supporting **PCIe**, **SDIO**, and **USB**. interfaces.
+The K1 platform implements Wi-Fi via external modules supporting **PCIe**, **SDIO**, and **USB** interfaces.
 
 ### Function Description
 
@@ -37,7 +37,7 @@ drivers/net/wireless
 |-- wuqi                # Driver for WUQI vendor
 ```
 
-**Platform-Related Source Code:**：
+**Platform-Related Source Code:**
 ```
 drivers/soc/spacemit/spacemit-rf
 |-- spacemit-pwrseq.c   # Implementation of common parts for Wi-Fi and Bluetooth

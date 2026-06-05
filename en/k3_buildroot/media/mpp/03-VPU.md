@@ -145,7 +145,7 @@ optional arguments:
         Flexible Downscaled original position mode [0, 2], 
         only availble in high precision mode. 
         Value: 0 [default:x_original=(x_resized + 0.5)/scale - 0.5]         
-        Value: 1 [x_original=x_reized/scale]
+        Value: 1 [x_original=x_resized/scale]
         Value: 2 [x_original=(x_resized+0.5)/scale]
         Default: 0
     --frames
@@ -158,7 +158,7 @@ optional arguments:
         Ignore Stream Headers 1 is on, 0 is off (default)
         Default: 0
     --trystop
-        Try if Decoding Stop Command exixts
+        Try if Decoding Stop Command exists
         Default: 0
     --one_frame_per_packet
         Each input buffer contains one frame.
@@ -413,7 +413,7 @@ optional arguments:
         SEI param : sei_content_light
         Default: 0
     --sei_user_data_unregistered
-        SEI param : user data unregisterd
+        SEI param : user data unregistered
         Default: 0
     --hrd_buffer_size
         Hypothetical Reference Decoder buffer size 
@@ -427,14 +427,14 @@ optional arguments:
         4: LDB-method-2
         5: BiDirection-method-1 | 
         6: BiDirection-method-2 | 
-        7: Pyrimid-method-1 | 
-        8: Pyrimid-method-2
+        7: Pyramid-method-1 | 
+        8: Pyramid-method-2
         Default: 0
     --ltr_period
         encoder long term reference period, range from 2 to 254 (inclusive)
         Default: 0
     --trystop
-        Try if Encoding Stop Command exixts
+        Try if Encoding Stop Command exists
         Default: 0
     --restart_interval
         JPEG restart interval.
@@ -496,7 +496,7 @@ optional arguments:
         Stride alignment.
         Default: 720
     -f, --frames
-        Specfied frame count to be processed.
+        Specified frame count to be processed.
         Default: 0
     -n, --nsessions
         Number of sessions.

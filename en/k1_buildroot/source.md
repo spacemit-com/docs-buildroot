@@ -136,7 +136,7 @@ wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
 ## Directory structure
 
 ```shell
-├── bsp-src               # Stores linux kernel、uboot、opensbi source
+├── bsp-src               # Stores linux kernel, uboot, opensbi source
 │   ├── linux-6.6
 │   ├── opensbi
 │   └── uboot-2022.10

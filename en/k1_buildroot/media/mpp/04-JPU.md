@@ -23,7 +23,7 @@ sudo apt install k1x-jpu
 
 #### 2.1.2 Buildroot System
 
-Two methods for intergrating `k1x-jpu` into the system: 
+Two methods for integrating `k1x-jpu` into the system: 
 
 - Enable the compilation and integration option for k1x-jpu when compiling the image (enabled by default), so that all related test programs are included in the generated image.
 - If the `k1x-jpu` is not integrated into the img, you can only compile `k1x-jpu` manually, then copy the generated `bin` files to the `/usr/bin/` directory of the system for use. The specific `bin` files are described below.
@@ -47,7 +47,7 @@ The main test programs of `k1x-jpu`:
 //Decode input.jpeg to output.yuv, with pixel format of output.yuv set to NV12. 
 ./jpu_dec_test --input=input.jpeg   --output=output.yuv --subsample=420 --ordering=nv12
 
-//Decode input.jpeg to output.yuv, with pixel format of output.yuv set to YUYV将input.jpeg
+//Decode input.jpeg to output.yuv, with pixel format of output.yuv set to YUYV
 ./jpu_dec_test --input=input.jpeg   --output=output.yuv --subsample=422 --ordering=yuyv
 ```
 
@@ -68,7 +68,7 @@ bianbu@k1:~$ jpu_dec_test -h
 [JPU/6261] --bs-size=SIZE          bitstream buffer size in byte
 [JPU/6261] --roi=x,y,w,h           ROI region（未适配）
 [JPU/6261] --subsample             conversion sub-sample(ignore case): NONE, 420, 422, 444
-[JPU/6261] --ordering              conversion ordering(ingore-case): NONE, NV12, NV21, YUYV, YVYU, UYVY, VYUY, AYUV
+[JPU/6261] --ordering              conversion ordering(ignore-case): NONE, NV12, NV21, YUYV, YVYU, UYVY, VYUY, AYUV
 [JPU/6261]                         NONE - planar format
 [JPU/6261]                         NV12, NV21 - semi-planar format for all the subsamples.
 [JPU/6261]                                      If subsample isn't defined or is none, the sub-sample depends on jpeg information
@@ -149,7 +149,7 @@ Code structure and brief description are as follows:
 
 ```shell
 |-- CMakeLists.txt                //cmake build script
-|-- debian                        //deb package build configration and script
+|-- debian                        //deb package build configuration and script
 |   |-- bianbu.conf
 |   |-- changelog
 |   |-- compat
@@ -221,7 +221,7 @@ Code structure and brief description are as follows:
 
 **Bianbu Desktop System**
 
-```shll
+```shell
 cd k1x-jpu
 sudo apt-get build-dep k1x-jpu    #Install Dependencies
 dpkg-buildpackage -us -uc -nc -b -j32

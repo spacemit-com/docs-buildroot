@@ -421,7 +421,7 @@ Under `CONFIG_SOC_SPACEMIT`, `8250_of.c` adds dedicated logic such as:
 
 Among them, `spacemit_8250_set_termios()` selects different serial clock strategies based on:
 
-- whether the current bund rate is `spacemit,rcpu-uart`.
+- whether the current baud rate is `spacemit,rcpu-uart`.
 
 - **AP-domain UART**: Selects an appropriate clock source for common baud rates through a fixed lookup-table method
 - **RCPU-domain UART**: Uses `clk_round_rate()` / `clk_set_rate()` so the clock framework can choose the most suitable frequency

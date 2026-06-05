@@ -335,7 +335,7 @@ The core K3 PWM driver implementation is in `drivers/pwm/pwm-pxa.c`.
 
 ### 1. Period and Duty Cycle Calculation
 
-The driver comments provide the formauls:
+The driver comments provide the formulas:
 
 ```c
 /*

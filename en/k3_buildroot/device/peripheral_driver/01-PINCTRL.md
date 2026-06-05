@@ -396,7 +396,7 @@ If the default definitions in `k3-pinctrl.dtsi` do not meet board-level requirem
 Method 1: Rewrite the existing `xxx_cfg` node; 
 Method 2: Add a new `xxx_cfg` node and then reference the new state in the device node. 
 
-Adding a new state (as Mothod 2) is recommended because it makes it easier to distinguish board-specific settings from the default SoC DTSI configuration.
+Adding a new state (as Method 2) is recommended because it makes it easier to distinguish board-specific settings from the default SoC DTSI configuration.
 
 ### Pin Usage Examples
 

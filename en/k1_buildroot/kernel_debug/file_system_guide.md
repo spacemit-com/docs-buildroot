@@ -538,7 +538,7 @@ kretprobe:sys_read
 /@start[tid]/
 {
     $duration = nsecs - @start[tid];
-    @times = hist($duration / 1000);  // 转换为微秒
+    @times = hist($duration / 1000);  // convert to microseconds
     delete(@start[tid]);
 }
 

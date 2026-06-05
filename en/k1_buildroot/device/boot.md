@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 3
 ---
 
@@ -245,7 +245,7 @@ fastboot flash rootfs rootfs.ext4
     - The NOR partition table is located at:
   `buildroot-ext/board/spacemit/k1/partition_2M.json`
 
-    - For NAND/NOR devices, the partition table is nameed like `partition_xM.json`. Make sure the filename matches your actual flash size, or the system won’t find the correct table.
+    - For NAND/NOR devices, the partition table is named like `partition_xM.json`. Make sure the filename matches your actual flash size, or the system won’t find the correct table.
     - Partition tables are compatible downward — e.g., if NOR is 8MB and only `partition_2M.json` is available, it will be used.
 
   - **Partition Naming Convention**
@@ -253,9 +253,9 @@ fastboot flash rootfs rootfs.ext4
     - BLK devices (eMMC/SD/SSD) all use `partition_universal.json`.
 
 - **Modifying NOR Flash Partition Tables**
-  1. Partition offsets and sizes are aligned to 64KB by default (ecorresponding to an erase size of 64 KB)
+  1. Partition offsets and sizes are aligned to 64KB by default (corresponding to an erase size of 64 KB)
 
-  2. If the soffset and size need to align with 4 KB, the U-Boot compilation configuration `CONFIG_SPI_FLASH_USE_4K_SECTORS` must be enabled.
+  2. If the offset and size need to align with 4 KB, the U-Boot compilation configuration `CONFIG_SPI_FLASH_USE_4K_SECTORS` must be enabled.
 
 ```sh
 //buildroot-ext/board/spacemit/k1/partition_2M.json
@@ -457,7 +457,7 @@ Below is an example of a 64MB partition layout for NAND (`partition_64M.json`):
 
 ##### Card Booting
 
-Card booting refers to writing the image to an **SD card**. When the device is powered on with the SD card inserted, the system will **attempts to boot from the card first**.
+Card booting refers to writing the image to an **SD card**. When the device is powered on with the SD card inserted, the system will **attempt to boot from the card first**.
 
 The K1 platform supports card booting and defaults to first attempting to boot from the SD card. If SD boot fails, the system will fall back to another boot source as selected by the **boot pin** configuration.
 

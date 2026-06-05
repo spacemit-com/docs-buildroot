@@ -228,7 +228,7 @@ The source code structure of MPP and its brief description are as follows (the s
 |   |       |   |-- SDL_atomic.h
 |   |       |   `-- SDL_vulkan.h
 |   |       `-- vo_sdl2.c
-|   `-- vps                         //；Interface with multi-platform video processing modules or drivers
+|   `-- vps                         // Interface with multi-platform video processing modules or drivers
 |       |-- CMakeLists.txt
 |       `-- k1
 |           |-- CMakeLists.txt

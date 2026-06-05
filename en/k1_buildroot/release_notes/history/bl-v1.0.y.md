@@ -13,7 +13,7 @@ Please refer to the document for the Buildroot v2.0 upgrade
 
 ## v1.0.15 release note
 
-Release data: 2024-9-7
+Release date: 2024-9-7
 
 ### Major Updates
 
@@ -21,7 +21,7 @@ Release data: 2024-9-7
 
 ## v1.0.14 release note
 
-Release data: 2024-8-31
+Release date: 2024-8-31
 
 ### Major Updates
 
@@ -37,7 +37,7 @@ Release data: 2024-8-31
 
 ## v1.0.13 release note
 
-Release data: 2024-8-16
+Release date: 2024-8-16
 
 ### Major Updates
 
@@ -50,7 +50,7 @@ Release data: 2024-8-16
 
 ## v1.0.12 release note
 
-Release data: 2024-8-2
+Release date: 2024-8-2
 
 ### Major Updates
 
@@ -58,7 +58,7 @@ Release data: 2024-8-2
 
 ## v1.0.11 release note
 
-Release data: 2024-8-1
+Release date: 2024-8-1
 
 ### Major Updates
 
@@ -74,7 +74,7 @@ Release data: 2024-8-1
 
 ## v1.0.9 release note
 
-Release data: 2024-7-20
+Release date: 2024-7-20
 
 ### Major Updates
 
@@ -86,7 +86,7 @@ Release data: 2024-7-20
 
 ## v1.0.8 release note
 
-Release data: 2024-7-16
+Release date: 2024-7-16
 
 ### Major Updates
 
@@ -97,7 +97,7 @@ Release data: 2024-7-16
 
 ## v1.0.7 release note
 
-Release data: 2024-7-11
+Release date: 2024-7-11
 
 ### Major Updates
 
@@ -115,7 +115,7 @@ Release data: 2024-7-11
 
 ## v1.0.5 release note
 
-Release data: 2024-6-28
+Release date: 2024-6-28
 
 ### Major Updates
 
@@ -248,6 +248,6 @@ Release date: 2024-5-30
 
 - AES
 
-### Know issue
+### Known Issues
 
 - Suspend to ram is not ready

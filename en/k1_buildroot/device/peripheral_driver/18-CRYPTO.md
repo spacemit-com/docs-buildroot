@@ -2,7 +2,7 @@
 
 Crypto-Engine Functionality and Usage Guide.
 
-## Overivew
+## Overview
 
 The Crypto-Engine implements hardware encryption algorithms to encrypt plaintext.  
 

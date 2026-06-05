@@ -28,7 +28,7 @@ drivers/net/can
 
 | Feature | Description |
 | :-----| :----|
-| Support for CANFD | Compliant  the CANFD protocol, compatible with CAN 2.0 |
+| Support for CANFD | Compliant with the CANFD protocol, compatible with CAN 2.0 |
 | Support for Maximum 64B Data| The CANFD protocol supports data transmission of 8, 16, 32, and 64 bytes|
 
 ### Performance Parameters

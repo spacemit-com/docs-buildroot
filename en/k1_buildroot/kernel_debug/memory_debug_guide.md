@@ -213,7 +213,7 @@ echo m > /proc/sysrq-trigger
 
 #### Purpose
 
-This command immediately trigger the kernel to dump a highly detailed, low-level snapshot of memory state into the kernel log buffer. It is a point-in-time snapshot. It is very useful for locating transient system issues. You can invoke it right away when a problem occurs. 
+This command immediately triggers the kernel to dump a highly detailed, low-level snapshot of memory state into the kernel log buffer. It is a point-in-time snapshot. It is very useful for locating transient system issues. You can invoke it right away when a problem occurs. 
 
 If the system becomes unresponsive, immediately trigger `echo m` and then check `dmesg`. If the free value of any zone is lower than its low or even min threshold, it turns out that the lag is caused by kernel memory reclamation.
 
@@ -294,7 +294,7 @@ cat /proc/zoneinfo
 - `per-node stats`: Provides memory statistics aggregated for an entire NUMA Node. It combines data from all memory Zones (DMA32, Normal) under the node. 
   - `nr_kernel_stack`: Total pages occupied by all processes/threads. This is an indicator for estimating the number of system tasks running on the system.
   - `nr_page_table_pages`: Number of memory pages used for pages themselves. This value increases significantly if a process has a very large and sparse virtual memory space.
-- `Per-CPU page cache`: The kernel maintains a small private memory cache pageset for each CPU. When the number of pages in pageset exceeds its high watermark (805), the excess pages are returned in batches (batch=63) to overall buddy system in batches (batch=63).
+- `Per-CPU page cache`: The kernel maintains a small private memory cache pageset for each CPU. When the number of pages in pageset exceeds its high watermark (805), the excess pages are returned in batches (batch=63) to the overall buddy system.
 
 #### Purpose
 
@@ -376,7 +376,7 @@ pmap [options] PID [PID ...]
 
 - `-x`: displays details
 - `-X`: displays more details
-- `-XX`: displays all informtion from the kernel 
+- `-XX`: displays all information from the kernel 
 
 #### Purpose
 
@@ -422,7 +422,7 @@ Identify memory leak issues, which do not lead to an immediate crash, but gradua
 CONFIG_KASAN=y 
 ```
 
-- For software mode, `CONFIG_KASAN_OUTLINE` and `CONFIG_KASAN_INLINE` are available. `Outline` and `inline` are compiler instrumentation types. `Outline` produces a small binary file, while `inline` is twice as fast. times faster. 
+- For software mode, `CONFIG_KASAN_OUTLINE` and `CONFIG_KASAN_INLINE` are available. `Outline` and `inline` are compiler instrumentation types. `Outline` produces a small binary file, while `inline` is twice as fast. 
 
 #### Purpose
 
@@ -459,5 +459,5 @@ An interface used to manually trigger the kernel to drop page caches, dentry cac
 
 #### Purpose
 
-Usedd to manually trigger memory compaction to reduce memory fragments and create larger contiguous physical memory blocks.
+Used to manually trigger memory compaction to reduce memory fragments and create larger contiguous physical memory blocks.
 

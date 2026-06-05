@@ -56,12 +56,12 @@ Device Drivers
     -> Character devices
   -> Serial drivers
    -> PXA serial driver (<choice> [=y])
-    -> Spacemit PXA driver suppor (SERIAL_PXA_SPACEMIT_K1X [=y])
+    -> Spacemit PXA driver support (SERIAL_PXA_SPACEMIT_K1X [=y])
 ```
 
 ### DTS Configuration
 
-Since the usage and configuration methods for the 9 UARTs are similar, here we use UART2as an example.
+Since the usage and configuration methods for the 9 UARTs are similar, here we use UART2 as an example.
 
 #### pinctrl
 
