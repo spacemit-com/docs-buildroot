@@ -4,6 +4,22 @@ sidebar_position: 1
 
 # Buildroot 2.2 更新说明
 
+## v2.2.10 更新说明
+
+发布日期：2026-6-5
+
+### 主要更新
+
+- 新增 EMAC UIO 用户态网卡驱动支持
+- 新增 llama.cpp 推理引擎集成
+- 新增 RISC-V 用户态 zicbom 扩展支持
+- 修复 OpenSBI zero-size 地址溢出范围校验缺失
+- 新增 sc285sl sensor 1920x1080@90fps 4lane 模式支持
+- 更新gcc编译工具链
+- 修复 sc285sl sensor 画面闪烁问题
+- 修复 VPU 在 Linux 上 ffplay 偶发 streamon failed 的问题
+- 更新onnxruntime版本
+
 ## v2.2.9 更新说明
 
 发布日期：2026-1-28
