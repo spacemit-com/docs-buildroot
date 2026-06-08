@@ -6,7 +6,7 @@ K3 EtherCAT Master Functionality and Usage Guide.
 
 K3 SDK integrates IGH EtherCAT 1.6.8 master protocol stack and customized real-time network card driver, providing EtherCAT master capabilities for high-performance and real-time communication. It is well-suited for high real-time application scenarios like motion control, servo drive and industrial robots.
 
-### Functionality
+### Feature Overview
 
 ![](static/EtherCAT.png)
 

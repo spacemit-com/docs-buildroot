@@ -83,5 +83,6 @@ Third-party peripheral drivers
 - [BT](BT.md)
 
 Other drivers
+
 - [WDT](23-WDT.md)
 - [Timer](Timer.md)

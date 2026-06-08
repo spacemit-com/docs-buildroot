@@ -6,7 +6,7 @@ This document introduces the K3 platform Bluetooth porting and notes.
 
 The K3 platform requires an external BT module to implement Bluetooth functionality, and supports interfaces such as UART / USB / SDIO.
 
-## Functional Description
+## Feature Overview
 
 The BT software stack used on the K3 platform is `BlueZ`. The software framework based on `BlueZ` can be divided into the following layers from top to bottom:
 

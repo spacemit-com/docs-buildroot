@@ -149,7 +149,7 @@ Each cluster has an independent OPP (Operating Performance Point) table and cloc
 
 Configuration mainly includes **driver enablement** and **Device Tree configuration**.
 
-### CONFIG Options
+### Kconfig Configuration
 
 The CPUFREQ configuration is shown below:
 

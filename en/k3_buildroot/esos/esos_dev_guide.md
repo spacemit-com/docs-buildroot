@@ -9,9 +9,9 @@ The ESOS system is built on RT-Thread and runs on the RCPU. Its functionality is
 1. Works with the main CPU cluster to handle power and energy management, such as dynamic frequency and voltage scaling, power-switch control, system reboot, and system suspend/resume.
 2. Works with the main CPU cluster to handle real-time tasks, such as motor control and relay switching.
 
-### ESOS Directory Structure
+## ESOS Directory Structure
 
-#### SDK Root Directory Structure
+### SDK Root Directory Structure
 ```
 |-- bsp-src
 |   |-- linux-6.18
@@ -35,7 +35,7 @@ The ESOS system is built on RT-Thread and runs on the RCPU. Its functionality is
     `-- ubuntu.mirror
 
 ```
-#### ESOS Internal Directory Structure
+### ESOS Internal Directory Structure
 ```.
 |-- AUTHORS
 |-- bsp

@@ -58,29 +58,29 @@ Configuration mainly includes **Kconfig settings** and **DTS settings**.
 
 1. `BSP_USING_GMAC`: Enables the RGMAC driver.
 
-```bash
-config BSP_USING_GMAC
-    bool "Enable GMAC"
-    default n
-```
+   ```bash
+   config BSP_USING_GMAC
+      bool "Enable GMAC"
+      default n
+   ```
 
-1. `BSP_USING_MACCTL_TOOL`: Enables the `macctl` tool.
+2. `BSP_USING_MACCTL_TOOL`: Enables the `macctl` tool.
 
-```bash
-if BSP_USING_GMAC
-    config BSP_USING_MACCTL_TOOL
+    ```bash
+    if BSP_USING_GMAC
+       config BSP_USING_MACCTL_TOOL
         bool "Enable MAC Control Tool"
         default n
-endif
-```
+    endif
+    ```
 
-1. `RT_USING_ETHERCAT`: Enables the RT-Thread version of the IgH EtherCAT master.
+3. `RT_USING_ETHERCAT`: Enables the RT-Thread version of the IgH EtherCAT master.
 
-```bash
-config RT_USING_ETHERCAT
-    bool "Enable IGH EtherCAT support"
-    default n
-```
+   ```bash
+   config RT_USING_ETHERCAT
+       bool "Enable IGH EtherCAT support"
+       default n
+   ```
 
 > **Note:** To use the `macctl` tool for functional testing, `RT_USING_ETHERCAT` must be disabled.
 

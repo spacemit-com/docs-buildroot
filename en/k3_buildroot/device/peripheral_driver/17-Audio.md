@@ -56,7 +56,7 @@ The ALSA audio framework can be divided into the following layers:
                 - Is generally controlled over I2C
                 - Is independent of the SoC and Machine driver, so it can be reused across different Machine implementations
 
-#### Audio Interfaces
+### Audio Interfaces
 
 The K3 Audio module includes three types of audio interfaces:
 
@@ -64,7 +64,7 @@ The K3 Audio module includes three types of audio interfaces:
 - **RI2S interfaces**: 4 interfaces, including 2 used for DP audio output
 - **DP audio interfaces**: 2 interfaces
 
-#### Audio Solutions
+### Audio Solutions
 
 The K3 platform currently supports the following audio solutions:
 
