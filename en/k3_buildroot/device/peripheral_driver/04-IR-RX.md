@@ -79,7 +79,7 @@ Configuration mainly includes:
 - **Kernel CONFIG settings**
 - **DTS settings**
 
-### Kernel CONFIG Settings
+### Kconfig Configuration
 
 #### Enable the RC Framework
 
@@ -114,7 +114,7 @@ Device Drivers
                   -> Spacemit K1/K3 IR remote receiver control (IR_SPACEMIT_K1 [=y])
 ```
 
-### DTS Settings
+### DTS Configuration
 
 #### DTSI Configuration Example
 

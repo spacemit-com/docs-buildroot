@@ -77,7 +77,7 @@ CONFIG_BSP_USING_HWTIMER=y
 
 > Note: In the default defconfig (`rt24_os0_rcpu_defconfig`), hwtimer is disabled and must be enabled manually.
 
-### Device Tree Settings
+### DTS Settings
 
 The timer nodes are defined in `esos/bsp/spacemit/platform/rt24/k3.dtsi`. There are 4 `rtimer` nodes, and each node contains 3 counter child nodes.
 
