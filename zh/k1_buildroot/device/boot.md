@@ -2565,6 +2565,399 @@ make PLATFORM=generic PLATFORM_DEFCONFIG=k1-x_deb1_defconfig menuconfig
 示例配置：
 ![a](static/JdMVb4GyioYNhMxUOhHc8R3enEd.png)
 
+## OTA 升级
+
+### 适用范围与实现说明
+
+本节介绍如何在 **k1-bl-v2.2.10-release** 基线版本上添加 OTA 功能。适配文件可参考以下内容下载，
+该补丁文件仅针对当前最新k1-bl-v2.2.10-release基线制作，旧版本可能存在打补丁冲突，可适当修改。
+
+补丁同时支持 eMMC 和 SPI NAND，增加 recovery、misc、userdata、备份 U-Boot 分区
+uboot_b、独立 recovery 系统，以及 recovery-updater、misc-state、ota-start 和
+reboot-to-recovery 工具。U-Boot 根据 misc 中的 OTA 状态进入 recovery，新系统通过健康
+检查后再恢复正常状态。
+
+
+> **注意：** 首次启用 OTA 会改变分区布局和 U-Boot 启动逻辑，不能使用 OTA 包直接从
+> 未适配的旧固件迁移。必须先完整刷写本节编译出的普通刷机包。完整刷机会重新分区，请提前
+> 备份设备数据。OTA升级不建议对FSBL/opensbi/recovery分区升级， 升级过程中断电，下次重启会继续进入升级模式。
+
+补丁包内容如下：
+
+| 目标仓库或目录 | 补丁/源码 | 作用 |
+| --- | --- | --- |
+| buildroot-ext | 0001-feat-Add-recovery-system-with-dedicated-partition.patch | 增加 recovery 系统及 eMMC OTA 分区 |
+| buildroot-ext | 0002-add-recovery-updater-and-misc-state-to-system.patch | 集成升级程序、状态工具和 OTA 脚本 |
+| buildroot-ext | 0003-add-state-change-deel.patch | 完善升级状态切换 |
+| buildroot-ext | 0004-add-misc-state-recovery-updater-compile.patch | 在 K1 v2 默认配置中启用 OTA 工具 |
+| buildroot-ext | 0005-create-ota.zip.patch | 生成 eMMC OTA 包 |
+| buildroot-ext | 0006-mmc-support-buot_b-flash.patch | 增加 eMMC uboot_b 分区和升级流程 |
+| buildroot-ext | 0007-support-nand-flash-and-boot.patch | 完善 SPI NAND 刷机和启动 |
+| buildroot-ext | 0008-support-nand-ota.patch | 增加 SPI NAND recovery、分区和 OTA 包 |
+| bsp/uboot-2022.10 | 0001-uboot-support-recovery-start.patch | 根据 misc 状态启动 recovery |
+| bsp/uboot-2022.10 | 0002-mmc-support-uboot_b-partition-boot.patch | 支持从 eMMC 备份 U-Boot 分区启动 |
+| bsp/uboot-2022.10 | 0003-support-nand-flash-and-boot.patch | 完善 SPI NAND 刷写、识别和启动 |
+| bsp/uboot-2022.10 | 0004-support-nand-ota.patch | 支持 SPI NAND OTA 和 recovery 启动 |
+| bsp/linux-6.6 | 0001-support-gd-nand.patch | 增加对应 GigaDevice SPI NAND 型号 |
+| package-src | misc-state、recovery-updater | OTA 状态管理和 recovery 升级程序源码 |
+
+### 准备 OTA 补丁
+
+OTA 补丁包可以从 SpacemiT 下载服务器获取。在 SDK 的上一级工作目录执行：
+
+~~~shell
+cd /path/to/workdir
+wget https://archive.spacemit.com/solutions/buildroot_ota/ota_support_adapt_k1-bl-v2.2.10-release.zip
+unzip ota_support_adapt_k1-bl-v2.2.10-release.zip
+~~~
+
+解压后会生成 ota_support_adapt_k1-bl-v2.2.10-release 目录。
+
+以下步骤假设 SDK 目录和补丁目录处于同一级目录：
+
+~~~text
+工作目录/
+├── k1-bl-v2.2.10-release/
+└── ota_support_adapt_k1-bl-v2.2.10-release/
+~~~
+
+进入基于 k1-bl-v2.2.10-release 下载的 SDK 根目录，请先确认sdk编译正常，以及未有本地改动，建议基于以下的commit基线打补丁，以避免冲突：
+
+~~~shell
+cd /path/to/k1-bl-v2.2.10-release
+
+cd buildroot-ext$
+gitl
+commit aec6a45b44904033159b6143e4f05371b3a50470 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 64d5d53 063e2bc
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:42:33 2026 +0800
+
+    Update for v2.2.10
+    
+    Change-Id: Ia51431ef09484d6d308ed79b8b3a2a7294bfb78d
+
+cd ../bsp-src/uboot-2022.10/
+gitl
+commit 46a4f510352684407c074b7c0e9114b5443dcc59 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: d61c8c77e2 dcdcab9e95
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:38:21 2026 +0800
+
+    Update for v2.2.10
+    
+    Change-Id: Icd5172b4b621e491617f54fbcf9a0f8dd8276774
+
+cd ../linux-6.6/
+gitl
+commit 21f2edd50954020f22954d3be8b9202120ae1ae4 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 0c505572f3e0 e01ff0f2bc31
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:36:37 2026 +0800
+
+    Update for v2.2.10
+    
+    Change-Id: I5270c04112dd12ffa96f60880c02d32058da572e
+
+~~~
+
+如果涉及到的仓库有本地修改，建议先git stash暂存。然后记录补丁目录的绝对路径，并复制两个源码包：
+
+~~~shell
+
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/misc-state/ package-src/
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/recovery-updater/ package-src/
+~~~
+
+### 应用补丁
+
+三个补丁序列必须按文件名前的编号依次应用。文件使用四位数字编号，以下通配符展开后即为
+正确顺序：
+
+~~~shell
+# 基于sdk根目录下
+cd buildroot-ext/
+git am ../ota_support_adapt_k1-bl-v2.2.10-release/buildroot-ext/*.patch
+
+# 依次应用 0001～0004，共 4 个 U-Boot 补丁
+cd ../bsp-src/uboot-2022.10/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/uboot-2022.10/*.patch
+
+# 应用 1 个 Linux 6.6 补丁
+cd ../linux-6.6/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/linux-6.6/*.patch
+~~~
+
+正常情况下会成功，如果出现打补丁异常，可检查本地是否有改动或者commit不是基于v2.2.10
+
+### 重新编译
+
+补丁修改了 eMMC 和 SPI NAND 的 defconfig，首次编译 OTA 固件必须重新执行
+make envconfig，不能只执行普通的增量编译。
+```
+make envconfig #选择需要的方案版本
+make uboot-rebuild && make linux-rebuild && make
+```
+
+### 首次部署 OTA 固件
+
+首次部署必须使用对应介质和容量的完整刷机包，按照前文刷机流程完整刷写设备：
+
+- eMMC 使用 Buildroot-k1_v2.zip。
+- 512 MiB SPI NAND 使用 Buildroot-k1_v2_nand-512M.zip。(由于256M nand容量不足以支撑公版的分区配置，如用户需要用到小容量的nand flash，需要自行裁剪)
+
+完整刷写会建立 OTA 所需的新分区，并写入新的 SPL/U-Boot、recovery 和系统镜像。不能只
+刷写 bootfs 或 rootfs，否则 U-Boot 启动逻辑与实际分区表不匹配。首次启动后确认 OTA
+工具和初始状态：
+
+~~~shell
+command -v ota-start
+command -v recovery-updater
+command -v misc-state
+misc-state get-state
+~~~
+
+misc-state get-state 的初始输出应为 NORMAL。
+
+### 执行 eMMC OTA 升级
+
+将新版本 Buildroot-k1_v2-ota.zip 复制到设备的/userdata/目录下。升级默认分区时执行：
+
+~~~shell
+#ota包上传到板端，需要用户自行处理
+ota-start /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+eMMC 默认升级 uboot、uboot_b、bootfs 和 rootfs。也可指定本次升级的分区：
+
+~~~shell
+# 只升级系统分区
+ota-start -p bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+
+# 升级 U-Boot 和系统分区
+ota-start -p uboot,uboot_b,bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+ota-start 会将升级包保存为 /userdata/update.zip，将分区列表和 UPDATING 状态写入
+misc，然后自动重启。U-Boot 进入 recovery 后，recovery-updater 完成写入和回读校验，
+再将状态切换为 UPDATED_PENDING_BOOT。新系统通过健康检查后状态恢复为 NORMAL，并删除
+/userdata/update.zip。
+对于升级过程中异常掉电，下次启动会根据misc的状态重新进入升级模式。retry失败次数超过3次后，不会继续升级
+
+### 执行 SPI NAND OTA 升级
+
+必须根据设备的实际 SPI NAND 容量选择升级包，不能混用 256 MiB 和 512 MiB 包。默认升级
+uboot、uboot_b 和 bootfs：由于需要预留userdata分区容量存放ota包，不推荐升级rootfs
+
+~~~shell
+# 256 MiB SPI NAND
+ota-start /userdata//Buildroot-k1_v2_nand-256M-ota.zip
+
+# 512 MiB SPI NAND
+ota-start /userdata//Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+也可以只升级允许列表中的部分分区：
+
+~~~shell
+ota-start -p bootfs /path/to/Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+SPI NAND OTA 仅允许升级 uboot、uboot_b 和 bootfs。rootfs、recovery、misc、env
+等分区不在 NAND OTA 允许列表中，ota-start 会拒绝此类请求。升级 recovery、rootfs 或
+调整 NAND 分区布局时，应重新使用完整刷机包刷机。
+
+NAND recovery 会依据容量选择 partition_256M.json 或 partition_512M.json，使用
+flash_erase、nandwrite 或 ubiformat 写入对应 MTD 分区，并默认执行写后回读校验。
+
+### OTA FAQ
+
+#### nand 256M容量支持
+对于需要适配256M的nand flash，可参考以下内容适配，主要要保证各个分区能装下镜像文件
+如果要适配其他容量，自行参考修改
+
+* 启用256M镜像生成
+
+  在 prepare_img.sh 中配置：
+
+```
+  NAND_VARIANTS=(
+      "256M:partition_256M.json:2048:126976:128KiB:300:256:256"
+  )
+
+  参数含义：
+
+  min_io          2048
+  LEB             126976
+  PEB             128KiB
+  bootfs最大LEB   300
+  recovery最大LEB 256
+  userdata最大LEB 256
+```
+
+  如果仅支持256M，删除512M项；如果同时生成两种包，则保留两项。
+
+* 修改U-Boot默认分区表
+
+  uboot_defconfig 改为：
+
+  spi4.0:
+  256K@512K(env),
+  256K@768K(opensbi),
+  2M@1M(uboot),
+  2M@3M(uboot_b),
+  24M@5M(recovery),
+  1M@29M(misc),
+  24M@30M(bootfs),
+  32M@54M(userdata),
+  -@86M(rootfs)
+
+  合并后的配置：
+```
+  CONFIG_MTDPARTS_DEFAULT="spi4.0:256K@512K(env),256K@768K(opensbi),2M@1M(uboot),2M@3M(uboot_b),24M@5M(recovery),1M@29M(misc),24M@30M(bootfs),32M@54M(userdata),-@86M(rootfs)"
+```
+
+* 修改U-Boot DTS
+
+```
+  partition@3600000 {
+      label = "userdata";
+      reg = <0x03600000 0x02000000>;
+  };
+
+  rootfs：
+
+  partition@5600000 {
+      label = "rootfs";
+      reg = <0x05600000 0x00000000>;
+  };
+```
+
+* 修改256M刷机JSON
+```
+  partition_256M.json：
+
+  {
+    "name": "userdata",
+    "offset": "54M",
+    "size": "32M",
+    "image": "userdata.ubi"
+  },
+  {
+    "name": "rootfs",
+    "offset": "86M",
+    "size": "170M",
+    "image": "rootfs.ubi"
+  }
+```
+
+* 修改默认输出链接
+
+  当前脚本最后默认链接512M包：
+
+  ln -sf "${TARGET_IMAGE_BASE}-512M.zip" "$latest_path"
+
+  仅支持256M时应改为：
+
+  ln -sf "${TARGET_IMAGE_BASE}-256M.zip" "$latest_path"
+
+
+* 保持userdata自动扩容
+
+  以下配置继续保留：
+```
+  vol_flags=autoresize #256M对应的 userdata UBIFS最大LEB数应为256，不能继续使用之前的160或512M旧值80
+```
+
+#### 自定义分区升级保护
+目前默认fsbl/recovery等保护分区，不允许用户升级，以避免升级过程中断电，导致系统不能正常启动
+
+如果用户需要自定义保护分区，可参考以下修改方式(需要用户自行评估断电异常风险)
+
+* OTA允许更新列表
+
+  修改 bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/target_overlay/usr/sbin/ota-start:5：
+```
+  PARTITIONS=uboot,uboot_b,bootfs
+```
+
+  以及参数检查：
+```
+  case "$part" in
+      uboot|uboot_b|bootfs)
+```
+
+  从这里删除某分区，可以禁止正常系统通过 ota-start 更新它。
+
+* Recovery默认更新列表
+
+  修改 bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/dracut-modules/99recovery/recovery-init:119：
+```
+  partitions="uboot,uboot_b,bootfs"
+  #必须与 ota-start 默认列表保持一致。
+```
+  
+* recovery-updater分区策略
+
+  修改 bianbu-linux-pub/package-src/recovery-updater/src/main.c:22：
+```
+  static const char *dangerous_partitions[] = {
+      "bootinfo", "fsbl", "env", "opensbi",
+      "uboot", "uboot_b", "userdata", "misc", NULL
+  };
+
+  static const char *nand_default_partitions[] = {
+      "uboot", "uboot_b", "bootfs", NULL
+  };
+```
+  注意：
+
+  - nand_default_partitions 是NAND OTA默认允许更新的分区。
+  - dangerous_partitions 只是要求显式传入 --partitions，不是绝对禁止。
+  - 如果要绝对保护，建议新增 protected_partitions[]，即使显式传入 -p 也直接拒绝更新。
+
+* OTA包内容
+
+  修改 bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/prepare_img.sh:265：
+```
+  zip "$target_ota_zip" \
+      u-boot.itb \
+      bootfs.ubi \
+      partition_512M.json
+```
+  保护的分区不要把对应镜像放进OTA包；新增可更新分区则需要加入相应镜像。
+
+
+#### 状态与故障恢复
+可使用以下命令查看 OTA 状态：
+
+~~~shell
+misc-state get-state
+misc-state get-bootcount
+misc-state get-partitions
+~~~
+
+| 状态 | 含义 |
+| --- | --- |
+| NORMAL | 正常启动，无待处理的 OTA |
+| UPDATING | 已准备升级包，下次启动进入 recovery 执行升级 |
+| UPDATED_PENDING_BOOT | 分区写入成功，等待新系统启动并通过健康检查 |
+| RECOVERY_REQUIRED | 要求进入 recovery，或升级失败后等待 recovery 处理 |
+
+需要手动进入 recovery 排查时执行：
+
+~~~shell
+reboot-to-recovery
+#进入recovery状态后，可执行misc-state clear-all清除标志位
+~~~
+
+该命令会设置 RECOVERY_REQUIRED、清零启动计数并重启。正常情况下不要手动修改 OTA 状态。
+U-Boot 和系统健康检查已包含启动重试及状态恢复处理；如果多次启动仍失败，应通过串口查看
+U-Boot/recovery 日志，并使用对应的完整刷机包恢复设备。
+
+
+
+
 ## FAQ
 
 本章节介绍常见问题以及解决方式，或者常用的调试手段以及容易出错的问题记录。
