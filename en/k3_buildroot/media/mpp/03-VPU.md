@@ -4,7 +4,7 @@ sidebar_position: 3
 
 The VPU (Video Processing Unit) is a hardware video codec engine that improves codec efficiency and reduces CPU load.
 The K3 VPU is implemented on top of the V4L2 framework.
-- **Decoding support:** H.264 / HEVC / VP8 / VP9 / MJPEG / MPEG-4
+- **Decoding support:** H.264 / HEVC / VP8 / VP9 / VC-1 / MJPEG / MPEG-4 / MPEG-2
 - **Encoding support:** H.264 / HEVC / VP8 / VP9 / MJPEG
 - **Features:** Provides complete test programs for development and functional verification.
 
@@ -14,23 +14,24 @@ The K3 VPU is implemented on top of the V4L2 framework.
 
 | Format | Profile                   | Maximum resolution | Maximum bitrate | Single-channel specification | Multi-channel specification |
 | ----- | ------------------------- | ---------- | -------- | ---------- | ---------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@120fps | 16 channels 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@120fps | 16 channels 1080P@30fps |
-| VP8   | /                         | 4096×4096  | 400Mbps  | 4k@120fps | 16 channels 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@120fps | 16 channels 1080P@30fps |
+| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@180fps | 24 channels 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@180fps | 24 channels 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 400Mbps  | 4k@120fps | 16 channels 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@180fps | 24 channels 1080P@30fps |
+| VC-1  | SP/MP/AP                  | 2048×4096  | 160Mbps  | 4k@120fps | 16 channels 1080P@30fps |
 | JPEG  | Baseline sequential       | 8192×8192  | 240Mbps  | 4k@120fps | 16 channels 1080P@30fps |
-| MPEG4 | SP/ASP                    | 4096×4096  | 160Mbps  | 4k@120fps | 16 channels 1080P@30fps |
+| MPEG4 | SP/ASP                    | 2048×2048  | 160Mbps  | 4k@120fps | 16 channels 1080P@30fps |
 | MPEG2 | MP                        | 4096×4096  | 160Mbps  | 4k@120fps | 16 channels 1080P@30fps |
 
 ### 1.2 Encoding Specifications (4 cores @ 1 GHz)
 
 | Format  | Profile                   | Maximum resolution | Maximum bitrate | Single-channel specification | Multi-channel specification |
 | ----- | ------------------------- | ---------- | -------- | --------- | --------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@60fps | 8 channels 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@60fps | 8channels 1080P@30fps |
-| VP8   | /                         | 4096×4096  | 400Mbps  | 4k@60fps | 8 channels 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@60fps | 8 channels 1080P@30fps |
-| JPEG  | Baseline sequential       | 8192×8192  | 720Mbps  | 4k@60fps | 8 channels 1080P@30fps |
+| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@90fps | 12 channels 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@90fps | 12 channels 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 400Mbps  | 4k@90fps | 12 channels 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@90fps | 12 channels 1080P@30fps |
+| JPEG  | Baseline sequential       | 8192×8192  | 720Mbps  | 4k@90fps | 12 channels 1080P@30fps |
 
 ## 2 VPU Test Program
 
@@ -800,3 +801,53 @@ Total size 1618
 Total size 1618
 // Encoding completed. Output information is printed, and the program exits.
 ```
+
+## 3 FAQ
+
+### 3.1 mvx_encoder / mvx_decoder fails: /dev/video0 is not the codec device node
+
+By default, test programs such as `mvx_encoder` and `mvx_decoder` use `/dev/video0` as the codec device node. However, on some solutions `/dev/video0` may not be the VPU codec node (for example, it may be occupied by another V4L2 device such as a USB camera). In that case the test program fails to open the device or reports an error.
+
+**Cause**
+
+The numbering of V4L2 device nodes (`/dev/videoN`) is determined by the driver probe order and is not fixed. When other V4L2 devices such as USB cameras or MIPI CSI sensors are present, the VPU codec node is not necessarily `/dev/video0`.
+
+**Solution**
+
+Use `v4l2-ctl` to locate the VPU codec node first, then specify it explicitly with the `--dev` option.
+
+1. List all V4L2 devices:
+
+```shell
+v4l2-ctl --list-devices
+```
+
+Example output:
+
+```shell
+Linlon Video device (platform:mvx):
+	/dev/video0
+
+HD Pro Webcam C920 (usb-xhci-hcd.15.auto-1.4):
+	/dev/video1
+	/dev/video2
+```
+
+`Linlon Video device (platform:mvx)` is the VPU codec device. In this example it happens to be `/dev/video0`, but the actual node depends on your query result.
+
+2. You can also query the driver name of a specific node. The node whose driver name is `mvx` is the VPU codec node:
+
+```shell
+v4l2-ctl -d /dev/videoN -D | grep "Driver name"
+# Driver name      : mvx
+```
+
+3. Run with the correct node specified via `--dev`:
+
+```shell
+# Assume the VPU codec node is /dev/video3
+mvx_decoder --dev /dev/video3 -f raw /mnt/streams/input.264 /mnt/test/output.yuv
+mvx_encoder --dev /dev/video3 -f raw -w 1280 -h 720 /mnt/streams/input.yuv /mnt/test/output.264
+```
+
+`mvx_decoder_multi` and `mvx_encoder_multi` also support the `--dev` option to specify the codec node.

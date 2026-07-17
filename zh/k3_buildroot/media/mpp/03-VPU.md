@@ -4,7 +4,7 @@ sidebar_position: 3
 
 VPU（Video Processing Unit，视频处理单元）具有视频编解码功能的硬件，能够提高编解码效率并减少 CPU 负荷。
 K3 平台的 VPU 基于 **V4L2** 框架实现
-- **解码支持**：H.264 / HEVC / VP8 / VP9 / MJPEG / MPEG-4
+- **解码支持**：H.264 / HEVC / VP8 / VP9 / VC-1 / MJPEG / MPEG-4 / MPEG-2
 - **编码支持**：H.264 / HEVC / VP8 / VP9 / MJPEG
 - **特点**：提供完整的测试程序，便于开发与功能验证。
 
@@ -12,25 +12,26 @@ K3 平台的 VPU 基于 **V4L2** 框架实现
 
 ### 1.1 解码规格（4cores@1GHz）
 
-| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格       | 多路规格         |
-| ----- | ------------------------- | ---------- | -------- | ---------- | ---------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@120fps | 16路 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@120fps | 16路 1080P@30fps |
-| VP8   | /                         | 4096×4096  | 400Mbps  | 4k@120fps | 16路 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@120fps | 16路 1080P@30fps |
+| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格      | 多路规格         |
+| ----- | ------------------------- | ---------- | -------- | --------- | ---------------- |
+| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@180fps | 24路 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@180fps | 24路 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 400Mbps  | 4k@120fps | 16路 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@180fps | 24路 1080P@30fps |
+| VC-1  | SP/MP/AP                  | 2048×4096  | 160Mbps  | 4k@120fps | 16路 1080P@30fps |
 | JPEG  | Baseline sequential       | 8192×8192  | 240Mbps  | 4k@120fps | 16路 1080P@30fps |
-| MPEG4 | SP/ASP                    | 4096×4096  | 160Mbps  | 4k@120fps | 16路 1080P@30fps |
+| MPEG4 | SP/ASP                    | 2048×2048  | 160Mbps  | 4k@120fps | 16路 1080P@30fps |
 | MPEG2 | MP                        | 4096×4096  | 160Mbps  | 4k@120fps | 16路 1080P@30fps |
 
 ### 1.2 编码规格（4cores@1GHz）
 
-| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格      | 多路规格        |
-| ----- | ------------------------- | ---------- | -------- | --------- | --------------- |
-| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@60fps | 8路 1080P@30fps |
-| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@60fps | 8路 1080P@30fps |
-| VP8   | /                         | 4096×4096  | 400Mbps  | 4k@60fps | 8路 1080P@30fps |
-| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@60fps | 8路 1080P@30fps |
-| JPEG  | Baseline sequential       | 8192×8192  | 720Mbps  | 4k@60fps | 8路 1080P@30fps |
+| 格式  | profile                   | 最大分辨率 | 最大码率 | 规格     | 多路规格        |
+| ----- | ------------------------- | ---------- | -------- | -------- | --------------- |
+| HEVC  | Main/Main10               | 4096×4096  | 400Mbps  | 4k@90fps | 12路 1080P@30fps |
+| H.264 | BP/MP/HP/High10           | 4096×4096  | 400Mbps  | 4k@90fps | 12路 1080P@30fps |
+| VP8   | /                         | 2048×2048  | 400Mbps  | 4k@90fps | 12路 1080P@30fps |
+| VP9   | Profile0/Profile 2 10-bit | 4096×4096  | 400Mbps  | 4k@90fps | 12路 1080P@30fps |
+| JPEG  | Baseline sequential       | 8192×8192  | 720Mbps  | 4k@90fps | 12路 1080P@30fps |
 
 ## 2 VPU 测试程序
 
@@ -800,3 +801,53 @@ Total size 1618
 Total size 1618
 //编码完成，输出信息，退出
 ```
+
+## 3 常见问题
+
+### 3.1 mvx_encoder / mvx_decoder 报错：/dev/video0 不是编解码设备节点
+
+`mvx_encoder`、`mvx_decoder` 等测试程序默认使用 `/dev/video0` 作为编解码设备节点。但在部分方案中，`/dev/video0` 可能并不是 VPU 的编解码节点（例如被 USB 摄像头等其他 V4L2 设备占用），此时运行测试程序会打开设备失败或报错。
+
+**原因**
+
+系统中的 V4L2 设备节点（`/dev/videoN`）编号由驱动加载顺序决定，并不固定。当系统中存在 USB 摄像头、MIPI CSI 等其他 V4L2 设备时，VPU 的编解码节点不一定是 `/dev/video0`。
+
+**解决方案**
+
+先用 `v4l2-ctl` 找到 VPU 对应的编解码节点，再通过 `--dev` 参数显式指定。
+
+1. 列出所有 V4L2 设备：
+
+```shell
+v4l2-ctl --list-devices
+```
+
+输出示例：
+
+```shell
+Linlon Video device (platform:mvx):
+	/dev/video0
+
+HD Pro Webcam C920 (usb-xhci-hcd.15.auto-1.4):
+	/dev/video1
+	/dev/video2
+```
+
+其中 `Linlon Video device (platform:mvx)` 即为 VPU 编解码设备。本例中它恰好是 `/dev/video0`，实际节点以查询结果为准。
+
+2. 也可以查询某个节点的驱动名，驱动名为 `mvx` 的即为 VPU 编解码节点：
+
+```shell
+v4l2-ctl -d /dev/videoN -D | grep "Driver name"
+# Driver name      : mvx
+```
+
+3. 通过 `--dev` 指定正确的节点运行：
+
+```shell
+# 假设查到 VPU 编解码节点为 /dev/video3
+mvx_decoder --dev /dev/video3 -f raw /mnt/streams/input.264 /mnt/test/output.yuv
+mvx_encoder --dev /dev/video3 -f raw -w 1280 -h 720 /mnt/streams/input.yuv /mnt/test/output.264
+```
+
+`mvx_decoder_multi`、`mvx_encoder_multi` 同样支持 `--dev` 参数指定编解码节点。
