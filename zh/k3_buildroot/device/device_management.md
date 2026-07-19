@@ -19,6 +19,9 @@ bsp-src/linux-6.18/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
 bsp-src/linux-6.18/arch/riscv/boot/dts/spacemit/Makefile
 buildroot-ext/configs/spacemit_k3_defconfig
 buildroot-ext/board/spacemit/k3/env_k3.txt
+bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/k3_rt240_<board>.dts
+bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/k3_rt241_<board>.dts
+esos_rt24.its
 ```
 
 **bsp-src/uboot-2022.10/arch/riscv/dts/`<board>`.dts**
@@ -52,6 +55,18 @@ buildroot的配置。
 **buildroot-ext/board/spacemit/k3/env_k3.txt**
 
 u-boot的env。
+
+**bsp/spacemit/platform/rt24/os0_rcpu/`<board>`/dts/k3_rt240_`<board>`.dts**
+
+ESOS Core0（os0）的设备树，运行于 K3 RCPU Core0。
+
+**bsp/spacemit/platform/rt24/os1_rcpu/`<board>`/dts/k3_rt241_`<board>`.dts**
+
+ESOS Core1（os1）的设备树，运行于 K3 RCPU Core1。
+
+**esos_rt24.its**
+
+ESOS FIT Image 的配置文件，包含各板子的 RCPU DTB image 节点和 configuration 节点。
 
 ## 添加新设备
 
@@ -157,11 +172,79 @@ bringup后，功能验证完，推荐在SDK添加一个新设备，假设为`k3_
     BR2_PACKAGE_ALSA_UTILS=y
    ```
 
-8. 修改完，重新编译u-boot、内核和SDK即可。
+8. 如果使用 ESOS（运行在 K3 RCPU 上的实时系统），还需要添加 ESOS 的 DTS 配置。ESOS 采用双核（Core0/Core1）架构，每个核有独立的 DTS 文件，相关文件为：
+
+   ```shell
+   bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/Makefile
+   bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/k3_rt240_<board>.dts
+   bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/Makefile
+   bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/k3_rt241_<board>.dts
+   esos_rt24.its
+   ```
+
+   以已有板子（如 `pico-itx`）为模板，创建 os0（Core0）的 DTS 目录和文件：
+
+   ```shell
+   cp -r bsp/spacemit/platform/rt24/os0_rcpu/pico-itx bsp/spacemit/platform/rt24/os0_rcpu/k3_newdev
+   ```
+
+   将 DTS 文件重命名为 `k3_rt240_k3_newdev.dts`，根据硬件差异调整 CPU 频率、GPIO、mailbox、电源管理（regulators）等节点。
+
+   同理创建 os1（Core1）的 DTS 目录和文件：
+
+   ```shell
+   cp -r bsp/spacemit/platform/rt24/os1_rcpu/pico-itx bsp/spacemit/platform/rt24/os1_rcpu/k3_newdev
+   ```
+
+   将 DTS 文件重命名为 `k3_rt241_k3_newdev.dts`，根据硬件差异调整 UART、SPI、ETH 等外设节点。两个目录下的 Makefile 格式固定，会自动编译目录内所有 `.dts`，无需修改。
+
+   修改 `esos_rt24.its`，在 `images` 节点中添加两个 DTB image 节点，在 `configurations` 节点中添加对应的配置节点：
+
+   ```diff
+   @@ images @@
+   +       rcpu0-dtb-k3_newdev {
+   +               description = "ESOS Core0 k3_newdev dtb";
+   +               type = "standalone";
+   +               os = "esos";
+   +               arch = "riscv";
+   +               compression = "lzo";
+   +               load = <0x1 0xf01000>;
+   +               entry = <0x1 0xf01000>;
+   +               data = /incbin/("../output/esos/k3_rt240_k3_newdev.dtb.lzo");
+   +               hash {
+   +                       algo = "crc32";
+   +               };
+   +       };
+   +
+   +       rcpu1-dtb-k3_newdev {
+   +               description = "ESOS Core1 k3_newdev dtb";
+   +               type = "standalone";
+   +               os = "esos";
+   +               arch = "riscv";
+   +               compression = "lzo";
+   +               load = <0x1 0xF0D800>;
+   +               entry = <0x1 0xF0D800>;
+   +               data = /incbin/("../output/esos/k3_rt241_k3_newdev.dtb.lzo");
+   +               hash {
+   +                       algo = "crc32";
+   +               };
+   +       };
+
+   @@ configurations @@
+   +       conf_dual_N {
+   +               description = "k3_newdev";
+   +               loadables = "rcpu-data-null", "rcpu0-dtb-k3_newdev", "rcpu1-dtb-k3_newdev", "rcpu0-fw", "rcpu1-fw";
+   +       };
+   ```
+
+   > `conf_dual_N` 中的 N 取当前已有配置的最大序号加 1。`load`/`entry` 地址与其他板子保持一致，无需修改。
+
+9. 修改完，重新编译u-boot、内核、ESOS和SDK即可。
 
    ```shell
    make uboot-rebuild
    make linux-rebuild
+   make esos-rebuild
    make
    ```
 
@@ -262,6 +345,8 @@ bsp-src/uboot-2022.10/arch/riscv/dts/<device>.dts
    ```
 
    `Programming passed.`表示写入成功。
+
+   > **重要提示**：修改 Product Name 时，必须确保 DTS 文件中的 `model` 字段与之匹配。参考"DTS model 命名规则"章节。
 
 
 4. 烧写`Base MAC Address`，例如`FE:FE:FE:21:47:AC`。
