@@ -893,7 +893,7 @@ The **SPL-DTS configuration** is as follows:
 
 The NAND flash driver needs to be adapted to the corresponding model of the SPI flash used on the hardware. The currently supported NAND flash drivers are listed below. If there is no corresponding driver, you can add the manufacturer's JEDEC ID (Joint Electron Devices Engineering Council ID) in the other.c driver.
 
-3. Add or Modify NAND Flash Drivers
+1. Add or Modify NAND Flash Drivers
 
    - Ensure your build includes the correct SPI NAND driver matching your actual flash chip. Currently supported vendors include:
 
@@ -986,7 +986,7 @@ In below example, `root=/dev/mmcblk2p6` indicates the partition for the rootfs.
 bootargs=earlycon=sbi earlyprintk console=tty1 console=ttyS0,115200 loglevel=8 clk_ignore_unused swiotlb=65536 rdinit=/init root=/dev/mmcblk2p6 rootwait rootfstype=ext4
 ```
 
-2. **NOR + Block Device Boot** (e.g., NOR + SSD)
+1. **NOR + Block Device Boot** (e.g., NOR + SSD)
 
 ```sh
 //uboot-2022.10/board/spacemit/k1-x/k1-x.env
@@ -1003,7 +1003,7 @@ nor_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
          bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
 ```
 
-3. **NAND Boot**
+1. **NAND Boot**
 
 ```sh
 //uboot-2022.10/board/spacemit/k1-x/k1-x.env
@@ -1126,7 +1126,7 @@ openssl rsa -in pub-rsa.key -pubin -noout -text
 };
 ```
 
-2. Using a private key and certificate, sign the FIT image file.
+1. Using a private key and certificate, sign the FIT image file.
 
 ```sh
 # build empty dtb file, for next stage public key file output
@@ -1142,7 +1142,7 @@ mkimage -f uboot_fdt_sign.its -K pubkey.dtb -k key -r u-boot.itb
 fdtdump -s pubkey.dtb
 ```
 
-3. Update the public key information to the parent bootloader code.
+1. Update the public key information to the parent bootloader code.
 For example, update the public key information corresponding to the private key used for U-Boot signing to the FSBL DTS.
 
 ```sh
@@ -1482,7 +1482,7 @@ sdhci2: sdh@d4281000 {
 };
 ```
 
-3. **Debug and Validation**
+1. **Debug and Validation**
    U-Boot provides a command-line interface for MMC driver debugging.
    Make sure the `CONFIG_CMD_MMC` option is enabled in the build.
 
@@ -1507,7 +1507,7 @@ MMC write: dev # 2, block # 0, count 4096 ... 4096 blocks written: OK
 #For other usage options, refer to mmc -h
 ```
 
-4. **Common Interfaces**
+1. **Common Interfaces**
    For further implementation details, refer to `cmd/mmc.c`.
 
 ### NVMe Driver Configuration and Debugging
@@ -1597,7 +1597,7 @@ This section explains how to configure and debug the NVMe driver. The NVMe drive
  };
 ```
 
-3. **Debugging and Verification**
+1. **Debugging and Verification**
    Enable configuration `CONFIG_CMD_NVME`, follow below steps for debugging:
 
 ```shell
@@ -1635,7 +1635,7 @@ Blk device 0: Metadata capabilities:
 => nvme read/write addr blk_off blk_cnt
 ```
 
-4. **Common Interfaces**
+1. **Common Interfaces**
    For further implementation details, refer to `cmd/nvme.c`.
 
 ### Network Configuration (Net)
@@ -1707,7 +1707,7 @@ Blk device 0: Metadata capabilities:
  };
 ```
 
-3. **Debugging and Verification**
+1. **Debugging and Verification**
 
 Make sure the build configuration includes `CONFIG_CMD_NET`, and that the board is connected to an Ethernet cable with a running TFTP server (not covered here).
 
@@ -1744,7 +1744,7 @@ Bytes transferred = 66900963 (3fcd3e3 hex)
 =>bootm 0x40000000 
 ```
 
-4. **Common Interfaces**
+1. **Common Interfaces**
    For further implementation details, refer to `cmd/net.c`.
 
 ### SPI Configuration and Debugging
@@ -1818,7 +1818,7 @@ SPI (Serial Peripheral Interface) is a widely used serial communication protocol
 };
 ```
 
-3. **Debugging and Verification**
+1. **Debugging and Verification**
 
    Make sure `CONFIG_CMD_SPI` is enabled to access the `sspi` command in the U-Boot shell.
 
@@ -1838,7 +1838,7 @@ sspi -h
 
 ```
 
-4. **Common Interfaces**
+1. **Common Interfaces**
    For further implementation details, refer to `cmd/spi.c`.
 
 ### NAND Configuration and Debugging
@@ -1897,7 +1897,7 @@ To add a new flash to the `Gigadevice` chip, follow these steps:
 
 **Note**: For other NAND vendors, refer to the structure and methods used in the Gigadevice driver.
 
-2. **DTS Configuration**
+1. **DTS Configuration**
 
 Since SPI NAND is a child device under the SPI controller, the node must be defined under the SPI node.
 
@@ -1921,7 +1921,7 @@ Since SPI NAND is a child device under the SPI controller, the node must be defi
  };
 ```
 
-3. **Debugging and Verification**
+1. **Debugging and Verification**
 
 Enable `CONFIG_CMD_MTD` in U-Boot to use the `mtd` command for interacting with NAND devices.
 
@@ -1980,7 +1980,7 @@ List of MTD devices:
 => mtd read/write partname addr off size
 ```
 
-4. **Common Interfaces**
+1. **Common Interfaces**
    For further implementation details, refer to `cmd/mtd.c`.
 
 ### NOR Configuration and Debugging
@@ -2038,7 +2038,7 @@ The NOR driver is based on SPI, so it's necessary to first enable the SPI driver
  };
 ```
 
-3. **Debugging and Verification**
+1. **Debugging and Verification**
    Ensure the following configs are enabled:
 
    - `CONFIG_CMD_MTD=y`
@@ -2131,7 +2131,7 @@ SF: 16 bytes @ 0x0 Read: OK
 =>
 ```
 
-4. Common Interfaces
+1. Common Interfaces
 
 ```c
 include <spi.h>
@@ -2238,7 +2238,7 @@ This section explains how to configure and display a boot logo during the U-Boot
 - `splashpos`: Image position on the screen. `"m,m"` means centered both horizontally and vertically.
 - `splashfile`: Filename of the BMP image to be displayed. This image must be placed in the same partition as `bootfs`.
 
-3. **Packaging the BMP Image into BootFS**
+1. **Packaging the BMP Image into BootFS**
    To ensure the BMP logo is included in BootFS:
 
    - **Prepare the BMP Image**
@@ -2273,7 +2273,7 @@ UBOOT_LOGO_FILE="$DEVICE_DIR/bianbu.bmp"
 
 ```
 
-4. **Updating the Boot Logo**
+1. **Updating the Boot Logo**
    To update the boot logo, simply replace the existing `bianbu.bmp` file located in the following directory:
 
    ```
@@ -2337,7 +2337,7 @@ bootmenu_8="recovery from mmc"=run spacemit_flashing_mmc
 bootmenu_9="recovery from net"=run spacemit_flashing_net
 ```
 
-3. **Accessing the Boot Menu**
+1. **Accessing the Boot Menu**
    After powering on the board, press and hold the `Esc` key to enter the Boot Menu interface.
 
 ### Fastboot Command Configuration and Usage
@@ -2345,6 +2345,7 @@ bootmenu_9="recovery from net"=run spacemit_flashing_net
 This section introduces the Fastboot command support for the **K1-DEB1** solution.
 
 #### Configuration
+
 To enable Fastboot support, follow these steps:
 
 - **Launch the configuration menu**
@@ -2473,7 +2474,7 @@ fdt       - flattened device tree utility commands
 help      - print command description/usage
 ```
 
-2. `fdt`
+1. `fdt`
 
 The `fdt` command is primarily used to print the contents of DTS (Device Tree Source), such as the DTB (Device Tree Blob) file loaded after U-Boot starts.
 
@@ -2534,7 +2535,7 @@ chosen {
 =>
 ```
 
-3. shell command
+1. shell command
 
 U-Boot supports shell-style commands such as `if/fi,` `echo`, etc.
 
@@ -2590,6 +2591,394 @@ make PLATFORM=generic PLATFORM_DEFCONFIG=k1-x_deb1_defconfig menuconfig
 ```
 
 ![a](static/JdMVb4GyioYNhMxUOhHc8R3enEd.png)
+
+## OTA Upgrade
+
+### Scope and Implementation Notes
+
+This section describes how to add OTA functionality to the **k1-bl-v2.2.10-release** baseline. The patch applies only to the current k1-bl-v2.2.10-release baseline. Applying it to earlier versions may result in patch conflicts that require manual resolution.
+
+The patch supports eMMC and SPI NAND. It adds the `recovery`, `misc`, `userdata`, and backup U-Boot `uboot_b` partitions; an independent recovery system; and the `recovery-updater`, `misc-state`, `ota-start`, and `reboot-to-recovery` tools. U-Boot uses the OTA state stored in `misc` to determine whether to enter recovery. The updated system restores the normal state after passing a health check.
+
+> **Note:** Initial OTA enablement changes the partition layout and U-Boot boot logic. An OTA package cannot be used to migrate directly from an unadapted earlier firmware. First flash the complete standard flashing package built as described in this section. Full flashing repartitions the device; back up device data beforehand. OTA updates of the `FSBL`, `opensbi`, and `recovery` partitions are not recommended. If power is lost during an update, the next reboot continues in upgrade mode.
+
+The patch package contains:
+
+| Target Repository/Directory | Patch/Source | Purpose |
+| --- | --- | --- |
+| buildroot-ext | 0001-feat-Add-recovery-system-with-dedicated-partition.patch | Adds recovery system and eMMC OTA partitions |
+| buildroot-ext | 0002-add-recovery-updater-and-misc-state-to-system.patch | Integrates upgrade tools, state utilities, and OTA scripts |
+| buildroot-ext | 0003-add-state-change-deel.patch | Completes upgrade state transitions |
+| buildroot-ext | 0004-add-misc-state-recovery-updater-compile.patch | Enables OTA tools in the K1 v2 default config |
+| buildroot-ext | 0005-create-ota.zip.patch | Generates the eMMC OTA package |
+| buildroot-ext | 0006-mmc-support-buot_b-flash.patch | Adds eMMC uboot_b partition and upgrade flow |
+| buildroot-ext | 0007-support-nand-flash-and-boot.patch | Improves SPI NAND flashing and boot |
+| buildroot-ext | 0008-support-nand-ota.patch | Adds SPI NAND recovery, partitions, and OTA package |
+| bsp/uboot-2022.10 | 0001-uboot-support-recovery-start.patch | Boots into recovery based on misc state |
+| bsp/uboot-2022.10 | 0002-mmc-support-uboot_b-partition-boot.patch | Supports booting from the eMMC backup U-Boot partition |
+| bsp/uboot-2022.10 | 0003-support-nand-flash-and-boot.patch | Improves SPI NAND flashing, detection, and boot |
+| bsp/uboot-2022.10 | 0004-support-nand-ota.patch | Supports SPI NAND OTA and recovery boot |
+| bsp/linux-6.6 | 0001-support-gd-nand.patch | Adds GigaDevice SPI NAND models |
+| package-src | misc-state, recovery-updater | OTA state management and recovery updater source code |
+
+### Preparing the OTA Patch
+
+The OTA patch package is available from the SpacemiT download server. Run the following commands from the parent directory of the SDK:
+
+~~~shell
+cd /path/to/workdir
+wget https://archive.spacemit.com/solutions/buildroot_ota/ota_support_adapt_k1-bl-v2.2.10-release.zip
+unzip ota_support_adapt_k1-bl-v2.2.10-release.zip
+~~~
+
+The commands create the `ota_support_adapt_k1-bl-v2.2.10-release` directory.
+
+The following procedure assumes that the SDK and patch directories are at the same level:
+
+~~~text
+workdir/
+├── k1-bl-v2.2.10-release/
+└── ota_support_adapt_k1-bl-v2.2.10-release/
+~~~
+
+Enter the SDK root directory downloaded from k1-bl-v2.2.10-release. Confirm that the SDK builds successfully and contains no local changes. To avoid conflicts, apply the patches to the following commit baselines:
+
+~~~shell
+cd /path/to/k1-bl-v2.2.10-release
+
+cd buildroot-ext
+git log -1
+commit aec6a45b44904033159b6143e4f05371b3a50470 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 64d5d53 063e2bc
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:42:33 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: Ia51431ef09484d6d308ed79b8b3a2a7294bfb78d
+
+cd ../bsp-src/uboot-2022.10/
+  git log -1
+commit 46a4f510352684407c074b7c0e9114b5443dcc59 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: d61c8c77e2 dcdcab9e95
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:38:21 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: Icd5172b4b621e491617f54fbcf9a0f8dd8276774
+
+cd ../linux-6.6/
+  git log -1
+commit 21f2edd50954020f22954d3be8b9202120ae1ae4 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 0c505572f3e0 e01ff0f2bc31
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:36:37 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: I5270c04112dd12ffa96f60880c02d32058da572e
+
+~~~
+
+If any affected repository contains local changes, stash them with `git stash`. Then record the absolute path to the patch directory and copy the two source packages:
+
+~~~shell
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/misc-state/ package-src/
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/recovery-updater/ package-src/
+~~~
+
+### Applying Patches
+
+Apply the three patch series in the numeric order specified by their filename prefixes. The following wildcard expansions preserve that order:
+
+~~~shell
+# From the SDK root directory
+cd buildroot-ext/
+git am ../ota_support_adapt_k1-bl-v2.2.10-release/buildroot-ext/*.patch
+
+# Apply patches 0001–0004 (4 U-Boot patches in total)
+cd ../bsp-src/uboot-2022.10/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/uboot-2022.10/*.patch
+
+# Apply 1 Linux 6.6 patch
+cd ../linux-6.6/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/linux-6.6/*.patch
+~~~
+
+The patch application should complete without errors. If a conflict occurs, check for local changes and verify that the repository commits match the v2.2.10 baseline.
+
+### Recompiling
+
+The patches modify the eMMC and SPI NAND defconfigs. Before the first OTA firmware build, `make envconfig` **must** be run again; an incremental build alone is insufficient.
+
+```shell
+make envconfig  # Select the required target solution/version
+make uboot-rebuild && make linux-rebuild && make
+```
+
+### First Deployment of OTA Firmware
+
+Initial deployment **must** use the full flashing package appropriate for the storage medium and capacity. Flash the device completely by following the procedure described earlier in this document:
+
+- eMMC: use `Buildroot-k1_v2.zip`
+- 512 MiB SPI NAND: use `Buildroot-k1_v2_nand-512M.zip`. A 256 MiB NAND device does not have sufficient capacity for the default partition layout. Supporting a smaller NAND device requires manually reducing the partition layout.
+
+A complete flash creates the OTA partitions and writes the new SPL/U-Boot, recovery, and system images. Flashing only `bootfs` or `rootfs` is **not** sufficient because the U-Boot boot logic would not match the actual partition table.
+
+After the first boot, verify the OTA tools and initial state:
+
+~~~shell
+command -v ota-start
+command -v recovery-updater
+command -v misc-state
+misc-state get-state
+~~~
+
+The initial output of `misc-state get-state` must be `NORMAL`.
+
+### Performing eMMC OTA Upgrade
+
+Copy the new `Buildroot-k1_v2-ota.zip` package to the device's `/userdata/` directory. To upgrade the default partitions, run:
+
+~~~shell
+# Transfer the OTA package to the board as required.
+ota-start /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+By default, eMMC OTA upgrades `uboot`, `uboot_b`, `bootfs`, and `rootfs`. The partitions for an individual upgrade can also be specified:
+
+~~~shell
+# Upgrade system partitions only
+ota-start -p bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+
+# Upgrade U-Boot and system partitions
+ota-start -p uboot,uboot_b,bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+`ota-start` saves the package as `/userdata/update.zip`, writes the partition list and the `UPDATING` state to `misc`, and reboots automatically. After U-Boot enters recovery, `recovery-updater` writes the images and performs readback verification, then changes the state to `UPDATED_PENDING_BOOT`. After the new system passes its health check, the state returns to `NORMAL` and `/userdata/update.zip` is deleted.
+
+If power is lost during the upgrade, the next boot re-enters upgrade mode according to the `misc` state. The upgrade is not retried after more than three failed attempts.
+
+### Performing SPI NAND OTA Upgrade
+
+Select the OTA package that matches the actual SPI NAND capacity. The 256 MiB and 512 MiB packages are **not** interchangeable. By default, NAND OTA upgrades `uboot`, `uboot_b`, and `bootfs`. Updating `rootfs` is not recommended because the `userdata` partition must reserve space for the OTA package.
+
+~~~shell
+# 256 MiB SPI NAND
+ota-start /userdata/Buildroot-k1_v2_nand-256M-ota.zip
+
+# 512 MiB SPI NAND
+ota-start /userdata/Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+An individual upgrade can also be limited to a subset of the allowed partitions:
+
+~~~shell
+ota-start -p bootfs /path/to/Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+SPI NAND OTA permits updates only to `uboot`, `uboot_b`, and `bootfs`. The `rootfs`, `recovery`, `misc`, and `env` partitions are not included in the NAND OTA allowlist; `ota-start` rejects requests to update them. To update `recovery` or `rootfs`, or to change the NAND partition layout, reflash the device using a full flashing package.
+
+NAND recovery selects `partition_256M.json` or `partition_512M.json` according to capacity and uses `flash_erase`, `nandwrite`, or `ubiformat` to write the corresponding MTD partition. Readback verification is enabled by default.
+
+### OTA FAQ
+
+#### NAND 256 MiB Capacity Support
+
+To support a 256 MiB NAND device, use the following configuration. Each partition must accommodate its corresponding image. Adapt the values as required for other capacities.
+
+- **Enable 256 MiB image generation**
+
+  In `prepare_img.sh`, configure:
+
+  ```
+  NAND_VARIANTS=(
+      "256M:partition_256M.json:2048:126976:128KiB:300:256:256"
+  )
+  ```
+
+  The parameters are defined as follows:
+
+  ```
+  min_io            2048
+  LEB               126976
+  PEB               128KiB
+  bootfs max LEB    300
+  recovery max LEB  256
+  userdata max LEB  256
+  ```
+
+  If only 256 MiB is supported, remove the 512 MiB entry. Retain both entries to generate both packages.
+
+- **Modify U-Boot default partition table**
+
+  Set `uboot_defconfig` to:
+
+  ```
+  spi4.0:
+  256K@512K(env),
+  256K@768K(opensbi),
+  2M@1M(uboot),
+  2M@3M(uboot_b),
+  24M@5M(recovery),
+  1M@29M(misc),
+  24M@30M(bootfs),
+  32M@54M(userdata),
+  -@86M(rootfs)
+  ```
+
+  The combined configuration is:
+
+  ```
+  CONFIG_MTDPARTS_DEFAULT="spi4.0:256K@512K(env),256K@768K(opensbi),2M@1M(uboot),2M@3M(uboot_b),24M@5M(recovery),1M@29M(misc),24M@30M(bootfs),32M@54M(userdata),-@86M(rootfs)"
+  ```
+
+- **Modify U-Boot DTS**
+
+  ```
+  partition@3600000 {
+      label = "userdata";
+      reg = <0x03600000 0x02000000>;
+  };
+
+  partition@5600000 {
+      label = "rootfs";
+      reg = <0x05600000 0x00000000>;
+  };
+  ```
+
+- **Modify the 256 MiB flashing JSON**
+
+  ```
+  partition_256M.json:
+
+  {
+    "name": "userdata",
+    "offset": "54M",
+    "size": "32M",
+    "image": "userdata.ubi"
+  },
+  {
+    "name": "rootfs",
+    "offset": "86M",
+    "size": "170M",
+    "image": "rootfs.ubi"
+  }
+  ```
+
+- **Modify the default output symlink**
+
+  The script currently links the 512 MiB package by default:
+
+  ```
+  ln -sf "${TARGET_IMAGE_BASE}-512M.zip" "$latest_path"
+  ```
+
+  For 256 MiB-only support, change it to:
+
+  ```
+  ln -sf "${TARGET_IMAGE_BASE}-256M.zip" "$latest_path"
+  ```
+
+- **Preserve userdata auto-expansion**
+
+  Retain the following setting. For 256 MiB, the maximum `userdata` UBIFS LEB count must be `256`; do not reuse the previous value of `160` or the 512 MiB value of `80`.
+
+  ```
+  vol_flags=autoresize
+  ```
+
+#### Custom Partition Upgrade Protection
+
+By default, partitions such as `fsbl` and `recovery` are protected from OTA updates to prevent a power interruption during an update from leaving the device unbootable.
+
+To customize the protected partitions, first assess the risk associated with a power interruption during the update:
+
+- **OTA allowed update list**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/target_overlay/usr/sbin/ota-start`, line 5:
+
+  ```
+  PARTITIONS=uboot,uboot_b,bootfs
+  ```
+
+  Also modify the parameter validation:
+
+  ```
+  case "$part" in
+      uboot|uboot_b|bootfs)
+  ```
+
+  Removing a partition from this list prevents the normal system from updating it through `ota-start`.
+
+- **Recovery default update list**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/dracut-modules/99recovery/recovery-init`, line 119:
+
+  ```
+  partitions="uboot,uboot_b,bootfs"
+  # Must remain consistent with the ota-start default list.
+  ```
+
+- **recovery-updater partition policy**
+
+  Edit `bianbu-linux-pub/package-src/recovery-updater/src/main.c`, line 22:
+
+  ```c
+  static const char *dangerous_partitions[] = {
+      "bootinfo", "fsbl", "env", "opensbi",
+      "uboot", "uboot_b", "userdata", "misc", NULL
+  };
+
+  static const char *nand_default_partitions[] = {
+      "uboot", "uboot_b", "bootfs", NULL
+  };
+  ```
+
+  Notes:
+  - `nand_default_partitions` specifies the default partitions permitted for NAND OTA updates.
+  - `dangerous_partitions` requires an explicit `--partitions` argument; it does not prohibit the update.
+  - For absolute protection, add a `protected_partitions[]` array that rejects updates even when `-p` is explicitly specified.
+
+- **OTA package contents**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/prepare_img.sh`, line 265:
+
+  ```
+  zip "$target_ota_zip" \
+      u-boot.itb \
+      bootfs.ubi \
+      partition_512M.json
+  ```
+
+  Do not include images for protected partitions in the OTA package. Add images for any newly permitted partitions.
+
+#### State and Recovery
+
+Use the following commands to view the OTA state:
+
+~~~shell
+misc-state get-state
+misc-state get-bootcount
+misc-state get-partitions
+~~~
+
+| State | Meaning |
+| --- | --- |
+| NORMAL | Normal boot, no pending OTA |
+| UPDATING | The upgrade package is ready; the next boot enters recovery to perform the update |
+| UPDATED_PENDING_BOOT | The partition write succeeded; the new system is awaiting boot and health-check completion |
+| RECOVERY_REQUIRED | Recovery is required, or the update failed and is awaiting recovery processing |
+
+To enter recovery manually for investigation, run:
+
+~~~shell
+reboot-to-recovery
+# After entering recovery, run misc-state clear-all to clear the flags.
+~~~
+
+This command sets `RECOVERY_REQUIRED`, clears the boot counter, and reboots. Do not modify the OTA state manually during normal operation. U-Boot and the system health check handle boot retries and state recovery. If repeated boot failures persist, inspect the U-Boot and recovery logs through the serial port, then restore the device using the appropriate full flashing package.
 
 ## FAQ
 
