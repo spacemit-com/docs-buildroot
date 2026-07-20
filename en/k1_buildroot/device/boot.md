@@ -893,7 +893,7 @@ The **SPL-DTS configuration** is as follows:
 
 The NAND flash driver needs to be adapted to the corresponding model of the SPI flash used on the hardware. The currently supported NAND flash drivers are listed below. If there is no corresponding driver, you can add the manufacturer's JEDEC ID (Joint Electron Devices Engineering Council ID) in the other.c driver.
 
-1. Add or Modify NAND Flash Drivers
+3. Add or Modify NAND Flash Drivers
 
    - Ensure your build includes the correct SPI NAND driver matching your actual flash chip. Currently supported vendors include:
 
@@ -986,7 +986,7 @@ In below example, `root=/dev/mmcblk2p6` indicates the partition for the rootfs.
 bootargs=earlycon=sbi earlyprintk console=tty1 console=ttyS0,115200 loglevel=8 clk_ignore_unused swiotlb=65536 rdinit=/init root=/dev/mmcblk2p6 rootwait rootfstype=ext4
 ```
 
-1. **NOR + Block Device Boot** (e.g., NOR + SSD)
+2. **NOR + Block Device Boot** (e.g., NOR + SSD)
 
 ```sh
 //uboot-2022.10/board/spacemit/k1-x/k1-x.env
@@ -1003,7 +1003,7 @@ nor_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
          bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
 ```
 
-1. **NAND Boot**
+3. **NAND Boot**
 
 ```sh
 //uboot-2022.10/board/spacemit/k1-x/k1-x.env
@@ -1126,7 +1126,7 @@ openssl rsa -in pub-rsa.key -pubin -noout -text
 };
 ```
 
-1. Using a private key and certificate, sign the FIT image file.
+2. Using a private key and certificate, sign the FIT image file.
 
 ```sh
 # build empty dtb file, for next stage public key file output
@@ -1142,7 +1142,7 @@ mkimage -f uboot_fdt_sign.its -K pubkey.dtb -k key -r u-boot.itb
 fdtdump -s pubkey.dtb
 ```
 
-1. Update the public key information to the parent bootloader code.
+3. Update the public key information to the parent bootloader code.
 For example, update the public key information corresponding to the private key used for U-Boot signing to the FSBL DTS.
 
 ```sh
@@ -1482,7 +1482,7 @@ sdhci2: sdh@d4281000 {
 };
 ```
 
-1. **Debug and Validation**
+3. **Debug and Validation**
    U-Boot provides a command-line interface for MMC driver debugging.
    Make sure the `CONFIG_CMD_MMC` option is enabled in the build.
 
@@ -1507,7 +1507,7 @@ MMC write: dev # 2, block # 0, count 4096 ... 4096 blocks written: OK
 #For other usage options, refer to mmc -h
 ```
 
-1. **Common Interfaces**
+4. **Common Interfaces**
    For further implementation details, refer to `cmd/mmc.c`.
 
 ### NVMe Driver Configuration and Debugging
@@ -1597,7 +1597,7 @@ This section explains how to configure and debug the NVMe driver. The NVMe drive
  };
 ```
 
-1. **Debugging and Verification**
+3. **Debugging and Verification**
    Enable configuration `CONFIG_CMD_NVME`, follow below steps for debugging:
 
 ```shell
@@ -1635,7 +1635,7 @@ Blk device 0: Metadata capabilities:
 => nvme read/write addr blk_off blk_cnt
 ```
 
-1. **Common Interfaces**
+4. **Common Interfaces**
    For further implementation details, refer to `cmd/nvme.c`.
 
 ### Network Configuration (Net)
@@ -1707,7 +1707,7 @@ Blk device 0: Metadata capabilities:
  };
 ```
 
-1. **Debugging and Verification**
+3. **Debugging and Verification**
 
 Make sure the build configuration includes `CONFIG_CMD_NET`, and that the board is connected to an Ethernet cable with a running TFTP server (not covered here).
 
@@ -1744,7 +1744,7 @@ Bytes transferred = 66900963 (3fcd3e3 hex)
 =>bootm 0x40000000 
 ```
 
-1. **Common Interfaces**
+4. **Common Interfaces**
    For further implementation details, refer to `cmd/net.c`.
 
 ### SPI Configuration and Debugging
@@ -1818,7 +1818,7 @@ SPI (Serial Peripheral Interface) is a widely used serial communication protocol
 };
 ```
 
-1. **Debugging and Verification**
+3. **Debugging and Verification**
 
    Make sure `CONFIG_CMD_SPI` is enabled to access the `sspi` command in the U-Boot shell.
 
@@ -1838,7 +1838,7 @@ sspi -h
 
 ```
 
-1. **Common Interfaces**
+4. **Common Interfaces**
    For further implementation details, refer to `cmd/spi.c`.
 
 ### NAND Configuration and Debugging
@@ -1897,7 +1897,7 @@ To add a new flash to the `Gigadevice` chip, follow these steps:
 
 **Note**: For other NAND vendors, refer to the structure and methods used in the Gigadevice driver.
 
-1. **DTS Configuration**
+2. **DTS Configuration**
 
 Since SPI NAND is a child device under the SPI controller, the node must be defined under the SPI node.
 
@@ -1921,7 +1921,7 @@ Since SPI NAND is a child device under the SPI controller, the node must be defi
  };
 ```
 
-1. **Debugging and Verification**
+3. **Debugging and Verification**
 
 Enable `CONFIG_CMD_MTD` in U-Boot to use the `mtd` command for interacting with NAND devices.
 
@@ -1980,7 +1980,7 @@ List of MTD devices:
 => mtd read/write partname addr off size
 ```
 
-1. **Common Interfaces**
+4. **Common Interfaces**
    For further implementation details, refer to `cmd/mtd.c`.
 
 ### NOR Configuration and Debugging
@@ -2038,7 +2038,7 @@ The NOR driver is based on SPI, so it's necessary to first enable the SPI driver
  };
 ```
 
-1. **Debugging and Verification**
+3. **Debugging and Verification**
    Ensure the following configs are enabled:
 
    - `CONFIG_CMD_MTD=y`
@@ -2131,7 +2131,7 @@ SF: 16 bytes @ 0x0 Read: OK
 =>
 ```
 
-1. Common Interfaces
+4. Common Interfaces
 
 ```c
 include <spi.h>
@@ -2238,7 +2238,7 @@ This section explains how to configure and display a boot logo during the U-Boot
 - `splashpos`: Image position on the screen. `"m,m"` means centered both horizontally and vertically.
 - `splashfile`: Filename of the BMP image to be displayed. This image must be placed in the same partition as `bootfs`.
 
-1. **Packaging the BMP Image into BootFS**
+3. **Packaging the BMP Image into BootFS**
    To ensure the BMP logo is included in BootFS:
 
    - **Prepare the BMP Image**
@@ -2273,7 +2273,7 @@ UBOOT_LOGO_FILE="$DEVICE_DIR/bianbu.bmp"
 
 ```
 
-1. **Updating the Boot Logo**
+4. **Updating the Boot Logo**
    To update the boot logo, simply replace the existing `bianbu.bmp` file located in the following directory:
 
    ```
@@ -2337,7 +2337,7 @@ bootmenu_8="recovery from mmc"=run spacemit_flashing_mmc
 bootmenu_9="recovery from net"=run spacemit_flashing_net
 ```
 
-1. **Accessing the Boot Menu**
+3. **Accessing the Boot Menu**
    After powering on the board, press and hold the `Esc` key to enter the Boot Menu interface.
 
 ### Fastboot Command Configuration and Usage
@@ -2474,7 +2474,7 @@ fdt       - flattened device tree utility commands
 help      - print command description/usage
 ```
 
-1. `fdt`
+2. `fdt`
 
 The `fdt` command is primarily used to print the contents of DTS (Device Tree Source), such as the DTB (Device Tree Blob) file loaded after U-Boot starts.
 
@@ -2535,7 +2535,7 @@ chosen {
 =>
 ```
 
-1. shell command
+3. shell command
 
 U-Boot supports shell-style commands such as `if/fi,` `echo`, etc.
 
@@ -2647,7 +2647,7 @@ Enter the SDK root directory downloaded from k1-bl-v2.2.10-release. Confirm that
 cd /path/to/k1-bl-v2.2.10-release
 
 cd buildroot-ext
-git log -1
+gitl
 commit aec6a45b44904033159b6143e4f05371b3a50470 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
 Merge: 64d5d53 063e2bc
 Author: liujing <jing.liu@spacemit.com>
@@ -2658,7 +2658,7 @@ Date:   Fri Jun 5 10:42:33 2026 +0800
     Change-Id: Ia51431ef09484d6d308ed79b8b3a2a7294bfb78d
 
 cd ../bsp-src/uboot-2022.10/
-  git log -1
+gitl
 commit 46a4f510352684407c074b7c0e9114b5443dcc59 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
 Merge: d61c8c77e2 dcdcab9e95
 Author: liujing <jing.liu@spacemit.com>
@@ -2669,7 +2669,7 @@ Date:   Fri Jun 5 10:38:21 2026 +0800
     Change-Id: Icd5172b4b621e491617f54fbcf9a0f8dd8276774
 
 cd ../linux-6.6/
-  git log -1
+gitl
 commit 21f2edd50954020f22954d3be8b9202120ae1ae4 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
 Merge: 0c505572f3e0 e01ff0f2bc31
 Author: liujing <jing.liu@spacemit.com>
