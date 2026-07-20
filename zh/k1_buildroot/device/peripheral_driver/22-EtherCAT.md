@@ -195,90 +195,107 @@ config EC_K1X_EMAC
 
 ### DTS 配置
 
-DTS 中可供配置的选项有：  
+DTS 中可配置的 EtherCAT 参数如下：
 
-1. `run-on-cpu`：可绑定的 CUP 选项有 1、2、3、4、5、6、7  
-2. `debug-level`：支持的 debug-level 有 0、1、2  
-3. `master-count`：最多支持 32 个主站
-4. `ec-devices`： 用于 ethercat 的网络设备
-5. `master-indexes`：ethercat 设备绑定的主站号，master-indexes 取值范围是 0 ~ master-count-1  
-6. `modes`：ethercat 设备工作模式，支持 `ec_main` 和 `ec_backup` 两种选项
+1. `run-on-cpu`：指定 EtherCAT 主站实时任务运行的 CPU 核心。
+2. `debug-level`：配置 EtherCAT 主站调试日志等级，支持 `0`、`1`、`2` 三个等级。
+3. `master-count`：指定 EtherCAT Master 实例数量，最大支持 32 个 Master。
+4. `ec-devices`：指定绑定到 EtherCAT Master 的网络设备列表。
+5. `master-indexes`：指定网络设备绑定的 Master 编号，取值范围为 `0 ~ master-count-1`，需与 `ec-devices` 保持对应。
+6. `modes`：指定网络设备在 EtherCAT Master 中的工作模式，支持 `ec_main` 和 `ec_backup` 两种模式，需与 `ec-devices` 保持对应。
 
-目前支持以下三种配置模式：  
-1. 配置两个主站，例如将 eth0 和 eth1 分别绑定主站 0 和主站 1
+
+默认配置位于：`linux-6.6/arch/riscv/boot/dts/spacemit/k1-x.dtsi`
 
 ```c
 ec_master: ethercat_master {
         compatible = "igh,k1x-ec-master";
-        run-on-cpu = <1>;         
+        run-on-cpu = <1>;
         debug-level = <0>;
-        master-count = <2>;   
-        ec-devices = <&eth0>,<&eth1>;
-        master-indexes = <0>,<1>;
-        modes = "ec_main";
+        master-count = <1>;
+        ec-devices = <&eth0>, <&eth1>;
+        master-indexes = <0>, <0>;
+        modes = "ec_main", "ec_backup";
+        status = "disabled";
+};
+```
+默认配置创建一个 EtherCAT Master，其中：
+- `eth0` 作为 EtherCAT 主通信设备。
+- `eth1` 作为 EtherCAT 备用通信设备。
+
+如需使用默认配置，需要在方案 DTS 中启用 EtherCAT Master，并配置对应 Ethernet 节点。
+以 DEB1 方案为例，修改文件：
+
+```
+linux-6.6/arch/riscv/boot/dts/spacemit/k1-x_deb1.dts
+```
+
+配置如下：
+
+```c
+&ec_master {
         status = "okay";
 };
 
-eth0: ethernet@cac80000 {
+&eth0 {
         compatible = "spacemit,k1x-ec-emac";
+        /* 其他配置保持不变 */
         ...
-
+        status = "okay";
 };
 
-eth1: ethernet@cac81000 {
+&eth1 {
         compatible = "spacemit,k1x-ec-emac";
+        /* 其他配置保持不变 */
         ...
-
+        status = "okay";
 };
 ```
 
-2. 配置一个主站、一张网卡用于 EtherCAT、一张网卡用于以太网，如 eth0 用于 EtherCAT
+如需自定义主站配置，在方案 DTS 中覆写 `ec_master` 配置即可。
+
+例1：配置一个 EtherCAT Master， `eth0` 用于 EtherCAT，`eth1` 用于普通以太网通信。
 
 ```c
-ec_master: ethercat_master {
-        compatible = "igh,k1x-ec-master";
-        run-on-cpu = <1>;         
-        debug-level = <0>;
-        master-count = <1>;   
+&ec_master {
+        master-count = <1>;
         ec-devices = <&eth0>;
         master-indexes = <0>;
         modes = "ec_main";
         status = "okay";
 };
 
-# 这里将eth0用于ethercat
-eth0: ethernet@cac80000 {
+&eth0 {
         compatible = "spacemit,k1x-ec-emac";
+        /* 其他配置保持不变 */
         ...
-
+        status = "okay";
 };
 ```
 
-3. 配置一个主站、绑定两张网卡。如 eth0 用于主设备、eth1 用作备份设备
+例2：配置两个 EtherCAT Master，将 `eth0` 和 `eth1` 分别绑定到 Master 0 和 Master 1。
 
 ```c
-ec_master: ethercat_master {
-        compatible = "igh,k1x-ec-master";
-        run-on-cpu = <1>;         
-        debug-level = <0>;
-        master-count = <1>;   
-        ec-devices = <&eth0>,<&eth1>;
-        master-indexes = <0>,<0>;
-        modes = "ec_main","ec_backup";
+&ec_master {
+        master-count = <2>;
+        ec-devices = <&eth0>, <&eth1>;
+        master-indexes = <0>, <1>;
+        modes = "ec_main","ec_main";
         status = "okay";
 };
 
-# 这里将eth0用于ethercat
-eth0: ethernet@cac80000 {
+&eth0 {
         compatible = "spacemit,k1x-ec-emac";
+        /* 其他配置保持不变 */
         ...
-
+        status = "okay";
 };
 
-eth1: ethernet@cac81000 {
+&eth1 {
         compatible = "spacemit,k1x-ec-emac";
+        /* 其他配置保持不变 */
         ...
-
+        status = "okay";
 };
 ```
 
