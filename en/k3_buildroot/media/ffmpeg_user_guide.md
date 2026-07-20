@@ -230,6 +230,34 @@ ffmpeg -f rawvideo -pix_fmt nv12 -s 1920x1080 -r 30 -i input.yuv -c:v hevc_stcod
 ffmpeg -f rawvideo -pix_fmt yuv420p -s 1280x720 -r 30 -i input.yuv -c:v mjpeg_stcodec output.mjpg
 ```
 
+### Hardware Codec Example Code
+
+In addition to the command-line approach, the platform hardware codecs can be
+called directly through FFmpeg's C API (`libavcodec`/`libavformat`). The example
+repository below provides hardware decoding and encoding demos for H.264,
+H.265/HEVC, and MJPEG, together with frame-rate results measured on the K1/K3
+platform:
+
+- Repository: [https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo](https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo)
+
+The repository contains:
+
+- `decode/`: a generic hardware decode demo that auto-selects the
+  `h264_stcodec` / `hevc_stcodec` / `mjpeg_stcodec` decoder based on the input
+  stream.
+- `encode/`: a generic hardware encode demo that encodes raw NV12 data to
+  H.264 / H.265 / MJPEG.
+- `benchmark.sh`: measures encode/decode frame rate using real 1080p streams.
+
+Clone and build:
+
+```shell
+git clone https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo.git
+cd spacemit-ffmpeg-demo
+sudo apt install libavcodec-dev libavformat-dev libavutil-dev
+make
+```
+
 ### Video Transcoding
 
 - HEVC to H.264
