@@ -312,6 +312,47 @@ uart1    Character Device     0
 2. 确认板级 DTS 中对应 UART 节点 `status = "okay"`
 3. 查看内核日志确认驱动初始化：`dmesg | grep uart`
 
+### 打开启动过程中的log
+
+1. 确认 `BSP_USING_UART` 已启用
+2. 把 os1 串口的 dts 配置复制到os0，并且关闭 os1 的 uart 配置
+举例 com260_ifx 配置修改
+```c
+diff --git a/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts b/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
+index c9f64a295..407810b9a 100644
+--- a/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
++++ b/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
+@@ -39,7 +39,14 @@
+ };
+ 
+ &uart0 {
+-       status = "disabled";
++       &uart0 {
++       pinctrl-names = "default";
++       pinctrl-0 = <&ruart0_3_cfg>;
++       status = "okay";
++       reg = <0xc0881000 0x100>;
++       interrupts = <0 17 0>;
++       clocks = <&ccu CLK_RCPU_UART0>, <&ccu CLK_RST_RCPU_UART0>;
++};
+ };
+ 
+ &mailbox3 {
+diff --git a/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts b/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
+index c46bcc811..fd3d386a2 100644
+--- a/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
++++ b/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
+@@ -34,7 +34,7 @@
+ &uart0 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&ruart0_3_cfg>;
+-       status = "okay";
++       status = "disabled";
+        reg = <0xc0881000 0x100>;
+        interrupts = <0 17 0>;
+        clocks = <&ccu CLK_RCPU_UART0>, <&ccu CLK_RST_RCPU_UART0>;
+```
+
 ### 接收乱码
 
 1. 确认收发两端波特率一致
