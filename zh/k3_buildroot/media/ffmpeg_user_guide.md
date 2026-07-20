@@ -232,9 +232,9 @@ ffmpeg -f rawvideo -pix_fmt yuv420p -s 1280x720 -r 30 -i input.yuv -c:v mjpeg_st
 
 ### 硬件编解码示例代码
 
-除命令行方式外，也可通过 FFmpeg 的 C API（`libavcodec`/`libavformat`）直接调用平台硬件编解码器。下面的示例仓库提供了 H.264、H.265/HEVC、MJPEG 的硬件解码与编码 demo，并附带在 K1/K3 平台上实测的帧率数据：
+除命令行方式外，也可通过 FFmpeg 的 C API（`libavcodec`/`libavformat`）直接调用平台硬件编解码器。下面的示例仓库提供了 H.264、H.265/HEVC、MJPEG 的硬件解码与编码 demo：
 
-- 仓库地址：[https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo](https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo)
+- 仓库地址：[https://github.com/spacemit-com/multimedia-demo/tree/main/ffmpeg-demo](https://github.com/spacemit-com/multimedia-demo/tree/main/ffmpeg-demo)
 
 仓库包含：
 
@@ -245,8 +245,8 @@ ffmpeg -f rawvideo -pix_fmt yuv420p -s 1280x720 -r 30 -i input.yuv -c:v mjpeg_st
 克隆并编译：
 
 ```shell
-git clone https://github.com/mingjie-wu-spacemit/spacemit-ffmpeg-demo.git
-cd spacemit-ffmpeg-demo
+git clone https://github.com/spacemit-com/multimedia-demo.git
+cd multimedia-demo/ffmpeg-demo
 sudo apt install libavcodec-dev libavformat-dev libavutil-dev
 make
 ```
