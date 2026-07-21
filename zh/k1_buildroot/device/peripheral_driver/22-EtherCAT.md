@@ -198,12 +198,11 @@ config EC_K1X_EMAC
 DTS 中可配置的 EtherCAT 参数如下：
 
 1. `run-on-cpu`：指定 EtherCAT 主站实时任务运行的 CPU 核心。
-2. `debug-level`：配置 EtherCAT 主站调试日志等级，支持 `0`、`1`、`2` 三个等级。
+2. `debug-level`：配置 EtherCAT 主站调试日志等级，支持 `0`、`1`、`2` 三个等级，等级越高输出的调试信息越详细，正常使用时建议设置为 `0`。
 3. `master-count`：指定 EtherCAT Master 实例数量，最大支持 32 个 Master。
 4. `ec-devices`：指定绑定到 EtherCAT Master 的网络设备列表。
 5. `master-indexes`：指定网络设备绑定的 Master 编号，取值范围为 `0 ~ master-count-1`，需与 `ec-devices` 保持对应。
-6. `modes`：指定网络设备在 EtherCAT Master 中的工作模式，支持 `ec_main` 和 `ec_backup` 两种模式，需与 `ec-devices` 保持对应。
-
+6. `modes`：指定网络设备的工作模式，需与 `ec-devices` 逐项对应。`ec_main` 为主通信接口，通常使用该模式；`ec_backup` 为冗余接口，用于主接口故障时维持通信。
 
 默认配置位于：`linux-6.6/arch/riscv/boot/dts/spacemit/k1-x.dtsi`
 
