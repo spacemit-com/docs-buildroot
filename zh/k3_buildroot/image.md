@@ -8,7 +8,7 @@ sidebar_position: 2
 
 ## 下载
 
-镜像地址：[Buildroot Image](https://archive.spacemit.com/image/k3/version/buildroot/)。
+镜像地址：[Buildroot Image](https://spacemit.com/community/resources-download/Images%20Collects/K3/Buildroot)。
 
 ## 刷机
 

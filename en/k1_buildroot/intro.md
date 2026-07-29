@@ -33,7 +33,7 @@ The following are the components of SDK:
 - v2d-test: 2D Unit test program
 - factorytest: factory test app
 
-More is comming.
+More is coming.
 
 ## Quick start guide
 

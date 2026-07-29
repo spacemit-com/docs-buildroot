@@ -1,12 +1,12 @@
 ---
-sidebar_position: 8
+sidebar_position: 7
 slug: /media
 ---
 
-# 多媒体
+# Multimedia
 
-多媒体相关开发指南:
+Multimedia Developer Guides:
 
-- [多媒体开发指南](mpp/index.md)
-- [FFmpeg 用户使用指南](ffmpeg_user_guide.md)
-- [Gstreamer 用户使用指南](gstreamer_user_guide.md)
+- [Multimedia Developer Guide](mpp/index.md)
+- [FFmpeg Usage Guide](ffmpeg_user_guide.md)
+- [Gstreamer Usage Guide](gstreamer_user_guide.md)

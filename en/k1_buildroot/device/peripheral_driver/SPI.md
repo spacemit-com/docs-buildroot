@@ -21,7 +21,7 @@ The Linux SPI driver framework consists of three layers: **SPI Core**, **SPI Con
 - **SPI Controller Driver:**
    - This is the SPI Master controller driver, responsible for operating the SPI Master controller.
 
-- **SPI Device Drive:**
+- **SPI Device Driver:**
    - Implements communication with specific SPI peripherals.
 
 ### Source Code Structure

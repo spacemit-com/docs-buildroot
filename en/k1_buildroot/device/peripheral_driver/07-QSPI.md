@@ -50,7 +50,7 @@ The controller driver code is located in the `drivers/spi` directory:
 
 The current QSPI controller supports up to 102MHz. The list of supported communication frequencies is as follows:
 
-| Maximum Frequency (MHz)） | Divisor (x)   | Actual Frequency |
+| Maximum Frequency (MHz) | Divisor (x)   | Actual Frequency |
 | --------------- | ------------- | -------- |
 | 409             | 4,5,6,7,8    | 409/x    |
 | 307             | 2,3,4,5,6,7,8 | 307/x    |

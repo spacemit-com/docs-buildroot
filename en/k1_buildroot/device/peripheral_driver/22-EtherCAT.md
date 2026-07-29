@@ -1,51 +1,43 @@
 # EtherCAT
 
-EtherCAT Master Functionality and Usage Guide.
+This document describes EtherCAT Master functionality and usage.
 
 ## Overview
 
-The IGH EtherCAT Master is a kernel module designed for high-performance real-time communication. It supports functions such as **slave scanning**, **configuration management**, and **distributed clock synchronization**. It can efficiently schedule and manage multiple Slave Devices and is widely used in industrial automation applications where high real-time performance and reliability are required.
+The IGH EtherCAT Master is a kernel module for high-performance real-time communication. It supports slave scanning, configuration management, and distributed clock synchronization. It can efficiently schedule and manage multiple slave devices and is widely used in industrial automation applications with stringent real-time performance and reliability requirements.
 
-### Functional Description
+### Functional Overview
 
 ![](static/EtherCAT.png)  
 
-The architecture of the EtherCAT Master is shown in the figure above and consists of four main components:
+As shown in the preceding figure, the EtherCAT Master architecture consists of four layers:
 
-- **Application Layer**
-  
-  This is where user applications reside, responsible for implementing industrial control logic. It interacts with the EtherCAT Master driver through specific interfaces.
+- **Application Layer:** User applications implement industrial control logic and interact with the EtherCAT Master driver through its interfaces.
 
-- **EtherCAT Master Driver Layer**
-  
-  This layer handles core protocol implementation, monitors the bus topology, automatically configures the slaves, and synchronizes distributed clocks.
+- **EtherCAT Master Driver Layer:** Implements the core protocol, monitors the bus topology, automatically configures slaves, and synchronizes distributed clocks.
 
-- **EtherCAT Device Driver Layer**
-  
-  Composed of real-time Ethernet interface drivers, this layer is responsible for the transmission and reception of ECAT data frames.
+- **EtherCAT Device Driver Layer:** Consists of real-time network interface drivers that transmit and receive EtherCAT frames.
 
-- **Physical Layer**
-  
-  This encompasses the physical network hardware.
+- **Physical Layer:** Network hardware devices.
 
 ### Source Code Structure
 
 The EtherCAT Master driver code is located in the `drivers/net/ethercat` directory:  
 
 ```c
-# In the codebase, there are many paired xxx.h and xxx.c files. The former is responsible for defining data structures and interfaces, while the latter handles the implementation.
+# Many xxx.h and xxx.c file pairs are present in the source tree. The .h files define data structures and interfaces, while the .c files provide their implementations.
 
 ├── device                     # EtherCAT device driver
 │   ├── ecdev.h                
 │   ├── ec_generic.c           # Generic network device driver
-│   ├── ec_k1x_emac.c          # Real-time network card driver for the K1 Ethernet controller
+│   ├── ec_k1x_emac.c          # Real-time network interface driver for the K1 Ethernet controller
 │   ├── ec_k1x_emac.h          
 │   ├── Kconfig               
 │   └── Makefile
-├── include                    # Include directory for global configurations and definitions
+├── include
 │   ├── config.h               # Global configuration items and macro definitions
-│   ├── ecrt.h                 # User program interface
-│   ├── ectty.h                
+│   ├── ecrt.h                 # User application interface
+│   ├── ectty.h
 │   └── globals.h              # Global variables
 ├── Kconfig                    # Kernel configuration file
 ├── Makefile                   # Main Makefile for building the project
@@ -149,18 +141,19 @@ The EtherCAT Master driver code is located in the `drivers/net/ethercat` directo
 
 | Feature | Description |
 | :-----| :----|
-| Automatic Slave Configuration | Supports automatic scanning and configuration of connected Slave Devices, simplifying network setup |
-| Distributed Clock Synchronization | Achieves Distributed Clock (DC) synchronization with precision of less than 1 µs |
-| Multi-protocol Support | Supports protocols such as CoE, SoE, FoE, etc. |
-| High Real-time Performance | Supports a 1 ms DC cycle, meeting the real-time requirements of most industrial applications |
-| Multi-master Combination | Supports configuration of multiple masters, each managing two network devices: primary and backup |
+| Automatic Slave Configuration | Supports automatic scanning and configuration of connected slave devices, simplifying network configuration |
+| Distributed Clock Synchronization | Provides distributed clock (DC) synchronization with an accuracy of less than 1 µs |
+| Multi-Protocol Support | Supports CoE, SoE, FoE, and other protocols |
+| High Real-Time Performance | Supports a 1 ms DC cycle, meeting the real-time requirements of most industrial applications |
+| Multi-Master Configuration | Supports multiple masters. Each master can manage two network devices: a primary device and a backup device |
 
-## Configuration Introduction
+## Configuration
 
 It mainly includes driver enablement configuration and DTS configuration.
 
 ### CONFIG Configuration
-ETHERCAT: To enable EtherCAT services, first configure this option to `Y`.
+
+- `ETHERCAT`: Set this option to `Y` to enable EtherCAT services.
 
 ```c
 menuconfig ETHERCAT
@@ -171,7 +164,7 @@ menuconfig ETHERCAT
           This section contains all the Ethercat drivers.
 ```
 
-EC_MASTER: Enable the master driver.
+- `EC_MASTER`: Enables the Master driver.
 
 ```c
 config EC_MASTER
@@ -183,8 +176,8 @@ config EC_MASTER
 
 ```
 
-EC_GENERIC: Enable the generic network card driver.
-EC_K1X_EMAC: Enable the real-time network card driver.  
+- `EC_GENERIC`: Enables the generic network interface driver.
+- `EC_K1X_EMAC`: Enables the real-time network interface driver.
 
 ```c
 config EC_GENERIC
@@ -203,153 +196,169 @@ config EC_K1X_EMAC
 
 ```
 
-**Note.** Generally, enabling the real-time network card driver provides better performance.
+> **Note:** Enabling the `EC_K1X_EMAC` real-time network interface driver is recommended for better performance.
 
 ### DTS Configuration
 
-The available configuration options in DTS are:
+The following EtherCAT parameters can be configured in DTS:
 
-1. run-on-cpu: The available CPUs to bind are 1, 2, 3, 4, 5, 6, 7.
-2. debug-level: The supported debug levels are 0, 1, 2.
-3. master-count: Up to 32 masters are supported.
-4. ec-devices: Network devices used for EtherCAT.
-5. master-indexes: The master indices bound to EtherCAT devices, with values ranging from 0 to master-count-1.
-6. modes: Working modes for EtherCAT devices, supporting two options: ec_main and ec_backup.
+1. `run-on-cpu`: Specifies the CPU core on which EtherCAT Master real-time tasks run.
+2. `debug-level`: Configures the EtherCAT Master debug log level. Supported values are `0`, `1`, and `2`. Higher values produce more detailed debug information. `0` is recommended for normal operation.
+3. `master-count`: Specifies the number of EtherCAT Master instances. A maximum of 32 Masters is supported.
+4. `ec-devices`: Specifies the list of network devices bound to the EtherCAT Master.
+5. `master-indexes`: Specifies the Master index to which each network device is bound. Valid values range from `0` to `master-count-1` and must correspond to `ec-devices`.
+6. `modes`: Specifies the operating mode of each network device and must correspond to `ec-devices` item by item. `ec_main` is the primary communication interface and is typically used. `ec_backup` is a redundant interface that maintains communication if the primary interface fails.
 
-Currently, three configuration modes are supported:
+The default configuration is located in `linux-6.6/arch/riscv/boot/dts/spacemit/k1-x.dtsi`.
 
-- **Mode 1**: Configure two masters, for example, bind eth0 to master 0 and eth1 to master 1.
+```c
+ec_master: ethercat_master {
+        compatible = "igh,k1x-ec-master";
+        run-on-cpu = <1>;
+        debug-level = <0>;
+        master-count = <1>;
+        ec-devices = <&eth0>, <&eth1>;
+        master-indexes = <0>, <0>;
+        modes = "ec_main", "ec_backup";
+        status = "disabled";
+};
+```
 
-  ```c
-  ec_master: ethercat_master {
-          compatible = "igh,k1x-ec-master";
-          run-on-cpu = <1>;         
-          debug-level = <0>;
-          master-count = <2>;   
-          ec-devices = <&eth0>,<&eth1>;
-          master-indexes = <0>,<1>;
-          modes = "ec_main";
-          status = "okay";
-  };
+The default configuration creates one EtherCAT Master:
 
-  eth0: ethernet@cac80000 {
-          compatible = "spacemit,k1x-ec-emac";
-         ...
+- `eth0` is the EtherCAT primary communication device.
+- `eth1` is the EtherCAT backup communication device.
 
-  };
+To use the default configuration, enable the EtherCAT Master in the board DTS and configure the corresponding Ethernet nodes. For the DEB1 board, modify the following file:
 
-  eth1: ethernet@cac81000 {
-          compatible = "spacemit,k1x-ec-emac";
-          ...
+```
+linux-6.6/arch/riscv/boot/dts/spacemit/k1-x_deb1.dts
+```
 
-  };
-  ```
+Configure the nodes as follows:
 
-- **Mode 2**: Configure one master, with one network card used for EtherCAT and another for Ethernet, for example, using eth0 for EtherCAT.
+```c
+&ec_master {
+        status = "okay";
+};
 
-  ```c
-  ec_master: ethercat_master {
-          compatible = "igh,k1x-ec-master";
-          run-on-cpu = <1>;         
-          debug-level = <0>;
-          master-count = <1>;   
-          ec-devices = <&eth0>;
-          master-indexes = <0>;
-          modes = "ec_main";
-          status = "okay";
-  };
+&eth0 {
+        compatible = "spacemit,k1x-ec-emac";
+        /* Keep other configurations unchanged */
+        ...
+        status = "okay";
+};
 
-  # Here, eth0 is used for EtherCAT
-  eth0: ethernet@cac80000 {
-          compatible = "spacemit,k1x-ec-emac";
-          ...
+&eth1 {
+        compatible = "spacemit,k1x-ec-emac";
+        /* Keep other configurations unchanged */
+        ...
+        status = "okay";
+};
+```
 
-  };
-  ```
+To customize the Master configuration, override the `ec_master` configuration in the board DTS.
 
-- **Mode 3**: Configure one master, binding two network cards. For example, eth0 is used as the primary device, and eth1 is used as the backup device.
+Example 1: Configure one EtherCAT Master, with `eth0` used for EtherCAT and `eth1` used for standard Ethernet communication.
 
-  ```c
-  ec_master: ethercat_master {
-          compatible = "igh,k1x-ec-master";
-          run-on-cpu = <1>;         
-          debug-level = <0>;
-          master-count = <1>;   
-          ec-devices = <&eth0>,<&eth1>;
-          master-indexes = <0>,<0>;
-          modes = "ec_main","ec_backup";
-          status = "okay";
-  };
+```c
+&ec_master {
+        master-count = <1>;
+        ec-devices = <&eth0>;
+        master-indexes = <0>;
+        modes = "ec_main";
+        status = "okay";
+};
 
-  # Here, eth0 is used for EtherCAT.
-  eth0: ethernet@cac80000 {
-          compatible = "spacemit,k1x-ec-emac";
-          ...
+&eth0 {
+        compatible = "spacemit,k1x-ec-emac";
+        /* Keep other configurations unchanged */
+        ...
+        status = "okay";
+};
+```
 
-  };
+Example 2: Configure two EtherCAT Masters, binding `eth0` and `eth1` to Master 0 and Master 1, respectively.
 
-  eth1: ethernet@cac81000 {
-          compatible = "spacemit,k1x-ec-emac";
-          ...
+```c
+&ec_master {
+        master-count = <2>;
+        ec-devices = <&eth0>, <&eth1>;
+        master-indexes = <0>, <1>;
+        modes = "ec_main","ec_main";
+        status = "okay";
+};
 
-  };
-  ```
+&eth0 {
+        compatible = "spacemit,k1x-ec-emac";
+        /* Keep other configurations unchanged */
+        ...
+        status = "okay";
+};
+
+&eth1 {
+        compatible = "spacemit,k1x-ec-emac";
+        /* Keep other configurations unchanged */
+        ...
+        status = "okay";
+};
+```
 
 ## Interface
 
 ### API
 
-Requesting a master instance.
+- Request a Master instance.
 
 ```c
 ec_master_t *ecrt_request_master(unsigned int master_id);
 ```
 
-Creating process data domains.
+- Create a process data domain.
 
 ```c
 ec_domain_t *ecrt_master_create_domain(ec_master_t *master);
 ```
 
-Activating the master.
+- Activate the Master.
 
 ```c
 int ecrt_master_activate(ec_master_t *master);
 ```
 
-Synchronizing the master's reference clock.
+- Synchronize the Master reference clock.
 
 ```c
 int ecrt_master_sync_reference_clock_to(ec_master_t *master, uint64_t ref_time);
 ```
 
-Synchronizing all slave clocks.
+- Synchronize all slave clocks.
 
 ```c
 void ecrt_master_sync_slave_clocks(ec_master_t *master);
 ```
 
-Configuring slaves.
+- Configure a slave.
 
 ```c
 ec_slave_config_t *ecrt_master_slave_config(ec_master_t *master, uint16_t alias, uint16_t position, uint32_t vendor_id, uint32_t product_code);
 
 ```
 
-Configure slave PDO mapping.
+- Configure slave PDO mapping.
 
 ```c
 int ecrt_slave_config_pdos(ec_slave_config_t *sc, uint16_t sync_index, const ec_sync_info_t *syncs);
 ```
 
-Register PDO entries to the specified data domain.
+- Register a PDO entry with the specified data domain.
 
 ```c
 int ecrt_slave_config_reg_pdo_entry(ec_slave_config_t *sc, uint16_t index, uint8_t subindex， ec_domain_t *domain, unsigned int *offset);
 
 ```
 
-Configure distributed clock for the slave.
+- Configure the distributed clock for a slave.
 
 ```c
 int ecrt_slave_config_dc(ec_slave_config_t *sc, uint16_t assign_activate, uint32_t sync0_cycle_time, int32_t sync0_shift, uint32_t sync1_cycle_time, int32_t sync1_shift);
@@ -359,7 +368,7 @@ int ecrt_slave_config_dc(ec_slave_config_t *sc, uint16_t assign_activate, uint32
 
 ### sysfs
 
-EtherCAT Master information.
+Master information can be viewed through `/sys/class/EtherCAT/EtherCAT0`:
 
 ```c
 /sys/class/EtherCAT/EtherCAT0
@@ -375,14 +384,21 @@ EtherCAT Master information.
 `-- uevent
 
 ```
-- **dev**: Provides the master device number information.
-- **power**: Manages the power state of the device.
-- **subsystem**: Link: Indicates that the device belongs to the EtherCAT subsystem.
-- **uevent**: Master device number and device name.
+- `dev`: Provides Master device number information.
+- `power`: Manages the device power state.
+- `subsystem`: A subsystem link indicating that the device belongs to the EtherCAT subsystem.
+- `uevent`: Contains the Master device number and device name.
 
 ## Testing
 
-Testing the EtherCAT Master requires Slave Devices. Once the master and slaves are connected, the Master automatically initiates slave device scanning. After a successful automatic scan, the master will be in the PRE-OP (Pre-Operational) state, at which point it is ready for the application program to run.
+The EtherCAT Master test procedure is as follows:
+
+1. Connect the slave devices to the Master network interface.
+2. Power on the system. The kernel automatically loads the EtherCAT Master driver.
+3. The Master automatically scans the slaves and outputs logs after successful identification.
+4. The Master enters the `PREOP` state and waits for the user application to issue control commands.
+
+An example boot log is shown below:
 
 ```c
 [  966.525910] k1x_ec_emac cac80000.ethernet ecm0 (uninitialized): Link is Up - 100Mbps/Full - flow control off
@@ -396,7 +412,9 @@ Testing the EtherCAT Master requires Slave Devices. Once the master and slaves a
 
 ```
 
-You can use the official demo provided (source code directory: https://gitlab.com/etherlab.org/ethercat, demo path: `examples/`) to perform performance testing on the master station. Here, we use `examples/dc_user/main.c` as a template, with a 1ms DC communication cycle and two connected slaves. The test results are as follows:
+Testing can be performed with `examples/dc_user/main.c` from the [official EtherLab examples](https://gitlab.com/etherlab.org/ethercat). Run the test with two connected slaves and a 1 ms DC communication cycle.
+
+Example output:
 
 ```c
 period         995099 ...    1004890
@@ -431,9 +449,10 @@ exec            14709 ...     113544
 latency          7630 ...      13930
 ```
 
-**Notes.**
-- The values in the period row represent the fluctuation range of the communication cycle within one second.
-- The values in the exec row represent the fluctuation range of the master's periodic task execution time within one second.
-- The values in the latency row represent the fluctuation range of the master's wake-up error within one second.
+> **Note:**
+>
+> - `period`: Range of communication cycle variation within one second.
+> - `exec`: Range of Master periodic task execution time variation within one second.
+> - `latency`: Range of Master wake-up error variation within one second.
 
 ## FAQ

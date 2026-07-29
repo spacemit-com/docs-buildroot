@@ -60,7 +60,7 @@ Compared to 2.2.4, 2.2.6 fixes several issues and provides a new kernel branch k
 - Fixed the i2s system clock divider parameters to reduce sysclk jitter
 - Fixed the issue where multiple sensors of the camera could not be powered on simultaneously
 - Fixed the issue where some husb239 adapters were unable to negotiate 12V
-- Fixed the warning of uninitialized lock in rtl8852bs rg_interface and the oops issue during stanby test
+- Fixed the warning of uninitialized lock in rtl8852bs rg_interface and the oops issue during standby test
 
 ## v2.2.4 release note
 
@@ -119,9 +119,9 @@ Compared to 2.1, 2.2 fixes several issues and provides a new kernel branch k1-bl
 
 - Added support for printing esos version function
 - Added support for HIDRAW function
-- Fixed the issue of hub initialization timing errors when usb asynchronous stanby
+- Fixed the issue of hub initialization timing errors when usb asynchronous standby
 - Fixed the issue of occasional errors in USB flash
-- Fixed the issue of spi0/spi1 dma transfer erros
+- Fixed the issue of spi0/spi1 dma transfer errors
 
 ## v2.2rc4 release note
 

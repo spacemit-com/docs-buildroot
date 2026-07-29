@@ -25,7 +25,7 @@ This layer includes **third-party APPs** and **self-developed APPs**.
   - Supports hardware decoding of multiple formats including H.264/ HEVC/ VP8/ VP9/ MPEG-4/ MPEG-2/ MJPEG.
   - Supports video playback up to **4k30**
 
-- **cheese** (Defualt camera for Bianbu/Ubuntu desktop system)
+- **cheese** (Default camera for Bianbu/Ubuntu desktop system)
   - Supports preview, photographing, video recording and other functions.
   - Enables smooth 1080P30 video recording.
 
@@ -69,8 +69,8 @@ This layer includes **third-party APPs** and **self-developed APPs**.
 
 - **Gstreamer**
   - Already interfaced with K1 hardware codec
-  - **Decoding**: H.264/ HEVC/ VP8/ VP9/ MPEG-4/ MPEG-2/ MJPEG, with maximum supports for **4K30**
-  - **Encoding**: H.264/ H.265/ VP8/ VP9/ MJPEG, with a maximum supports for **1080P60**.
+  - **Decoding**: H.264/ HEVC/ VP8/ VP9/ MPEG-4/ MPEG-2/ MJPEG, with maximum support for **4K30**
+  - **Encoding**: H.264/ H.265/ VP8/ VP9/ MJPEG, with a maximum support for **1080P60**.
 
 - **Openmax IL**
   - Under adaptation for encoding and decoding

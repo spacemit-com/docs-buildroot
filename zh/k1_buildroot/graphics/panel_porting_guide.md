@@ -16,7 +16,7 @@ DRM 是 Linux 系统中主流的显示框架，能够很好地适应现代显示
 - **显示输出控制：** 协调显示内容的合成与输出。
 - **多显示接口支持：** 兼容 HDMI、DSI、eDP 等多种接口。
 
-![display-kms](static/diaplay-kms.jpg )
+![display-kms](static/diaplay-kms.jpg)
 
 ## Uboot 屏幕调试
 

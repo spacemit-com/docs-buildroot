@@ -11,7 +11,7 @@ K1 VPU implemented based on **V4L2** framework.
 
 ## 1 Specifications
 
-### 1.1 Decodig Specification（2cores@819MHz）
+### 1.1 Decoding Specification（2cores@819MHz）
 
 | format  | profile                   | maximum resolution | maximum bitrate | specification        | multi-channel specification        |
 | ----- | ------------------------- | ---------- | -------- | ----------- | --------------- |
@@ -62,7 +62,7 @@ The test suite of `k1x-vpu-test` includes the following test programs:
 
 - **mvx_decoder**: Used for decoding tests of single-channel video bitstreams
 - **mvx_decoder_multi**: Used for decoding tests of multi-channel video bitstreams (Multi-channel video bitstreams must be the same video).
-- **mvx_encoder**: Used for video encoding tests of single-channel video bistreams
+- **mvx_encoder**: Used for video encoding tests of single-channel video bitstreams
 - **mvx_encoder_multi**: Used for video encoding tests of multi-channel YUV streams (Multi-channel YUV streams must be the same stream).
 - **mvx_logd**: Used to capture firmware logs to analyze and locate issues
 
@@ -145,9 +145,9 @@ optional arguments:
         Default: 0
     --dsl_pos_mode
         Flexible Downscaled original position mode [0, 2], 
-        only availble in high precision mode. 
+        only available in high precision mode. 
         Value: 0 [default:x_original=(x_resized + 0.5)/scale - 0.5]         
-        Value: 1 [x_original=x_reized/scale]
+        Value: 1 [x_original=x_resized/scale]
         Value: 2 [x_original=(x_resized+0.5)/scale]
         Default: 0
     --frames
@@ -160,7 +160,7 @@ optional arguments:
         Ignore Stream Headers 1 is on, 0 is off (default)
         Default: 0
     --trystop
-        Try if Decoding Stop Command exixts
+        Try if Decoding Stop Command exists
         Default: 0
     --one_frame_per_packet
         Each input buffer contains one frame.
@@ -436,7 +436,7 @@ optional arguments:
         encoder long term reference period, range from 2 to 254 (inclusive)
         Default: 0
     --trystop
-        Try if Encoding Stop Command exixts
+        Try if Encoding Stop Command exists
         Default: 0
     --restart_interval
         JPEG restart interval.
@@ -498,7 +498,7 @@ optional arguments:
         Stride alignment.
         Default: 720
     -f, --frames
-        Specfied frame count to be processed.
+        Specified frame count to be processed.
         Default: 0
     -n, --nsessions
         Number of sessions.
@@ -660,7 +660,7 @@ Add logs with `printf` or `fprintf`, recompile and reinstall to activate.
 
 #### 2.5.2 Decoding succeeded log
 
-1. **Signle-channel decoding**
+1. **Single-channel decoding**
 
 ```shell
 /mnt/tool # ./mvx_decoder -f raw /mnt/streams/h264dec/Zhling_1280x720.264 /mnt/test/output.yuv  //input command
@@ -777,7 +777,7 @@ Stream off 9
 -----[Test Result] MVX Encode PASS. Average Framerate: 0.67.
 Total size 140165
 Closing fd 5.
-//Encoding completed, input information, and exit.
+//Encoding completed, output information, and exit.
 ```
 
 2. **Multi-channel encoding**
@@ -800,5 +800,5 @@ Total size 1618
 Total size 1618
 Total size 1618
 Total size 1618
-//Encoding completed, input information, and exit. 
+//Encoding completed, output information, and exit. 
 ```
