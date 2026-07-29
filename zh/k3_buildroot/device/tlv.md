@@ -91,7 +91,7 @@ K3 使用的 TLV Code 包括 ONIE 标准字段和 SpaceMIT 自定义字段：
 | `0xFD` | VendorExtension | 厂商自定义扩展 | byte array |
 | `0xFE` | CRC-32 | 校验和（必须位于最后） | uint32 |
 
-#### 2.4.2 SpaceMIT 自定义字段
+#### 2.4.2 SpacemiT 自定义字段
 
 | TLV Code | 字段名 | 说明 | 数据类型 |
 |---|---|---|---|
@@ -121,7 +121,7 @@ FE 04 12 34 56 78                 // Type 0xFE, Len 4, CRC-32 value
 
 ### 2.6 读写流程
 
-uboot 命令行支持如下命令：
+uboot 命令行(启动过程中，串口界面下按住`s`键)支持如下命令：
 
 - **读取**：`tlv_eeprom` 从 EEPROM 读取全部数据，解析 TLV 结构并显示
 - **修改**：
@@ -232,7 +232,6 @@ fastboot oem config:flush
 |---|---|---|
 | mpq8655 | mpq8655 | com260 / deb1 / evb / dc_board / com260_kit_v20 / gemini_c0 / gemini_c1 |
 | tda38740 | tda38740 | evb2-1 |
-| is6615a | is6615a | evb2-2 |
 | au4562 | au4562 | pico-itx |
 
 ```bash
