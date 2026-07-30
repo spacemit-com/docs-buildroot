@@ -229,6 +229,58 @@ pcie0-1-cfg {
 
 如果你的板子没有把 `WAKE#` 接出来，可以参照这种方式在板级 DTS 中覆盖默认 pin 组，而不是硬套共享 `k3-pinctrl.dtsi` 里的三线配置。
 
+#### PERST# 控制方式
+
+K3 PCIe 驱动支持两种 PERST#（复位信号）控制方式：
+
+1. **GPIO 控制**
+2. **PMU 寄存器控制**（默认）
+
+**优先级规则**：驱动会优先检查设备树中是否配置了 `reset-gpios` 属性。如果配置了，则使用 GPIO 方式控制 PERST#；否则回退到 PMU 寄存器控制方式。
+
+##### GPIO 控制方式
+
+通过 GPIO 子系统直接控制 PERST# 引脚的电平。这种方式常见于硬件 PERST pin用于其他功能，选用了 GPIO 作为 PERST#。
+
+**配置示例**：
+
+```c
+&pcie0_rc {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pcie0_1_cfg>;
+        phys = <&phy0>, <&phy1>;
+        phy-names = "phy0", "phy1";
+        num-lanes = <4>;
+        reset-gpios = <&gpio 3 28 GPIO_ACTIVE_LOW>;  /* GPIO_120, 低电平有效 */
+        status = "okay";
+};
+```
+
+**参数说明**：
+
+- `reset-gpios = <&gpio bank pin flags>`
+  - `&gpio`：GPIO 控制器节点
+  - `bank pin`：GPIO 编号（例如 `3 28` 表示 GPIO bank 3 的 pin 28，即全局 GPIO_120）
+  - `flags`：`GPIO_ACTIVE_LOW` 表示低电平有效（assert 时输出低电平）
+
+##### PMU 寄存器控制方式
+
+通过 PMU（Power Management Unit）寄存器间接控制 PERST#。这是K3默认的方式，当设备树中未配置 `reset-gpios` 时使用。
+
+**配置示例**：
+
+```c
+&pcie0_rc {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pcie0_1_cfg>;
+        phys = <&phy0>, <&phy1>;
+        phy-names = "phy0", "phy1";
+        num-lanes = <4>;
+        /* 不配置 reset-gpios，驱动将使用 PMU 寄存器控制 */
+        status = "okay";
+};
+```
+
 #### 方案 DTS 配置示例（以 deb1 为例）
 
 `deb1` 板级文件使用的是 `k3_deb1.dts`，实际启用了 `phy0/1/2/3/5` 和 `pcie0/1/2/4`，没有启用 `phy4` / `pcie3_rc`。
@@ -498,4 +550,30 @@ reserved-memory {
 2. **核对 pin 配置与电压域。** DTS 里的 `pinctrl`、`power-source`、`spacemit,*-gpios` 必须与板级原理图一致，确保 pin 编号、复用功能、PAD 供电域、电压等级以及实际焊接的边带信号完全配对。
 3. **排除 SSD 器件故障。** 更换一块确认良好的 NVMe SSD，或将疑似故障 SSD 接到其他已知可用的平台验证，确认是否为器件损坏。
 4. **检查初始化时序与信号质量。** 若链路偶发掉卡或在 Training 阶段失败，需配合示波器/协议分析仪查看 PERST# / CLKREQ# / REFCLK 等时序、电压摆幅与 SI，必要时与原厂工程支持联调。
+
+### 2. 什么时候需要使用 GPIO 控制 PERST#？
+
+**推荐场景**：
+
+- 原理图明确将 PERST# 引出到独立 GPIO 引脚
+
+**配置方法**：
+
+在 PCIe 控制器节点中添加 `reset-gpios` 属性：
+
+```c
+&pcie0_rc {
+        reset-gpios = <&gpio 3 28 GPIO_ACTIVE_LOW>;  /* 使用 GPIO_120 */
+        /* ... 其他配置 ... */
+};
+```
+
+**排查问题**：
+
+如果配置 GPIO 后 PCIe 仍无法正常工作：
+
+1. **确认 GPIO 编号正确**：检查原理图中 PERST# 连接的实际 GPIO 引脚号
+2. **检查 GPIO 极性**：`GPIO_ACTIVE_LOW` 表示低电平有效（assert 时输出低），`GPIO_ACTIVE_HIGH` 表示高电平有效
+3. **验证 GPIO 功能**：在启动时通过 `cat /sys/kernel/debug/gpio` 确认该 GPIO 已被 PCIe 驱动申请并正确控制
+4. **查看内核日志**：`dmesg | grep -i pcie` 查找 GPIO 申请失败或方向设置错误的信息
 
