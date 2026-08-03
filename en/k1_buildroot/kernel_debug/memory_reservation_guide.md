@@ -56,7 +56,7 @@ dsp_controller: dsp@C088C000 {
 ### 3.1 Reservation via Kernel Boot Parameters 
 
 - #### Method 
-1. Use `cma=<size>[@<address>] in the kernel command line parameters passed by the bootloader
+1. Use `cma=<size>[@<address>]` in the kernel command line parameters passed by the bootloader
 2. Example
 
 ```text
@@ -170,7 +170,7 @@ Key nodes introduction:
 cat /sys/kernel/debug/cma/linux,cma/used_bytes
 ```
 
-- Displays the number of byte currently allocated by drivers for DMA3. This value is highly precise, and can be used to determine whether memory leaks exists in the drivers. 
+- Displays the number of bytes currently allocated by drivers for DMA. This value is highly precise, and can be used to determine whether memory leaks exist in the drivers. 
 
 ```
 cat /sys/kernel/debug/cma/linux,cma/count

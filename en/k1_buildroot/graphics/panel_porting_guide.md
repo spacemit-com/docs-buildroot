@@ -16,7 +16,7 @@ In the Linux kernel, DRM acts as a subsystem for managing display devices, mainl
 - **Display output control:** Coordination of composition and output of display content.
 - **Multi-display interface support:** Compatibility with multiple interfaces such as HDMI, DSI, eDP.
 
-![display-kms](static/diaplay-kms.jpg)
+![display-kms](static/display-kms.jpg)
 
 ## Uboot Screen Debugging
 
@@ -775,7 +775,7 @@ Create a new `lcd_gx09inx101_mipi.dtsi` file under the `linux-6.6/arch/riscv/boo
 
 - **Bit Clock**
   
-  (((hactive + hfp + hbp + hsync) * (vactive + vfp + vbp + vsync) * fps  * bpp) / lane bumber) * 1.1 = (（（1200 + 50 + 40 + 10）* (1920 + 20 + 16 + 4) * 60 * 24）/ 4) * 1.1 = **1009008000 Hz**
+  (((hactive + hfp + hbp + hsync) * (vactive + vfp + vbp + vsync) * fps  * bpp) / lane number) * 1.1 = (（（1200 + 50 + 40 + 10）* (1920 + 20 + 16 + 4) * 60 * 24）/ 4) * 1.1 = **1009008000 Hz**
 
 From the display-timing results:
 
@@ -843,7 +843,7 @@ The default configuration is shown below:
 
 If you need to enable **both** the LCD (MIPI DSI) and HDMI outputs, set the `status` property of **both** relevant nodes to `"okay"` in the DTS.
 
-Example for th ek1-x_deb1 configuration:
+Example for the k1-x_deb1 configuration:
 
 ```c
 //linux-6.6/arch/riscv/boot/dts/spacemit/k1-x_deb1.dts

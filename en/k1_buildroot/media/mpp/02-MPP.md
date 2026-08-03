@@ -10,7 +10,7 @@ It is designed to encapsulate the differences of hardware encoding and decoding 
 ### 1.1 Terms
 
 - **MPP (Multimedia Processing Platform)**  
-  Architure of multimedia processing platform. 
+  Architecture of multimedia processing platform. 
 
 - **MPI (Multimedia Processing Interface)**  
   The unified API interface provided by MPP for upper-layer access. 
@@ -111,7 +111,7 @@ The source code structure of MPP and its brief description are as follows (the s
 |-- al                               // AL (Abstract Layer): Code for interfacing with functional modules or drivers across various platforms.
 |   |-- CMakeLists.txt
 |   |-- include
-|   |   |-- al_interface_base.h      // AL layer interface base calss
+|   |   |-- al_interface_base.h      // AL layer interface base class
 |   |   |-- al_interface_dec.h       // AL layer decoding interface base class, inherited from base
 |   |   |-- al_interface_enc.h       // AL layer encoding interface base class, inherited from base
 |   |   |-- al_interface_g2d.h       // AL layer image conversion interface base class, inherited from base
@@ -280,7 +280,7 @@ The source code structure of MPP and its brief description are as follows (the s
 |   |-- ringbuffer.h                 // Ring buffer management API
 |   |-- sys.h                        // SYS-related API
 |   |-- vdec.h                       // Video decoding API
-|   `-- venc.h                       // Video decoding API
+|   `-- venc.h                       // Video encoding API
 |   |-- vi.h                         // Video input API
 |   `-- vo.h                         // Video output API
 |-- LICENSE
@@ -984,7 +984,7 @@ typedef struct _MppVdecCtx {
   MppProcessNode pNode;        ; Used for pipeline creation in the bind system
   MppModuleType eCodecType;    ; Selected decoding plugin
   MppModule *pModule;          ; Context of the dynamically loaded decoding plugin
-  MppVdecPara stVdecPara;      ; Decoding prameter set
+  MppVdecPara stVdecPara;      ; Decoding parameter set
 } MppVdecCtx;
 ```
 
@@ -1124,7 +1124,7 @@ typedef struct _MppVencPara {
   S32 nHeight;                                 // Video height
   S32 nAlign;                                  // Video align
   S32 nBitrate;                                // Video bitrate
-  S32 nFrameRate;                              // Video rotate tate
+  S32 nFrameRate;                              // Video frame rate
   S32 nRotateDegree;                           // Video rotate degree
 } MppVencPara;
 ```
@@ -1238,7 +1238,7 @@ Video input context
 typedef struct _MppVoCtx {
   MppProcessNode pNode;         // Used for pipeline creation in the bind system
   MppModuleType eVoType;        // Selected video output plugin
-  MppModule *pModule;           // Context of the video outputput plugin dynamic library
+  MppModule *pModule;           // Context of the video output plugin dynamic library
   MppVoPara stVoPara;           // Video output parameter set
 } MppVoCtx;
 ```
@@ -1499,7 +1499,7 @@ struct _ALViBaseContext {
 | VDEC_RequestOutputFrame | Request decoded output frame         | MppVdecCtx *ctx：decoder context MppData *src_data：Output decoded frame | 0: Success Non-0: Error code value       |
 | VDEC_ReturnOutputFrame  | return decoded output frame         | MppVdecCtx *ctx：decoder context MppData *src_data：Output decoded frame | 0: Success Non-0: Error code value       |
 | VDEC_DestroyChannel     | Destroy decoder         | MppVdecCtx *ctx：decoder context                                | 0: Success Non-0: Error code value      |
-| VDEC_ResetChannel       | Reset decoder         | MppVdecCtx *ctx：decoder context                                | 0: Succes Non-0: Error code value       |
+| VDEC_ResetChannel       | Reset decoder         | MppVdecCtx *ctx：decoder context                                | 0: Success Non-0: Error code value       |
 
 ### 5.2 VENC
 
@@ -1514,7 +1514,7 @@ struct _ALViBaseContext {
 | VENC_GetOutputStreamBuffer | Get encoded output stream buffer       | MppVencCtx *ctx: encoder context MppData *src_data: encoded bitstream | 0: Success Non-0: Error code value       |
 | VENC_DestroyChannel        | Destroy encoder channel           | MppVencCtx *ctx: encoder context                                | 0: Success Non-0: Error code value       |
 | VENC_ResetChannel          | Reset encoder            | MppVencCtx *ctx: encoder context                                | 0: Success Non-0: Error code value       |
-| VENC_Flush                 | Flush encoder internal buffer | MppVencCtx *ctx: encoder context                               | 0 0: Success Non-0: Error code value       |
+| VENC_Flush                 | Flush encoder internal buffer | MppVencCtx *ctx: encoder context                               | 0: Success Non-0: Error code value       |
 
 ### 5.3 G2D（Under Improvement）
 
@@ -1532,7 +1532,7 @@ struct _ALViBaseContext {
 
 ### 5.4 VI
 
-| Interface                 | Description         | Prameter                                                | Return Value              |
+| Interface                 | Description         | Parameter                                                | Return Value              |
 | -------------------- | ------------ | --------------------------------------------------- | ------------------- |
 | VI_CreateChannel     | Create VI       | None                                                  | MppViCtx*: VI context |
 | VI_Init              | Initialize VI     | MppViCtx *ctx: VI context                             | 0: Success Non-0: Error code value |

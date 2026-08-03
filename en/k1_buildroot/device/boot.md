@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 3
 ---
 
@@ -88,39 +88,39 @@ c3bc939586f0         Android Fastboot
 
 Below are three methods to enter U-Boot fastboot mode:
 
-**1. Using Buttons on the Board**
+1. **Using Buttons on the Board**
 
-- Hold the **FEL** button and press the **RESET** button.
-- This puts the board into **BROM-Fastboot mode**, which is only used to load U-Boot.
-- On the PC, run the following commands to load U-Boot Fastboot:
+   - Hold the **FEL** button and press the **RESET** button.
+   - This puts the board into **BROM-Fastboot mode**, which is only used to load U-Boot.
+   - On the PC, run the following commands to load U-Boot Fastboot:
 
-```sh
-fastboot stage factory/FSBL.bin
-fastboot continue
-#sleep wait for uboot ready
-#On Linux
-sleep 1
-#On Windows                
-#timeout /t 1 >null     
-fastboot stage u-boot.itb
-fastboot continue
-```
+   ```sh
+   fastboot stage factory/FSBL.bin
+   fastboot continue
+   #sleep wait for uboot ready
+   #On Linux
+   sleep 1
+   #On Windows                
+   #timeout /t 1 >null     
+   fastboot stage u-boot.itb
+   fastboot continue
+   ```
 
-**2. Using ADB Command**
-If the system is already running, use this command on the PC to reboot into U-Boot Fastboot:
+2. **Using ADB Command**
+   If the system is already running, use this command on the PC to reboot into U-Boot Fastboot:
 
-```sh
-adb reboot bootloader
-```
+   ```sh
+   adb reboot bootloader
+   ```
 
-> Note: Some firmware may not include ADB, so this method won't always work.
+   > Note: Some firmware may not include ADB, so this method won't always work.
 
-**3. Using the Serial Port**
-During startup, hold the **S key** via serial connection to enter the **U-Boot shell**, then run:
+3. **Using the Serial Port**
+   During startup, hold the **S key** via serial connection to enter the **U-Boot shell**, then run:
 
-```sh
-fastboot 0
-```
+   ```sh
+   fastboot 0
+   ```
 
 The following subsections introduce the different storage setups which may require different flashing commands.
 The **BROM** will boot from the selected storage based on **boot pin settings** (e.g., NOR/NAND/eMMC).
@@ -129,40 +129,40 @@ Check your hardware reference design for the exact configuration.
 ##### eMMC Flashing
 
 - **eMMC Flashing Process**
-Flashing eMMC follows this basic flow. The first steps are the same as other storage types:
-you enter **U-Boot Fastboot mode** via BROM-Fastboot and then begin flashing.
+  Flashing eMMC follows this basic flow. The first steps are the same as other storage types:
+  you enter **U-Boot Fastboot mode** via BROM-Fastboot and then begin flashing.
 
-```sh
-fastboot stage factory/FSBL.bin
-fastboot continue
+  ```sh
+  fastboot stage factory/FSBL.bin
+  fastboot continue
 
-#sleep to wait for uboot ready
-#linux env
-sleep 1
-#windows env
-#timeout /t 1 >null   
+  #sleep to wait for uboot ready
+  #linux env
+  sleep 1
+  #windows env
+  #timeout /t 1 >null   
 
-fastboot stage u-boot.itb
-fastboot continue
+  fastboot stage u-boot.itb
+  fastboot continue
 
-fastboot flash gpt partition_universal.json
-# This step is still needed, even though bootinfo_emmc.bin content is not used. See FAQ below.
-fastboot flash bootinfo factory/bootinfo_emmc.bin
-fastboot flash fsbl factory/FSBL.bin
-fastboot flash env env.bin
-fastboot flash opensbi fw_dynamic.itb
-fastboot flash uboot u-boot.itb
-fastboot flash bootfs bootfs.img
-fastboot flash rootfs rootfs.ext4
-```
+  fastboot flash gpt partition_universal.json
+  # This step is still needed, even though bootinfo_emmc.bin content is not used. See FAQ below.
+  fastboot flash bootinfo factory/bootinfo_emmc.bin
+  fastboot flash fsbl factory/FSBL.bin
+  fastboot flash env env.bin
+  fastboot flash opensbi fw_dynamic.itb
+  fastboot flash uboot u-boot.itb
+  fastboot flash bootfs bootfs.img
+  fastboot flash rootfs rootfs.ext4
+  ```
 
-For EMMC, the content of `bootinfo_emmc.bin` is embedded within the U-Boot code. This is done to ensure compatibility with using the same `partition_universal.json` table for SD card booting, among others. Both `bootinfo_emmc.bin` and `FSBL.bin` are actually written to the EMMC's Boot0 partition.
+  For EMMC, the content of `bootinfo_emmc.bin` is embedded within the U-Boot code. This is done to ensure compatibility with using the same `partition_universal.json` table for SD card booting, among others. Both `bootinfo_emmc.bin` and `FSBL.bin` are actually written to the EMMC's Boot0 partition.
 
-- EMMC Partition Table Configuration
-The partition table is stored in `buildroot-ext/board/spacemit/k1/partition_universal.json`. The bootinfo is not explicitly defined as a partition but is used to store information related to the boot medium.
+- **EMMC Partition Table Configuration**
+  The partition table is stored in `buildroot-ext/board/spacemit/k1/partition_universal.json`. The bootinfo is not explicitly defined as a partition but is used to store information related to the boot medium.
 
-```sh
-{
+  ```sh
+  {
   "version": "1.0",
   "format": "gpt",
   "partitions": [
@@ -205,39 +205,39 @@ The partition table is stored in `buildroot-ext/board/spacemit/k1/partition_univ
       "name": "rootfs",
       "size": "-"
     }
-  ]
-}
-```
+   ]
+  }
+  ```
 
 ##### NOR+BLK Device Flashing
 
 - **NOR+BLK device Flashing process**
-The K1 supports flashing and booting from a combination of **NOR Flash** and **block devices** (like SSD or eMMC). It works in an **adaptive** way — if both SSD and eMMC are connected, **SSD will be used as the default flashing target**.
+  The K1 supports flashing and booting from a combination of **NOR Flash** and **block devices** (like SSD or eMMC). It works in an **adaptive** way — if both SSD and eMMC are connected, **SSD will be used as the default flashing target**.
 
-```sh
-fastboot stage factory/FSBL.bin
-fastboot continue
-#sleep wait for uboot ready
-#linux env
-sleep 1                 
-#windows env
-#timeout /t 1 >null      
-fastboot stage u-boot.itb
-fastboot continue
+  ```sh
+  fastboot stage factory/FSBL.bin
+  fastboot continue
+  #sleep wait for uboot ready
+  #linux env
+  sleep 1                 
+  #windows env
+  #timeout /t 1 >null      
+  fastboot stage u-boot.itb
+  fastboot continue
 
-#flashing to spi nor
-fastboot flash mtd partition_2M.json
-fastboot flash bootinfo factory/bootinfo_spinor.bin
-fastboot flash fsbl factory/FSBL.bin
-fastboot flash env env.bin
-fastboot flash opensbi fw_dynamic.itb
-fastboot flash uboot u-boot.itb
+  #flashing to spi nor
+  fastboot flash mtd partition_2M.json
+  fastboot flash bootinfo factory/bootinfo_spinor.bin
+  fastboot flash fsbl factory/FSBL.bin
+  fastboot flash env env.bin
+  fastboot flash opensbi fw_dynamic.itb
+  fastboot flash uboot u-boot.itb
 
-#flashing to block device
-fastboot flash gpt partition_universal.json
-fastboot flash bootfs bootfs.img
-fastboot flash rootfs rootfs.ext4
-```
+  #flashing to block device
+  fastboot flash gpt partition_universal.json
+  fastboot flash bootfs bootfs.img
+  fastboot flash rootfs rootfs.ext4
+  ```
 
 - **NOR + BLK Partition Table Configuration**
   - **NOR Flash Partition Table**
@@ -245,7 +245,7 @@ fastboot flash rootfs rootfs.ext4
     - The NOR partition table is located at:
   `buildroot-ext/board/spacemit/k1/partition_2M.json`
 
-    - For NAND/NOR devices, the partition table is nameed like `partition_xM.json`. Make sure the filename matches your actual flash size, or the system won’t find the correct table.
+    - For NAND/NOR devices, the partition table is named like `partition_xM.json`. Make sure the filename matches your actual flash size, or the system won’t find the correct table.
     - Partition tables are compatible downward — e.g., if NOR is 8MB and only `partition_2M.json` is available, it will be used.
 
   - **Partition Naming Convention**
@@ -253,211 +253,211 @@ fastboot flash rootfs rootfs.ext4
     - BLK devices (eMMC/SD/SSD) all use `partition_universal.json`.
 
 - **Modifying NOR Flash Partition Tables**
-  1. Partition offsets and sizes are aligned to 64KB by default (ecorresponding to an erase size of 64 KB)
+  1. Partition offsets and sizes are aligned to 64KB by default (corresponding to an erase size of 64 KB)
 
-  2. If the soffset and size need to align with 4 KB, the U-Boot compilation configuration `CONFIG_SPI_FLASH_USE_4K_SECTORS` must be enabled.
+  2. If the offset and size need to align with 4 KB, the U-Boot compilation configuration `CONFIG_SPI_FLASH_USE_4K_SECTORS` must be enabled.
 
-```sh
-//buildroot-ext/board/spacemit/k1/partition_2M.json
-{
-  "version": "1.0",
-  "format": "mtd",
-  "partitions": [
-    {
-      "name": "bootinfo",
-      "offset": "0",
-      "size": "128K",
-      "image": "factory/bootinfo_spinor.bin"
-    },
-    {
-      "name": "fsbl",
-      "offset": "128K",
-      "size": "256K",
-      "image": "factory/FSBL.bin"
-    },
-    {
-      "name": "env",
-      "offset": "384K",
-      "size": "64K"
-    },
-    {
-      "name": "opensbi",
-      "offset": "448K",
-      "size": "192K",
-      "image": "fw_dynamic.itb"
-    },
-    {
-      "name": "uboot",
-      "offset": "640K",
-      "size": "-",
-      "image": "u-boot.itb"
-    }
-  ]
-}
-```
+  ```sh
+  //buildroot-ext/board/spacemit/k1/partition_2M.json
+  {
+    "version": "1.0",
+    "format": "mtd",
+    "partitions": [
+      {
+        "name": "bootinfo",
+        "offset": "0",
+        "size": "128K",
+        "image": "factory/bootinfo_spinor.bin"
+      },
+      {
+        "name": "fsbl",
+        "offset": "128K",
+        "size": "256K",
+        "image": "factory/FSBL.bin"
+      },
+      {
+        "name": "env",
+        "offset": "384K",
+        "size": "64K"
+      },
+      {
+        "name": "opensbi",
+        "offset": "448K",
+        "size": "192K",
+        "image": "fw_dynamic.itb"
+      },
+      {
+        "name": "uboot",
+        "offset": "640K",
+        "size": "-",
+        "image": "u-boot.itb"
+      }
+    ]
+  }
+  ```
 
 - **SSD Partition Table**
-All block devices (like SSDs and eMMCs) use the same partition table file `partition_universal.json`. In this case, partitions such as `bootinfo`, `fsbl`, `env`, `opensbi`, `uboot`, and the data within them, will not affect normal boot processes.
+  All block devices (like SSDs and eMMCs) use the same partition table file `partition_universal.json`. In this case, partitions such as `bootinfo`, `fsbl`, `env`, `opensbi`, `uboot`, and the data within them, will not affect normal boot processes.
 
-```sh
-//buildroot-ext/board/spacemit/k1/partition_universal.json
-{
-    "version": "1.0",
-    "format": "gpt",
-    "partitions": [
-        {
-            "name": "bootinfo",
-            "offset": "0K",
-            "size": "512",
-            "image": "factory/bootinfo_sd.bin",
-            "holes": "{\"(80;512)\"}"
-        },
-        {
-            "name": "fsbl",
-            "offset": "128K",
-            "size": "256K",
-            "image": "factory/FSBL.bin"
-        },
-        {
-            "name": "env",
-            "offset":"384K",
-            "size": "64K",
-            "image": "env.bin"
-        },
-        {
-            "name": "opensbi",
-            "size": "384K",
-            "image": "fw_dynamic.itb"
-        },
-        {
-            "name": "uboot",
-            "size": "2M",
-            "image": "u-boot.itb"
-        },
-        {
-            "name": "bootfs",
-            "offset": "4M",
-            "size": "256M",
-            "image": "bootfs.img",
-            "compress": "gzip-5"
-        },
-        {
-            "name": "rootfs",
-            "offset": "260M",
-            "size": "-",
-            "image": "rootfs.ext4",
-            "compress": "gzip-5"
-        }
-    ]
-}
-```
+  ```sh
+  //buildroot-ext/board/spacemit/k1/partition_universal.json
+  {
+      "version": "1.0",
+      "format": "gpt",
+      "partitions": [
+          {
+              "name": "bootinfo",
+              "offset": "0K",
+              "size": "512",
+              "image": "factory/bootinfo_sd.bin",
+              "holes": "{\"(80;512)\"}"
+          },
+          {
+              "name": "fsbl",
+              "offset": "128K",
+              "size": "256K",
+              "image": "factory/FSBL.bin"
+          },
+          {
+              "name": "env",
+              "offset":"384K",
+              "size": "64K",
+              "image": "env.bin"
+          },
+          {
+              "name": "opensbi",
+              "size": "384K",
+              "image": "fw_dynamic.itb"
+          },
+          {
+              "name": "uboot",
+              "size": "2M",
+              "image": "u-boot.itb"
+          },
+          {
+              "name": "bootfs",
+              "offset": "4M",
+              "size": "256M",
+              "image": "bootfs.img",
+              "compress": "gzip-5"
+          },
+          {
+              "name": "rootfs",
+              "offset": "260M",
+              "size": "-",
+              "image": "rootfs.ext4",
+              "compress": "gzip-5"
+          }
+      ]
+  }
+  ```
 
 ##### NAND Flashing
 
 - **NAND Flashing Process**
-The K1 supports NAND flash booting. However, since **NAND and NOR share the same SPI interface**, only one of these schemes can be selected, with the default support being for NOR booting.
+  The K1 supports NAND flash booting. However, since **NAND and NOR share the same SPI interface**, only one of these schemes can be selected, with the default support being for NOR booting.
 
-For NAND flash booting, please refer to the NAND boot configuration section in the programming boot process to configure NAND booting
+  For NAND flash booting, please refer to the NAND boot configuration section in the programming boot process to configure NAND booting
 
-```sh
-fastboot stage factory/FSBL.bin
-fastboot continue
-#sleep wait for uboot ready
-#linux env
-sleep 1       
-#windows env          
-#timeout /t 1 >null      
-fastboot stage u-boot.itb
-fastboot continue
+  ```sh
+  fastboot stage factory/FSBL.bin
+  fastboot continue
+  #sleep wait for uboot ready
+  #linux env
+  sleep 1       
+  #windows env          
+  #timeout /t 1 >null      
+  fastboot stage u-boot.itb
+  fastboot continue
 
-fastboot flash mtd partition_64M.json
-fastboot flash bootinfo factory/bootinfo_spinand.bin
-fastboot flash fsbl factory/FSBL.bin
-fastboot flash env env.bin
-fastboot flash opensbi fw_dynamic.itb
-fastboot flash uboot u-boot.itb
+  fastboot flash mtd partition_64M.json
+  fastboot flash bootinfo factory/bootinfo_spinand.bin
+  fastboot flash fsbl factory/FSBL.bin
+  fastboot flash env env.bin
+  fastboot flash opensbi fw_dynamic.itb
+  fastboot flash uboot u-boot.itb
 
-fastboot flash user-bootfs bootfs.img
-fastboot flash user-rootfs rootfs.img
-```
+  fastboot flash user-bootfs bootfs.img
+  fastboot flash user-rootfs rootfs.img
+  ```
 
 - **UBIFS Image Creation**
-File system management on the NAND relies on UBIFS. The methods for creating the **bootfs** and **rootfs** partitions are as follows:
+  File system management on the NAND relies on UBIFS. The methods for creating the **bootfs** and **rootfs** partitions are as follows:
 
-```sh
-#Creating bootfs.img
-mkfs.ubifs -F -m 2048 -e 124KiB -c 8124 -x zlib -o output/bootfs.img -d input_bootfs/
+  ```sh
+  #Creating bootfs.img
+  mkfs.ubifs -F -m 2048 -e 124KiB -c 8124 -x zlib -o output/bootfs.img -d input_bootfs/
 
-#Creating rootfs.img
-mkfs.ubifs -F -m 2048 -e 124KiB -c 8124 -x zlib -o output/rootfs.img -d input_rootfs/
+  #Creating rootfs.img
+  mkfs.ubifs -F -m 2048 -e 124KiB -c 8124 -x zlib -o output/rootfs.img -d input_rootfs/
 
-#input_bootfs and input_rootfs should contain the files to be included in the bootfs and rootfs partitions, respectively.
-# For example, for bootfs, include the following files: Image.itb, env_k1-x.txt, bianbu.bmp
+  #input_bootfs and input_rootfs should contain the files to be included in the bootfs and rootfs partitions, respectively.
+  # For example, for bootfs, include the following files: Image.itb, env_k1-x.txt, bianbu.bmp
 
-#Different NANDs require modification of the corresponding parameters; here are some parameter descriptions:
--m 2048：Sets the minimum input/output unit size to 2048 bytes (2 KiB), which should match the page size of the NAND Flash.
--e 124KiB：Sets the logical erase block size to 124 KiB (kilobytes), which should be smaller than the actual physical erase block size to leave space for UBI management structures.
--c 8124：Sets the maximum number of logical erase blocks to 8124, which limits the maximum size of the filesystem based on the size and number of logical erase blocks.
--x zlib: Sets the compression type to zlib, which will compress the data in the filesystem using zlib.
--o output/ubifs.img: Specifies the output file name, saving the generated UBIFS filesystem image as output/ubifs.img.
--d input/: Specifies the source directory as input/, where mkfs.ubifs will create a UBIFS filesystem image from the files and directory structure in this directory.
-```
+  #Different NANDs require modification of the corresponding parameters; here are some parameter descriptions:
+  -m 2048：Sets the minimum input/output unit size to 2048 bytes (2 KiB), which should match the page size of the NAND Flash.
+  -e 124KiB：Sets the logical erase block size to 124 KiB (kilobytes), which should be smaller than the actual physical erase block size to leave space for UBI management structures.
+  -c 8124：Sets the maximum number of logical erase blocks to 8124, which limits the maximum size of the filesystem based on the size and number of logical erase blocks.
+  -x zlib: Sets the compression type to zlib, which will compress the data in the filesystem using zlib.
+  -o output/ubifs.img: Specifies the output file name, saving the generated UBIFS filesystem image as output/ubifs.img.
+  -d input/: Specifies the source directory as input/, where mkfs.ubifs will create a UBIFS filesystem image from the files and directory structure in this directory.
+  ```
 
 - **NAND + Block Device Boot**
-K1 also supports booting with a combination of **NAND and a block device** (e.g., SSD or eMMC). The flashing process is similar to the **NOR+BLK configuration**.
+  K1 also supports booting with a combination of **NAND and a block device** (e.g., SSD or eMMC). The flashing process is similar to the **NOR+BLK configuration**.
 
 - **NAND Partition Table Example**
-Below is an example of a 64MB partition layout for NAND (`partition_64M.json`):
+  Below is an example of a 64MB partition layout for NAND (`partition_64M.json`):
 
-```sh
-//buildroot-ext/board/spacemit/k1/partition_64M.json
-{
-  "version": "1.0",
-  "format": "mtd",
-  "partitions": [
-    {
-      "name": "bootinfo",
-      "comment": "private partition, should not overrided it",
-      "offset": "0",
-      "size": "128K",
-      "image": "factory/bootinfo_spinand.bin"
-    },
-    {
-      "name": "fsbl",
-      "offset": "128K",
-      "size": "256K",
-      "image": "factory/FSBL.bin"
-    },
-    {
-      "name": "env",
-      "offset": "384K",
-      "size": "128K"
-    },
-    {
-      "name": "opensbi",
-      "offset": "640K",
-      "size": "384K",
-      "image": "opensbi.itb"
-    },
-    {
-      "name": "uboot",
-      "offset": "1M",
-      "size": "2M",
-      "image": "u-boot.itb"
-    },
-    {
-      "name": "user",
-      "offset": "3M",
-      "size": "-",
-             "volume_images": {"bootfs": "bootfs.img", "rootfs": "rootfs.img"}
-    }
-  ]
-}
-```
+  ```sh
+  //buildroot-ext/board/spacemit/k1/partition_64M.json
+  {
+    "version": "1.0",
+    "format": "mtd",
+    "partitions": [
+      {
+        "name": "bootinfo",
+        "comment": "private partition, should not overrided it",
+        "offset": "0",
+        "size": "128K",
+        "image": "factory/bootinfo_spinand.bin"
+      },
+      {
+        "name": "fsbl",
+        "offset": "128K",
+        "size": "256K",
+        "image": "factory/FSBL.bin"
+      },
+      {
+        "name": "env",
+        "offset": "384K",
+        "size": "128K"
+      },
+      {
+        "name": "opensbi",
+        "offset": "640K",
+        "size": "384K",
+        "image": "opensbi.itb"
+      },
+      {
+        "name": "uboot",
+        "offset": "1M",
+        "size": "2M",
+        "image": "u-boot.itb"
+      },
+      {
+        "name": "user",
+        "offset": "3M",
+        "size": "-",
+               "volume_images": {"bootfs": "bootfs.img", "rootfs": "rootfs.img"}
+      }
+    ]
+  }
+  ```
 
 ##### Card Booting
 
-Card booting refers to writing the image to an **SD card**. When the device is powered on with the SD card inserted, the system will **attempts to boot from the card first**.
+Card booting refers to writing the image to an **SD card**. When the device is powered on with the SD card inserted, the system will **attempt to boot from the card first**.
 
 The K1 platform supports card booting and defaults to first attempting to boot from the SD card. If SD boot fails, the system will fall back to another boot source as selected by the **boot pin** configuration.
 
@@ -891,30 +891,30 @@ The **SPL-DTS configuration** is as follows:
    - Enable support for loading env from SPI.
    - Set env offset to `0x80000` (must match partition table).
 
-The NAND flash driver needs to be adapted to the corresponding model of the SPI flash used on the hardware. The currently supported NAND flash drivers are listed below. If there is no corresponding driver, you can add the manufacturer's JEDEC ID (Joint Electron Devices Engineering Council ID) in the other.c driver.
+   The NAND flash driver needs to be adapted to the corresponding model of the SPI flash used on the hardware. The currently supported NAND flash drivers are listed below. If there is no corresponding driver, you can add the manufacturer's JEDEC ID (Joint Electron Devices Engineering Council ID) in the other.c driver.
 
 3. Add or Modify NAND Flash Drivers
 
    - Ensure your build includes the correct SPI NAND driver matching your actual flash chip. Currently supported vendors include:
 
-```sh
-~/uboot-2022.10$ ls drivers/mtd/nand/spi/*.c
-uboot-2022.10/drivers/mtd/nand/spi/core.c
-uboot-2022.10/drivers/mtd/nand/spi/micron.c
-uboot-2022.10/drivers/mtd/nand/spi/winbond.c
-uboot-2022.10/drivers/mtd/nand/spi/gigadevice.c
-uboot-2022.10/drivers/mtd/nand/spi/other.c
-uboot-2022.10/drivers/mtd/nand/spi/macronix.c
-uboot-2022.10/drivers/mtd/nand/spi/toshiba.c
-```
+     ```sh
+     ~/uboot-2022.10$ ls drivers/mtd/nand/spi/*.c
+     uboot-2022.10/drivers/mtd/nand/spi/core.c
+     uboot-2022.10/drivers/mtd/nand/spi/micron.c
+     uboot-2022.10/drivers/mtd/nand/spi/winbond.c
+     uboot-2022.10/drivers/mtd/nand/spi/gigadevice.c
+     uboot-2022.10/drivers/mtd/nand/spi/other.c
+     uboot-2022.10/drivers/mtd/nand/spi/macronix.c
+     uboot-2022.10/drivers/mtd/nand/spi/toshiba.c
+     ```
 
-- If the chip isn’t listed, add support manually in the `other.c` source file by defining the **JEDEC ID**.
+   - If the chip isn’t listed, add support manually in the `other.c` source file by defining the **JEDEC ID**.
    Example: Adding support for FORESEE or Dosilicon:
 
-```c
-//uboot-2022.10/drivers/mtd/nand/spi/other.c
- static int other_spinand_detect(struct spinand_device *spinand)
- {
+   ```c
+   //uboot-2022.10/drivers/mtd/nand/spi/other.c
+    static int other_spinand_detect(struct spinand_device *spinand)
+   {
      u8 *id = spinand->id.data;
      int ret = 0;
 
@@ -935,8 +935,8 @@ uboot-2022.10/drivers/mtd/nand/spi/toshiba.c
          return ret;
 
      return 1;
- }
-```
+    }
+   ```
 
 ##### Kernel Boot
 
@@ -963,54 +963,54 @@ This file includes multiple pre-configured boot flows (eMMC/SD/NOR+BLK, etc.), a
 1. **MMC Boot** (for SD or eMMC)
    For both **SD** and **eMMC**, the boot flow is handled via `mmc_boot`.
 
-```sh
-//uboot-2022.10/board/spacemit/k1-x/k1-x.env
-run mmc_boot;
+   ```sh
+   //uboot-2022.10/board/spacemit/k1-x/k1-x.env
+   run mmc_boot;
 
-mmc_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
-          run commonargs; \
-          run set_mmc_root; \
-          run set_mmc_args; \
-          run detect_dtb; \
-          run loadknl; \
-          run loaddtb; \
-          run loadramdisk; \
-          bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
-```
+   mmc_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
+             run commonargs; \
+             run set_mmc_root; \
+             run set_mmc_args; \
+             run detect_dtb; \
+             run loadknl; \
+             run loaddtb; \
+             run loadramdisk; \
+             bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
+   ```
 
-The `rootfs` is passed from U-Boot to the kernel via `bootargs`. The kernel or its `init` script uses this to mount the correct root partition.
+   The `rootfs` is passed from U-Boot to the kernel via `bootargs`. The kernel or its `init` script uses this to mount the correct root partition.
 
-In below example, `root=/dev/mmcblk2p6` indicates the partition for the rootfs.
+   In below example, `root=/dev/mmcblk2p6` indicates the partition for the rootfs.
 
-```sh
-bootargs=earlycon=sbi earlyprintk console=tty1 console=ttyS0,115200 loglevel=8 clk_ignore_unused swiotlb=65536 rdinit=/init root=/dev/mmcblk2p6 rootwait rootfstype=ext4
-```
+   ```sh
+   bootargs=earlycon=sbi earlyprintk console=tty1 console=ttyS0,115200 loglevel=8 clk_ignore_unused swiotlb=65536 rdinit=/init root=/dev/mmcblk2p6 rootwait rootfstype=ext4
+   ```
 
 2. **NOR + Block Device Boot** (e.g., NOR + SSD)
 
-```sh
-//uboot-2022.10/board/spacemit/k1-x/k1-x.env
-run nor_boot;
+   ```sh
+   //uboot-2022.10/board/spacemit/k1-x/k1-x.env
+   run nor_boot;
 
-nor_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
-         run commonargs; \
-         run set_nor_root; \
-         run set_nor_args; \
-         run detect_dtb; \
-         run loadknl; \
-         run loaddtb; \
-         run loadramdisk; \
-         bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
-```
+   nor_boot=echo "Try to boot from ${bootfs_devname}${boot_devnum} ..."; \
+            run commonargs; \
+            run set_nor_root; \
+            run set_nor_args; \
+            run detect_dtb; \
+            run loadknl; \
+            run loaddtb; \
+            run loadramdisk; \
+            bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr};
+   ```
 
 3. **NAND Boot**
 
-```sh
-//uboot-2022.10/board/spacemit/k1-x/k1-x.env
-run nand_boot;
+   ```sh
+   //uboot-2022.10/board/spacemit/k1-x/k1-x.env
+   run nand_boot;
 
-//to be adapted
-```
+   //to be adapted
+   ```
 
 ### Secure Boot
 
@@ -1035,32 +1035,32 @@ The secure boot process follows this verification chain:
 
 #### Configuration
 
-- U-Boot compilation configuration:
+   - U-Boot compilation configuration:
 
-```sh
-CONFIG_FIT_SIGNATURE=y
-CONFIG_SPL_FIT_SIGNATURE=y
+   ```sh
+   CONFIG_FIT_SIGNATURE=y
+   CONFIG_SPL_FIT_SIGNATURE=y
 
-CONFIG_SHA256=y
-CONFIG_SPL_SHA256=y
+   CONFIG_SHA256=y
+   CONFIG_SPL_SHA256=y
 
-CONFIG_RSA=y
-CONFIG_SPL_RSA=y
-CONFIG_SPL_RSA_VERIFY=y
-CONFIG_RSA_VERIFY=y
-```
+   CONFIG_RSA=y
+   CONFIG_SPL_RSA=y
+   CONFIG_SPL_RSA_VERIFY=y
+   CONFIG_RSA_VERIFY=y
+   ```
 
 - OpenSBI compilation configuration:
 
-```sh
-CONFIG_FIT_SIGNATURE=y
-```
+   ```sh
+   CONFIG_FIT_SIGNATURE=y
+   ```
 
 - Kernel compilation configuration:
 
-```sh
-CONFIG_FIT_SIGNATURE=y
-```
+   ```sh
+   CONFIG_FIT_SIGNATURE=y
+   ```
 
 #### Public and Private Keys Generation
 
@@ -1087,80 +1087,80 @@ openssl rsa -in pub-rsa.key -pubin -noout -text
 
 1. Modify the ITS script to enable hash and signature configurations.
 
-```sh
-/dts-v1/;
+   ```sh
+   /dts-v1/;
 
-/ {
-        description = "Configuration to load OpenSBI before U-Boot";
-        #address-cells = <2>;
-        fit,fdt-list = "of-list";
+   / {
+           description = "Configuration to load OpenSBI before U-Boot";
+           #address-cells = <2>;
+           fit,fdt-list = "of-list";
 
-        images {
-                opensbi {
-                        description = "OpenSBI fw_dynamic Firmware";
-                        type = "firmware";
-                        os = "opensbi";
-                        arch = "riscv";
-                        compression = "none";
-                        load = <0x0 0x0>;
-                        entry = <0x0 0x0>;
-                        data = /incbin/("./fw_dynamic.bin");
-                        hash-1 {
-                                algo = "sha256";
-                        };
-                };
-        };
-        configurations {
-                default = "config_1";
+           images {
+                   opensbi {
+                           description = "OpenSBI fw_dynamic Firmware";
+                           type = "firmware";
+                           os = "opensbi";
+                           arch = "riscv";
+                           compression = "none";
+                           load = <0x0 0x0>;
+                           entry = <0x0 0x0>;
+                           data = /incbin/("./fw_dynamic.bin");
+                           hash-1 {
+                                   algo = "sha256";
+                           };
+                   };
+           };
+           configurations {
+                   default = "config_1";
 
-                config_1 {
-                        description = "opensbi FIT config";
-                        firmware = "opensbi";
-                        signature {
-                                algo = "sha256,rsa2048";
-                                key-name-hint = "uboot_key_prv";
-                                sign-images = "firmware";
-                        };
-                };
-        };
-};
-```
+                   config_1 {
+                           description = "opensbi FIT config";
+                           firmware = "opensbi";
+                           signature {
+                                   algo = "sha256,rsa2048";
+                                   key-name-hint = "uboot_key_prv";
+                                   sign-images = "firmware";
+                           };
+                   };
+           };
+   };
+   ```
 
 2. Using a private key and certificate, sign the FIT image file.
 
-```sh
-# build empty dtb file, for next stage public key file output
-printf "/dts-v1/;\n/ {\n};" > pubkey.dts
-dtc -I dts -O dtb -o pubkey.dtb pubkey.dts
+   ```sh
+   # build empty dtb file, for next stage public key file output
+   printf "/dts-v1/;\n/ {\n};" > pubkey.dts
+   dtc -I dts -O dtb -o pubkey.dtb pubkey.dts
 
-# build fit image
-# input: fit script, folder contain private key and certification
-# output: fit image, dtb that contain public key info
-mkimage -f uboot_fdt_sign.its -K pubkey.dtb -k key -r u-boot.itb
+   # build fit image
+   # input: fit script, folder contain private key and certification
+   # output: fit image, dtb that contain public key info
+   mkimage -f uboot_fdt_sign.its -K pubkey.dtb -k key -r u-boot.itb
 
-# parse dtb file that public key info
-fdtdump -s pubkey.dtb
-```
+   # parse dtb file that public key info
+   fdtdump -s pubkey.dtb
+   ```
 
 3. Update the public key information to the parent bootloader code.
-For example, update the public key information corresponding to the private key used for U-Boot signing to the FSBL DTS.
+   For example, update the public key information corresponding to the private key used for U-Boot signing to the FSBL DTS.
 
-```sh
-/ {
-        signature {
-                key-uboot_key_prv {
-                        required = "conf";
-                        algo = "sha256,rsa2048";
-                        rsa,r-squared = <0x5353bc86 0x7070d595 0xe2ea6280 0xb9887ae1 0xf69bb145 0x161e6675 0x6f9d37dc 0x29646b18 0x0ecc66d1 0x0ef7fa25 0xddc925cf 0xf068e5e4 0x78e5b40b 0x124095c6 0x1282d13c 0x1bdf09d0 0x7ddf7bf4 0xb4e61d0b 0x8d68f15d 0xb77282df 0xb0b371d8 0xd887288d 0x6c2ee06e 0x4124c030 0xbcdb8688 0x13a6ea0a 0xbb8dc9d1 0xd4b8a0fd 0x141c1e45 0x91c77190 0xf2685d1e 0xa44e33eb 0x38a90bdf 0x671b076b 0x0efb5223 0x72762fd2 0xcbf35219 0x833553c7 0x91382847 0xa3806134 0xb785d6f6 0x64ba98d7 0x4f01bc2e 0x78e320dc 0x9233332c 0x8be5ebec 0x60605d78 0xd5e5741c 0x2980546e 0x6332d458 0x73023036 0xb5e64449 0xc3f81911 0xc7d57cad 0xf17d98b1 0x139801a2 0x778632bd 0xfc15d9ca 0x4f5fc152 0xa49e2b4f 0x6f09a6b5 0xecd52030 0x19022428 0x5907c874>;
-                        rsa,modulus = <0xaa282eab 0xc7d0a288 0x5eee2ea1 0xd7d11bc5 0xaf57d029 0x4ad6c85f 0xedc802b1 0x227775cc 0x0d57d3de 0xc8e6113c 0xd3c238fd 0x03eecd4c 0x6983e4e0 0xd71eba6b 0xcdcc3c7f 0x6f602163 0x71e25d7e 0xd3ade9b9 0x25c9b950 0x4bf4d0a5 0xa067ca9c 0x64397ed2 0xd07dfa01 0x29102b9c 0x6008c40e 0xc55cc431 0xf3422d16 0xb8ade9d2 0xa8e5d3d1 0x40aca443 0x91603617 0x4159c91f 0xa10e3ef9 0xa21c40c7 0x377dfcc6 0xd831b829 0xd645d1b1 0xb04c534e 0xfd3352ef 0xdfe19a7d 0xf90c4295 0x7e753266 0x398ade75 0x85427a33 0x79412712 0x5dcd236d 0x015d8fb6 0xdde963ad 0xb8730cf5 0x45fc281b 0x1e40a1de 0xcd1d2af6 0x45ce6740 0x42e1e705 0x274af16a 0x50a66381 0xbb815c44 0x5222fe56 0x826e4475 0xd2193598 0x967573fd 0xc814bed6 0x95db8fae 0xe519808f>;
-                        rsa,exponent = <0x00000000 0x00010001>;
-                        rsa,n0-inverse = <0xfba86191>;
-                        rsa,num-bits = <0x00000800>;
-                        key-name-hint = "uboot_key_prv";
-                };
-        };
-};
-```
+   ```sh
+   / {
+           signature {
+                   key-uboot_key_prv {
+                           required = "conf";
+                           algo = "sha256,rsa2048";
+                           rsa,r-squared = <0x5353bc86 0x7070d595 0xe2ea6280 0xb9887ae1 0xf69bb145 0x161e6675 0x6f9d37dc 0x29646b18 0x0ecc66d1 0x0ef7fa25 0xddc925cf 0xf068e5e4 0x78e5b40b 0x124095c6 0x1282d13c 0x1bdf09d0 0x7ddf7bf4 0xb4e61d0b 0x8d68f15d 0xb77282df 0xb0b371d8 0xd887288d 0x6c2ee06e 0x4124c030 0xbcdb8688 0x13a6ea0a 0xbb8dc9d1 0xd4b8a0fd 0x141c1e45 0x91c77190 0xf2685d1e 0xa44e33eb 0x38a90bdf 0x671b076b 0x0efb5223 0x72762fd2 0xcbf35219 0x833553c7 0x91382847 0xa3806134 0xb785d6f6 0x64ba98d7 0x4f01bc2e 0x78e320dc 0x9233332c 0x8be5ebec 0x60605d78 0xd5e5741c 0x2980546e 0x6332d458 0x73023036 0xb5e64449 0xc3f81911 0xc7d57cad 0xf17d98b1 0x139801a2 0x778632bd 0xfc15d9ca 0x4f5fc152 0xa49e2b4f 0x6f09a6b5 0xecd52030 0x19022428 0x5907c874>;
+                           rsa,modulus = <0xaa282eab 0xc7d0a288 0x5eee2ea1 0xd7d11bc5 0xaf57d029 0x4ad6c85f 0xedc802b1 0x227775cc 0x0d57d3de 0xc8e6113c 0xd3c238fd 0x03eecd4c 0x6983e4e0 0xd71eba6b 0xcdcc3c7f 0x6f602163 0x71e25d7e 0xd3ade9b9 0x25c9b950 0x4bf4d0a5 0xa067ca9c 0x64397ed2 0xd07dfa01 0x29102b9c 0x6008c40e 0xc55cc431 0xf3422d16 0xb8ade9d2 0xa8e5d3d1 0x40aca443 0x91603617 0x4159c91f 0xa10e3ef9 0xa21c40c7 0x377dfcc6 0xd831b829 0xd645d1b1 0xb04c534e 0xfd3352ef 0xdfe19a7d 0xf90c4295 0x7e753266 0x398ade75 0x85427a33 0x79412712 0x5dcd236d 0x015d8fb6 0xdde963ad 0xb8730cf5 0x45fc281b 0x1e40a1de 0xcd1d2af6 0x45ce6740 0x42e1e705 0x274af16a 0x50a66381 0xbb815c44 0x5222fe56 0x826e4475 0xd2193598 0x967573fd 0xc814bed6 0x95db8fae 0xe519808f>;
+                           rsa,exponent = <0x00000000 0x00010001>;
+                           rsa,n0-inverse = <0xfba86191>;
+                           rsa,num-bits = <0x00000800>;
+                           key-name-hint = "uboot_key_prv";
+                   };
+           };
+   };
+   ```
 
 ## U-Boot Features and Configuration
 
@@ -1207,30 +1207,30 @@ This section describes how to compile U-Boot images from the codebase.
 
 - **Compiling U-Boot**
 
-```shell
-cd ~/uboot-2022.10
-GCC_PREFIX=riscv64-unknown-linux-gnu-
-make ARCH=riscv CROSS_COMPILE=${GCC_PREFIX} -C ~/uboot-2022.10 -j4
-```
+  ```shell
+  cd ~/uboot-2022.10
+  GCC_PREFIX=riscv64-unknown-linux-gnu-
+  make ARCH=riscv CROSS_COMPILE=${GCC_PREFIX} -C ~/uboot-2022.10 -j4
+  ```
 
 - **Compiling Output**
 
-```shell
-~/uboot-2022.10$ ls u-boot* -l
-u-boot
-u-boot.bin           # U-Boot image
-u-boot.dtb           # DTB file
-u-boot-dtb.bin       # U-Boot image with DTB
-u-boot.itb           # Packs u-boot-nodtb.bin and DTB into FIT format
-u-boot-nodtb.bin
-bootinfo_emmc.bin    # Records SPL location for eMMC boot
-bootinfo_sd.bin
-bootinfo_spinand.bin
-bootinfo_spinor.bin
-FSBL.bin             # u-boot-spl.bin with header information, loaded and started by BROM
-k1-x_deb1.dtb        # DTB file for the deb1 solution
-k1-x_spl.dtb         # SPL DTB file
-```
+  ```shell
+  ~/uboot-2022.10$ ls u-boot* -l
+  u-boot
+  u-boot.bin           # U-Boot image
+  u-boot.dtb           # DTB file
+  u-boot-dtb.bin       # U-Boot image with DTB
+  u-boot.itb           # Packs u-boot-nodtb.bin and DTB into FIT format
+  u-boot-nodtb.bin
+  bootinfo_emmc.bin    # Records SPL location for eMMC boot
+  bootinfo_sd.bin
+  bootinfo_spinand.bin
+  bootinfo_spinor.bin
+  FSBL.bin             # u-boot-spl.bin with header information, loaded and started by BROM
+  k1-x_deb1.dtb        # DTB file for the deb1 solution
+  k1-x_spl.dtb         # SPL DTB file
+  ```
 
 ### DTS Configuration
 
@@ -1431,81 +1431,81 @@ Both devices use the MMC driver but have different device numbers:
 
    **Example configuration:**
 
-```dts
-// uboot-2022.10/arch/riscv/dts/k1-x.dtsi
-sdhci0: sdh@d4280000 {
-    compatible = "spacemit,k1-x-sdhci";
-    reg = <0x0 0xd4280000 0x0 0x200>;
-    interrupt-parent = <&intc>;
-    interrupts = <99>;
-    resets = <&reset RESET_SDH_AXI>, <&reset RESET_SDH0>;
-    reset-names = "sdh_axi", "sdh0";
-    clocks = <&ccu CLK_SDH0>, <&ccu CLK_SDH_AXI>;
-    clock-names = "sdh-io", "sdh-core";
-    status = "disabled";
-};
+   ```dts
+   // uboot-2022.10/arch/riscv/dts/k1-x.dtsi
+   sdhci0: sdh@d4280000 {
+       compatible = "spacemit,k1-x-sdhci";
+       reg = <0x0 0xd4280000 0x0 0x200>;
+       interrupt-parent = <&intc>;
+       interrupts = <99>;
+       resets = <&reset RESET_SDH_AXI>, <&reset RESET_SDH0>;
+       reset-names = "sdh_axi", "sdh0";
+       clocks = <&ccu CLK_SDH0>, <&ccu CLK_SDH_AXI>;
+       clock-names = "sdh-io", "sdh-core";
+       status = "disabled";
+   };
 
-sdhci2: sdh@d4281000 {
-    compatible = "spacemit,k1-x-sdhci";
-    reg = <0x0 0xd4281000 0x0 0x200>;
-    interrupt-parent = <&intc>;
-    interrupts = <101>;
-    resets = <&reset RESET_SDH_AXI>, <&reset RESET_SDH2>;
-    reset-names = "sdh_axi", "sdh2";
-    clocks = <&ccu CLK_SDH2>, <&ccu CLK_SDH_AXI>;
-    clock-names = "sdh-io", "sdh-core";
-    status = "disabled";
-};
-```
+   sdhci2: sdh@d4281000 {
+       compatible = "spacemit,k1-x-sdhci";
+       reg = <0x0 0xd4281000 0x0 0x200>;
+       interrupt-parent = <&intc>;
+       interrupts = <101>;
+       resets = <&reset RESET_SDH_AXI>, <&reset RESET_SDH2>;
+       reset-names = "sdh_axi", "sdh2";
+       clocks = <&ccu CLK_SDH2>, <&ccu CLK_SDH_AXI>;
+       clock-names = "sdh-io", "sdh-core";
+       status = "disabled";
+   };
+   ```
 
-```dts
-// uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
-&sdhci0 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&pinctrl_mmc1 &gpio80_pmx_func0>;
-    bus-width = <4>;
-    cd-gpios = <&gpio 80 0>;
-    cd-inverted;
-    cap-sd-highspeed;
-    sdh-phy-module = <0>;
-    status = "okay";
-};
+   ```dts
+   // uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
+   &sdhci0 {
+       pinctrl-names = "default";
+       pinctrl-0 = <&pinctrl_mmc1 &gpio80_pmx_func0>;
+       bus-width = <4>;
+       cd-gpios = <&gpio 80 0>;
+       cd-inverted;
+       cap-sd-highspeed;
+       sdh-phy-module = <0>;
+       status = "okay";
+   };
 
-/* eMMC */
-&sdhci2 {
-    bus-width = <8>;
-    non-removable;
-    mmc-hs400-1_8v;
-    mmc-hs400-enhanced-strobe;
-    sdh-phy-module = <1>;
-    status = "okay";
-};
-```
+   /* eMMC */
+   &sdhci2 {
+       bus-width = <8>;
+       non-removable;
+       mmc-hs400-1_8v;
+       mmc-hs400-enhanced-strobe;
+       sdh-phy-module = <1>;
+       status = "okay";
+   };
+   ```
 
 3. **Debug and Validation**
    U-Boot provides a command-line interface for MMC driver debugging.
    Make sure the `CONFIG_CMD_MMC` option is enabled in the build.
 
-```shell
-=> mmc list
-sdh@d4280000: 0 (SD)
-sdh@d4281000: 2 (eMMC)
-=> mmc dev 2 #Switch to eMMC
-switch to partitions #0, OK
-mmc2(part 0) is current device
+   ```shell
+   => mmc list
+   sdh@d4280000: 0 (SD)
+   sdh@d4281000: 2 (eMMC)
+   => mmc dev 2 #Switch to eMMC
+   switch to partitions #0, OK
+   mmc2(part 0) is current device
 
-#Read 0x1000 blocks from offset 0 into memory address 0x40000000
-=> mmc read 0x40000000 0 0x1000
+   #Read 0x1000 blocks from offset 0 into memory address 0x40000000
+   => mmc read 0x40000000 0 0x1000
 
-MMC read: dev # 2, block # 0, count 4096 ... 4096 blocks read: OK
+   MMC read: dev # 2, block # 0, count 4096 ... 4096 blocks read: OK
 
-#Write 0x1000 blocks from memory address 0x40000000 to offset 0
-=> mmc write 0x40000000 0 0x1000
+   #Write 0x1000 blocks from memory address 0x40000000 to offset 0
+   => mmc write 0x40000000 0 0x1000
 
-MMC write: dev # 2, block # 0, count 4096 ... 4096 blocks written: OK
+   MMC write: dev # 2, block # 0, count 4096 ... 4096 blocks written: OK
 
-#For other usage options, refer to mmc -h
-```
+   #For other usage options, refer to mmc -h
+   ```
 
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/mmc.c`.
@@ -1535,105 +1535,105 @@ This section explains how to configure and debug the NVMe driver. The NVMe drive
 
    **Example configuration:**
 
-```c
-//uboot-2022.10/arch/riscv/dts/k1-x.dtsi
-         pcie1_rc: pcie@ca400000 {
-             compatible = "k1x,dwc-pcie";
-             reg = <0x0 0xca400000 0x0 0x00001000>, /* dbi */
-                   <0x0 0xca700000 0x0 0x0001ff24>, /* atu registers */
-                   <0x0 0x90000000 0x0 0x00100000>, /* config space */
-                   <0x0 0xd4282bd4 0x0 0x00000008>, /*k1x soc config addr*/
-                   <0x0 0xc0c20000 0x0 0x00001000>, /* phy ahb */
-                   <0x0 0xc0c10000 0x0 0x00001000>, /* phy addr */
-                   <0x0 0xd4282bcc 0x0 0x00000008>, /* conf0 addr */
-                   <0x0 0xc0b10000 0x0 0x00001000>; /* phy0 addr */
-             reg-names = "dbi", "atu", "config", 
-                            "k1x_conf", "phy_ahb", 
-                            "phy_addr", "conf0_addr", 
-                            "phy0_addr";
+   ```c
+   //uboot-2022.10/arch/riscv/dts/k1-x.dtsi
+            pcie1_rc: pcie@ca400000 {
+                compatible = "k1x,dwc-pcie";
+                reg = <0x0 0xca400000 0x0 0x00001000>, /* dbi */
+                      <0x0 0xca700000 0x0 0x0001ff24>, /* atu registers */
+                      <0x0 0x90000000 0x0 0x00100000>, /* config space */
+                      <0x0 0xd4282bd4 0x0 0x00000008>, /*k1x soc config addr*/
+                      <0x0 0xc0c20000 0x0 0x00001000>, /* phy ahb */
+                      <0x0 0xc0c10000 0x0 0x00001000>, /* phy addr */
+                      <0x0 0xd4282bcc 0x0 0x00000008>, /* conf0 addr */
+                      <0x0 0xc0b10000 0x0 0x00001000>; /* phy0 addr */
+                reg-names = "dbi", "atu", "config", 
+                               "k1x_conf", "phy_ahb", 
+                               "phy_addr", "conf0_addr", 
+                               "phy0_addr";
 
-             k1x,pcie-port = <1>;
-             clocks = <&ccu CLK_PCIE1>;
-             clock-names = "pcie-clk";
-             resets = <&reset RESET_PCIE1>;
-             reset-names = "pcie-reset";
+                k1x,pcie-port = <1>;
+                clocks = <&ccu CLK_PCIE1>;
+                clock-names = "pcie-clk";
+                resets = <&reset RESET_PCIE1>;
+                reset-names = "pcie-reset";
 
-             bus-range = <0x00 0xff>;
-             max-link-speed = <2>;
-             num-lanes = <2>;
-             num-viewport = <8>;
-             device_type = "pci";
-             #address-cells = <3>;
-             #size-cells = <2>;
-             ranges = <0x01000000 0x0 0x90100000 
-                          0 0x90100000 0x0 0x100000>,
-                  <0x02000000 0x0 0x90200000 
-                      0 0x90200000 0x0 0x0fe00000>;
+                bus-range = <0x00 0xff>;
+                max-link-speed = <2>;
+                num-lanes = <2>;
+                num-viewport = <8>;
+                device_type = "pci";
+                #address-cells = <3>;
+                #size-cells = <2>;
+                ranges = <0x01000000 0x0 0x90100000 
+                             0 0x90100000 0x0 0x100000>,
+                     <0x02000000 0x0 0x90200000 
+                         0 0x90200000 0x0 0x0fe00000>;
 
-             interrupts = <142>, <146>;
-             interrupt-parent = <&intc>;
-             #interrupt-cells = <1>;
-             interrupt-map-mask = <0 0 0 0x7>;
-             interrupt-map = <0000 0 0 1 &pcie1_intc 1>, /* int_a */
-                     <0000 0 0 2 &pcie1_intc 2>, /* int_b */
-                     <0000 0 0 3 &pcie1_intc 3>, /* int_c */
-                     <0000 0 0 4 &pcie1_intc 4>; /* int_d */
-             linux,pci-domain = <1>;
-             status = "disabled";
-             pcie1_intc: interrupt-controller@0 {
-                 interrupt-controller;
-                 reg = <0 0 0 0 0>;
-                 #address-cells = <0>;
-                 #interrupt-cells = <1>;
-             };
-         };
+                interrupts = <142>, <146>;
+                interrupt-parent = <&intc>;
+                #interrupt-cells = <1>;
+                interrupt-map-mask = <0 0 0 0x7>;
+                interrupt-map = <0000 0 0 1 &pcie1_intc 1>, /* int_a */
+                        <0000 0 0 2 &pcie1_intc 2>, /* int_b */
+                        <0000 0 0 3 &pcie1_intc 3>, /* int_c */
+                        <0000 0 0 4 &pcie1_intc 4>; /* int_d */
+                linux,pci-domain = <1>;
+                status = "disabled";
+                pcie1_intc: interrupt-controller@0 {
+                    interrupt-controller;
+                    reg = <0 0 0 0 0>;
+                    #address-cells = <0>;
+                    #interrupt-cells = <1>;
+                };
+            };
 
 
-//uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
- &pcie1_rc {
-     pinctrl-names = "default";
-     pinctrl-0 = <&pinctrl_pcie1_3>;
-     status = "okay";
- };
-```
+   //uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
+    &pcie1_rc {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_pcie1_3>;
+        status = "okay";
+    };
+   ```
 
 3. **Debugging and Verification**
    Enable configuration `CONFIG_CMD_NVME`, follow below steps for debugging:
 
-```shell
-=> nvme scan
-=> nvme detail
-Blk device 0: Optional Admin Command Support:
-        Namespace Management/Attachment: no
-        Firmware Commit/Image download: yes
-        Format NVM: yes
-        Security Send/Receive: yes
-Blk device 0: Optional NVM Command Support:
-        Reservation: yes
-        Save/Select field in the Set/Get features: yes
-        Write Zeroes: yes
-        Dataset Management: yes
-        Write Uncorrectable: yes
-Blk device 0: Format NVM Attributes:
-        Support Cryptographic Erase: No
-        Support erase a particular namespace: Yes
-        Support format a particular namespace: Yes
-Blk device 0: LBA Format Support:
-        LBA Foramt 0 Support: (current)
-                Metadata Size: 0
-                LBA Data Size: 512
-                Relative Performance: Good
-Blk device 0: End-to-End DataProtect Capabilities:
-        As last eight bytes: No
-        As first eight bytes: No
-        Support Type3: No
-        Support Type2: No
-        Support Type1: No
-Blk device 0: Metadata capabilities:
-        As part of a separate buffer: No
-        As part of an extended data LBA: No
-=> nvme read/write addr blk_off blk_cnt
-```
+   ```shell
+   => nvme scan
+   => nvme detail
+   Blk device 0: Optional Admin Command Support:
+           Namespace Management/Attachment: no
+           Firmware Commit/Image download: yes
+           Format NVM: yes
+           Security Send/Receive: yes
+   Blk device 0: Optional NVM Command Support:
+           Reservation: yes
+           Save/Select field in the Set/Get features: yes
+           Write Zeroes: yes
+           Dataset Management: yes
+           Write Uncorrectable: yes
+   Blk device 0: Format NVM Attributes:
+           Support Cryptographic Erase: No
+           Support erase a particular namespace: Yes
+           Support format a particular namespace: Yes
+   Blk device 0: LBA Format Support:
+           LBA Foramt 0 Support: (current)
+                   Metadata Size: 0
+                   LBA Data Size: 512
+                   Relative Performance: Good
+   Blk device 0: End-to-End DataProtect Capabilities:
+           As last eight bytes: No
+           As first eight bytes: No
+           Support Type3: No
+           Support Type2: No
+           Support Type1: No
+   Blk device 0: Metadata capabilities:
+           As part of a separate buffer: No
+           As part of an extended data LBA: No
+   => nvme read/write addr blk_off blk_cnt
+   ```
 
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/nvme.c`.
@@ -1662,9 +1662,9 @@ Blk device 0: Metadata capabilities:
 
    **Example configuration**:
 
-```c
-//uboot-2022.10/arch/riscv/dts/k1-x.dtsi
-         eth0: ethernet@cac80000 {
+   ```c
+   //uboot-2022.10/arch/riscv/dts/k1-x.dtsi
+            eth0: ethernet@cac80000 {
              compatible = "spacemit,k1x-emac";
              reg = <0x00000000 0xCAC80000 0x00000000 0x00000420>;
              ctrl-reg = <0x3e4>;
@@ -1676,8 +1676,8 @@ Blk device 0: Metadata capabilities:
              status = "disabled";
          };
 
-//uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
- &eth0 {
+   //uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
+    &eth0 {
      status = "okay";
      pinctrl-names = "default";
      pinctrl-0 = <&pinctrl_gmac0>;
@@ -1704,45 +1704,45 @@ Blk device 0: Metadata capabilities:
              reg = <0x1>;
          };
      };
- };
-```
+    };
+   ```
 
 3. **Debugging and Verification**
 
-Make sure the build configuration includes `CONFIG_CMD_NET`, and that the board is connected to an Ethernet cable with a running TFTP server (not covered here).
+   Make sure the build configuration includes `CONFIG_CMD_NET`, and that the board is connected to an Ethernet cable with a running TFTP server (not covered here).
 
-**Debugging commands**:
+   **Debugging commands**:
 
-```shell
-=> dhcp #After executing dhcp, if an address is returned, it indicates a successful connection to the network server. Any other situation indicates a connection failure.
-ethernet@cac80000 Waiting for PHY auto negotiation to complete...... done
-emac_adjust_link link:1 speed:1000 duplex:full
-BOOTP broadcast 1
-BOOTP broadcast 2
-BOOTP broadcast 3
-BOOTP broadcast 4
-BOOTP broadcast 5
-BOOTP broadcast 6
-BOOTP broadcast 7
-DHCP client bound to address 10.0.92.130 (7982 ms)
+   ```shell
+   => dhcp #After executing dhcp, if an address is returned, it indicates a successful connection to the network server. Any other situation indicates a connection failure.
+   ethernet@cac80000 Waiting for PHY auto negotiation to complete...... done
+   emac_adjust_link link:1 speed:1000 duplex:full
+   BOOTP broadcast 1
+   BOOTP broadcast 2
+   BOOTP broadcast 3
+   BOOTP broadcast 4
+   BOOTP broadcast 5
+   BOOTP broadcast 6
+   BOOTP broadcast 7
+   DHCP client bound to address 10.0.92.130 (7982 ms)
 
-=> tftpboot 0x40000000 site11/uImage.itb
-ethernet@cac80000 Waiting for PHY auto negotiation to complete...... done
-emac_adjust_link link:1 speed:1000 duplex:full
-Using ethernet@cac80000 device
-TFTP from server 10.0.92.134; our IP address is 10.0.92.130
-Filename 'site11/uImage.itb'.
-Load address: 0x40000000
-Loading: ##############################################################
-         ########
-         1.1 MiB/s
-done
-Bytes transferred = 66900963 (3fcd3e3 hex)
-=>
+   => tftpboot 0x40000000 site11/uImage.itb
+   ethernet@cac80000 Waiting for PHY auto negotiation to complete...... done
+   emac_adjust_link link:1 speed:1000 duplex:full
+   Using ethernet@cac80000 device
+   TFTP from server 10.0.92.134; our IP address is 10.0.92.130
+   Filename 'site11/uImage.itb'.
+   Load address: 0x40000000
+   Loading: ##############################################################
+            ########
+            1.1 MiB/s
+   done
+   Bytes transferred = 66900963 (3fcd3e3 hex)
+   =>
 
-# booting kernel
-=>bootm 0x40000000 
-```
+   # booting kernel
+   =>bootm 0x40000000 
+   ```
 
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/net.c`.
@@ -1770,53 +1770,53 @@ SPI (Serial Peripheral Interface) is a widely used serial communication protocol
 
    **Example configuration:**
 
-```c
-//k1-x.dtsi
-/dts-v1/;
+   ```c
+   //k1-x.dtsi
+   /dts-v1/;
 
-/ {
-        compatible = "spacemit,k1x", "riscv";
-        #address-cells = <2>;
-        #size-cells = <2>;
+   / {
+           compatible = "spacemit,k1x", "riscv";
+           #address-cells = <2>;
+           #size-cells = <2>;
 
-        soc:soc {
-                compatible = "simple-bus";
-                #address-cells = <2>;
-                #size-cells = <2>;
-                ranges;
+           soc:soc {
+                   compatible = "simple-bus";
+                   #address-cells = <2>;
+                   #size-cells = <2>;
+                   ranges;
 
-                qspi: spi@d420c000 {
-                        compatible = "spacemit,k1x-qspi";
-                        #address-cells = <1>;
-                        #size-cells = <0>;
-                        reg = <0x0 0xd420c000 0x0 0x1000>,
-                              <0x0 0xb8000000 0x0 0xd00000>;
-                        reg-names = "qspi-base", "qspi-mmap";
-                        qspi-sfa1ad = <0xa00000>;
-                        qspi-sfa2ad = <0xb00000>;
-                        qspi-sfb1ad = <0xc00000>;
-                        qspi-sfb2ad = <0xd00000>;
-                        clocks = <&ccu CLK_QSPI>,
-                                <&ccu CLK_QSPI_BUS>;
-                        clock-names = "qspi_clk", "qspi_bus_clk";
-                        resets = <&reset RESET_QSPI>,
-                                <&reset RESET_QSPI_BUS>;
-                        reset-names = "qspi_reset", "qspi_bus_reset";
-                        qspi-pmuap-reg = <0xd4282860>;
-                        spi-max-frequency = <26500000>;
-                        qspi-id = <4>;
-                        status = "disabled";
-                };
-        };
-};
+                   qspi: spi@d420c000 {
+                           compatible = "spacemit,k1x-qspi";
+                           #address-cells = <1>;
+                           #size-cells = <0>;
+                           reg = <0x0 0xd420c000 0x0 0x1000>,
+                                 <0x0 0xb8000000 0x0 0xd00000>;
+                           reg-names = "qspi-base", "qspi-mmap";
+                           qspi-sfa1ad = <0xa00000>;
+                           qspi-sfa2ad = <0xb00000>;
+                           qspi-sfb1ad = <0xc00000>;
+                           qspi-sfb2ad = <0xd00000>;
+                           clocks = <&ccu CLK_QSPI>,
+                                   <&ccu CLK_QSPI_BUS>;
+                           clock-names = "qspi_clk", "qspi_bus_clk";
+                           resets = <&reset RESET_QSPI>,
+                                   <&reset RESET_QSPI_BUS>;
+                           reset-names = "qspi_reset", "qspi_bus_reset";
+                           qspi-pmuap-reg = <0xd4282860>;
+                           spi-max-frequency = <26500000>;
+                           qspi-id = <4>;
+                           status = "disabled";
+                   };
+           };
+   };
 
-//k1-x_deb1.dts
-&qspi {
-        status = "okay";
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_qspi>;
-};
-```
+   //k1-x_deb1.dts
+   &qspi {
+           status = "okay";
+           pinctrl-names = "default";
+           pinctrl-0 = <&pinctrl_qspi>;
+   };
+   ```
 
 3. **Debugging and Verification**
 
@@ -1824,19 +1824,19 @@ SPI (Serial Peripheral Interface) is a widely used serial communication protocol
 
    **Debugging command:**
 
-```c
-sspi -h
+   ```c
+   sspi -h
 
-    "SPI utility command",
-    "[<bus>:]<cs>[.<mode>][@<freq>] <bit_len> <dout> - Send and receive bits\n"
-    "<bus>     - Identifies the SPI bus\n"
-    "<cs>      - Identifies the chip select\n"
-    "<mode>    - Identifies the SPI mode to use\n"
-    "<freq>    - Identifies the SPI bus frequency in Hz\n"
-    "<bit_len> - Number of bits to send (base 10)\n"
-    "<dout>    - Hexadecimal string that gets sent"
+       "SPI utility command",
+       "[<bus>:]<cs>[.<mode>][@<freq>] <bit_len> <dout> - Send and receive bits\n"
+       "<bus>     - Identifies the SPI bus\n"
+       "<cs>      - Identifies the chip select\n"
+       "<mode>    - Identifies the SPI mode to use\n"
+       "<freq>    - Identifies the SPI bus frequency in Hz\n"
+       "<bit_len> - Number of bits to send (base 10)\n"
+       "<dout>    - Hexadecimal string that gets sent"
 
-```
+   ```
 
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/spi.c`.
@@ -1858,127 +1858,127 @@ The NAND driver in U-Boot is implemented based on the SPI interface, so SPI supp
 
    For adding support for a new NAND flash device, you can register its **JEDEC ID** in the corresponding vendor driver.
 
-```shell
-~/uboot-2022.10$ ls drivers/mtd/nand/spi/*.c -l
-drivers/mtd/nand/spi/core.c
-drivers/mtd/nand/spi/gigadevice.c
-drivers/mtd/nand/spi/macronix.c
-drivers/mtd/nand/spi/micron.c
-drivers/mtd/nand/spi/other.c
-drivers/mtd/nand/spi/toshiba.c
-drivers/mtd/nand/spi/winbond.c
-```
+   ```shell
+   ~/uboot-2022.10$ ls drivers/mtd/nand/spi/*.c -l
+   drivers/mtd/nand/spi/core.c
+   drivers/mtd/nand/spi/gigadevice.c
+   drivers/mtd/nand/spi/macronix.c
+   drivers/mtd/nand/spi/micron.c
+   drivers/mtd/nand/spi/other.c
+   drivers/mtd/nand/spi/toshiba.c
+   drivers/mtd/nand/spi/winbond.c
+   ```
 
-To add a new flash to the `Gigadevice` chip, follow these steps:
+   To add a new flash to the `Gigadevice` chip, follow these steps:
 
-```c
-//uboot-2022.10/drivers/mtd/nand/spi/gigadevice.c
- static const struct spinand_info gigadevice_spinand_table[] = {
-     SPINAND_INFO("GD5F1GQ4UExxG", 0xd1,
-              NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
-              NAND_ECCREQ(8, 512),
-              SPINAND_INFO_OP_VARIANTS(&gd5fxgq4_read_cache_variants,
-                           &write_cache_variants,
-                           &update_cache_variants),
-              0,
-              SPINAND_ECCINFO(&gd5fxgqxxexxg_ooblayout,
-                      gd5fxgq4xexxg_ecc_get_status)),
-     SPINAND_INFO("GD5F1GQ5UExxG", 0x51,
-              NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
-              NAND_ECCREQ(4, 512),
-              SPINAND_INFO_OP_VARIANTS(&gd5f1gq5_read_cache_variants,
-                           &write_cache_variants,
-                           &update_cache_variants),
-              0,
-              SPINAND_ECCINFO(&gd5fxgqxxexxg_ooblayout,
-                      gd5fxgq5xexxg_ecc_get_status)),
- };
-```
+   ```c
+   //uboot-2022.10/drivers/mtd/nand/spi/gigadevice.c
+    static const struct spinand_info gigadevice_spinand_table[] = {
+        SPINAND_INFO("GD5F1GQ4UExxG", 0xd1,
+                 NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+                 NAND_ECCREQ(8, 512),
+                 SPINAND_INFO_OP_VARIANTS(&gd5fxgq4_read_cache_variants,
+                              &write_cache_variants,
+                              &update_cache_variants),
+                 0,
+                 SPINAND_ECCINFO(&gd5fxgqxxexxg_ooblayout,
+                         gd5fxgq4xexxg_ecc_get_status)),
+        SPINAND_INFO("GD5F1GQ5UExxG", 0x51,
+                 NAND_MEMORG(1, 2048, 128, 64, 1024, 1, 1, 1),
+                 NAND_ECCREQ(4, 512),
+                 SPINAND_INFO_OP_VARIANTS(&gd5f1gq5_read_cache_variants,
+                              &write_cache_variants,
+                              &update_cache_variants),
+                 0,
+                 SPINAND_ECCINFO(&gd5fxgqxxexxg_ooblayout,
+                         gd5fxgq5xexxg_ecc_get_status)),
+    };
+   ```
 
-**Note**: For other NAND vendors, refer to the structure and methods used in the Gigadevice driver.
+   **Note**: For other NAND vendors, refer to the structure and methods used in the Gigadevice driver.
 
 2. **DTS Configuration**
 
-Since SPI NAND is a child device under the SPI controller, the node must be defined under the SPI node.
+   Since SPI NAND is a child device under the SPI controller, the node must be defined under the SPI node.
 
-**Example configuration**:
+   **Example configuration**:
 
-```c
- &qspi {
-     status = "okay";
-     pinctrl-names = "default";
-     pinctrl-0 = <&pinctrl_qspi>;
+   ```c
+    &qspi {
+           status = "okay";
+           pinctrl-names = "default";
+           pinctrl-0 = <&pinctrl_qspi>;
 
-     spi-nand@0 {
-         compatible = "spi-nand";
-         reg = <0>;
-         spi-tx-bus-width = <1>;
-         spi-rx-bus-width = <1>;
-         spi-max-frequency = <6250000>;
-         u-boot,dm-spl;
-         status = "okay";
-     };
- };
-```
+           spi-nand@0 {
+               compatible = "spi-nand";
+               reg = <0>;
+               spi-tx-bus-width = <1>;
+               spi-rx-bus-width = <1>;
+               spi-max-frequency = <6250000>;
+               u-boot,dm-spl;
+               status = "okay";
+           };
+       };
+   ```
 
 3. **Debugging and Verification**
 
-Enable `CONFIG_CMD_MTD` in U-Boot to use the `mtd` command for interacting with NAND devices.
+   Enable `CONFIG_CMD_MTD` in U-Boot to use the `mtd` command for interacting with NAND devices.
 
-**Sample Commands**:
+   **Sample Commands**:
 
-```shell
-=> mtd
-mtd - MTD utils
+   ```shell
+   => mtd
+   mtd - MTD utils
 
-Usage:
-mtd - generic operations on memory technology devices
+   Usage:
+   mtd - generic operations on memory technology devices
 
-mtd list
-mtd read[.raw][.oob]                  <name> <addr> [<off> [<size>]]
-mtd dump[.raw][.oob]                  <name>        [<off> [<size>]]
-mtd write[.raw][.oob][.dontskipff]    <name> <addr> [<off> [<size>]]
-mtd erase[.dontskipbad]               <name>        [<off> [<size>]]
+   => mtd list
+   mtd read[.raw][.oob]                  <name> <addr> [<off> [<size>]]
+   mtd dump[.raw][.oob]                  <name>        [<off> [<size>]]
+   mtd write[.raw][.oob][.dontskipff]    <name> <addr> [<off> [<size>]]
+   mtd erase[.dontskipbad]               <name>        [<off> [<size>]]
 
-Specific functions:
-mtd bad                               <name>
+   Specific functions:
+   mtd bad                               <name>
 
-With:
-        <name>: NAND partition/chip name (or corresponding DM device name or OF path)
-        <addr>: user address from/to which data will be retrieved/stored
-        <off>: offset in <name> in bytes (default: start of the part)
-                * must be block-aligned for erase
-                * must be page-aligned otherwise
-        <size>: length of the operation in bytes (default: the entire device)
-                * must be a multiple of a block for erase
-                * must be a multiple of a page otherwise (special case: default is a page with dump)
+   With:
+           <name>: NAND partition/chip name (or corresponding DM device name or OF path)
+           <addr>: user address from/to which data will be retrieved/stored
+           <off>: offset in <name> in bytes (default: start of the part)
+                   * must be block-aligned for erase
+                   * must be page-aligned otherwise
+           <size>: length of the operation in bytes (default: the entire device)
+                   * must be a multiple of a block for erase
+                   * must be a multiple of a page otherwise (special case: default is a page with dump)
 
-The .dontskipff option forces writing empty pages, don't use it if unsure.
+   The .dontskipff option forces writing empty pages, don't use it if unsure.
 
-=> mtd list
-[RESET]spacemit_reset_set assert=1, id=77
-[RESET]spacemit_reset_set assert=1, id=78
-clk qspi_bus_clk already disabled
-clk qspi_clk already disabled
-ccu_mix_set_rate of qspi_clk timeout
-[RESET]spacemit_reset_set assert=0, id=77
-[RESET]spacemit_reset_set assert=0, id=78
-SF: Detected w25q32 with page size 256 Bytes, erase size 64 KiB, total 4 MiB
-Could not find a valid device for spi-nand
-List of MTD devices:
-* nor0
-  - device: flash@0
-  - parent: spi@d420c000
-  - driver: jedec_spi_nor
-  - path: /soc/spi@d420c000/flash@0
-  - type: NOR flash
-  - block size: 0x10000 bytes
-  - min I/O: 0x1 bytes
-  - 0x000000000000-0x000000400000 : "nor0"
-          - 0x0000000a0000-0x000000100000 : "opensbi"
-          - 0x000000100000-0x000000300000 : "uboot"
-=> mtd read/write partname addr off size
-```
+   => mtd list
+   [RESET]spacemit_reset_set assert=1, id=77
+   [RESET]spacemit_reset_set assert=1, id=78
+   clk qspi_bus_clk already disabled
+   clk qspi_clk already disabled
+   ccu_mix_set_rate of qspi_clk timeout
+   [RESET]spacemit_reset_set assert=0, id=77
+   [RESET]spacemit_reset_set assert=0, id=78
+   SF: Detected w25q32 with page size 256 Bytes, erase size 64 KiB, total 4 MiB
+   Could not find a valid device for spi-nand
+   List of MTD devices:
+   * nor0
+     - device: flash@0
+     - parent: spi@d420c000
+     - driver: jedec_spi_nor
+     - path: /soc/spi@d420c000/flash@0
+     - type: NOR flash
+     - block size: 0x10000 bytes
+     - min I/O: 0x1 bytes
+     - 0x000000000000-0x000000400000 : "nor0"
+             - 0x0000000a0000-0x000000100000 : "opensbi"
+             - 0x000000100000-0x000000300000 : "uboot"
+   => mtd read/write partname addr off size
+   ```
 
 4. **Common Interfaces**
    For further implementation details, refer to `cmd/mtd.c`.
@@ -2020,23 +2020,23 @@ The NOR driver is based on SPI, so it's necessary to first enable the SPI driver
 
    **Example Configuration**:
 
-```c
-//k1/uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
- &qspi {
-     status = "okay";
-     pinctrl-names = "default";
-     pinctrl-0 = <&pinctrl_qspi>;
+   ```c
+   //k1/uboot-2022.10/arch/riscv/dts/k1-x_deb1.dts
+    &qspi {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_qspi>;
 
-     flash@0 {
-         compatible = "jedec,spi-nor";
-         reg = <0>;
-         spi-max-frequency = <26500000>;
-         m25p,fast-read;
-         broken-flash-reset;
-         status = "okay";
-     };
- };
-```
+        flash@0 {
+            compatible = "jedec,spi-nor";
+            reg = <0>;
+            spi-max-frequency = <26500000>;
+            m25p,fast-read;
+            broken-flash-reset;
+            status = "okay";
+        };
+    };
+   ```
 
 3. **Debugging and Verification**
    Ensure the following configs are enabled:
@@ -2044,109 +2044,109 @@ The NOR driver is based on SPI, so it's necessary to first enable the SPI driver
    - `CONFIG_CMD_MTD=y`
    - `CONFIG_CMD_SF=y`
 
-**Debug NOR using `mtd` Commands**:
+   **Debug NOR using `mtd` Commands**:
 
-```shell
-=> mtd list
-List of MTD devices:
-* nor0
-  - device: flash@0
-  - parent: spi@d420c000
-  - driver: jedec_spi_nor
-  - path: /soc/spi@d420c000/flash@0
-  - type: NOR flash
-  - block size: 0x1000 bytes
-  - min I/O: 0x1 bytes
-  - 0x000000000000-0x000000400000 : "nor0"
-          - 0x0000000a0000-0x0000000e0000 : "opensbi"
-          - 0x000000100000-0x000000200000 : "uboot"
-=>
+   ```shell
+   => mtd list
+   List of MTD devices:
+   * nor0
+     - device: flash@0
+     - parent: spi@d420c000
+     - driver: jedec_spi_nor
+     - path: /soc/spi@d420c000/flash@0
+     - type: NOR flash
+     - block size: 0x1000 bytes
+     - min I/O: 0x1 bytes
+     - 0x000000000000-0x000000400000 : "nor0"
+             - 0x0000000a0000-0x0000000e0000 : "opensbi"
+             - 0x000000100000-0x000000200000 : "uboot"
+   =>
 
-=> mtd
-mtd - MTD utils
+   => mtd
+   mtd - MTD utils
 
-Usage:
-mtd - generic operations on memory technology devices
+   Usage:
+   mtd - generic operations on memory technology devices
 
-mtd list
-mtd read[.raw][.oob]                  <name> <addr> [<off> [<size>]]
-mtd dump[.raw][.oob]                  <name>        [<off> [<size>]]
-mtd write[.raw][.oob][.dontskipff]    <name> <addr> [<off> [<size>]]
-mtd erase[.dontskipbad]               <name>        [<off> [<size>]]
+   mtd list
+   mtd read[.raw][.oob]                  <name> <addr> [<off> [<size>]]
+   mtd dump[.raw][.oob]                  <name>        [<off> [<size>]]
+   mtd write[.raw][.oob][.dontskipff]    <name> <addr> [<off> [<size>]]
+   mtd erase[.dontskipbad]               <name>        [<off> [<size>]]
 
-Specific functions:
-mtd bad                               <name>
+   Specific functions:
+   mtd bad                               <name>
 
-With:
-        <name>: NAND partition/chip name (or corresponding DM device name or OF path)
-        <addr>: user address from/to which data will be retrieved/stored
-        <off>: offset in <name> in bytes (default: start of the part)
-                * must be block-aligned for erase
-                * must be page-aligned otherwise
-        <size>: length of the operation in bytes (default: the entire device)
-                * must be a multiple of a block for erase
-                * must be a multiple of a page otherwise (special case: default is a page with dump)
+   With:
+           <name>: NAND partition/chip name (or corresponding DM device name or OF path)
+           <addr>: user address from/to which data will be retrieved/stored
+           <off>: offset in <name> in bytes (default: start of the part)
+                   * must be block-aligned for erase
+                   * must be page-aligned otherwise
+           <size>: length of the operation in bytes (default: the entire device)
+                   * must be a multiple of a block for erase
+                   * must be a multiple of a page otherwise (special case: default is a page with dump)
 
-The .dontskipff option forces writing empty pages, don't use it if unsure.
+   The .dontskipff option forces writing empty pages, don't use it if unsure.
 
-=>
-=> mtd read uboot 0x40000000
-Reading 1048576 byte(s) at offset 0x00000000
-=> mtd dump uboot 0 0x10
-Reading 16 byte(s) at offset 0x00000000
+   =>
+   => mtd read uboot 0x40000000
+   Reading 1048576 byte(s) at offset 0x00000000
+   => mtd dump uboot 0 0x10
+   Reading 16 byte(s) at offset 0x00000000
 
-Dump 16 data bytes from 0x0:
-0x00000000:     d0 0d fe ed 00 0d e8 95  00 00 00 38 00 0d e4 44
-=>
-```
+   Dump 16 data bytes from 0x0:
+   0x00000000:     d0 0d fe ed 00 0d e8 95  00 00 00 38 00 0d e4 44
+   =>
+   ```
 
-**Debug NOR using `sf` (SPI Flash) Commands**:
+   **Debug NOR using `sf` (SPI Flash) Commands**:
 
-```shell
-=> sf
-sf - SPI flash sub-system
+   ```shell
+   => sf
+   sf - SPI flash sub-system
 
-Usage:
-sf probe [[bus:]cs] [hz] [mode] - init flash device on given SPI bus
-                                  and chip select
-sf read addr offset|partition len       - read `len' bytes starting at
-                                          `offset' or from start of mtd
-                                          `partition'to memory at `addr'
-sf write addr offset|partition len      - write `len' bytes from memory
-                                          at `addr' to flash at `offset'
-                                          or to start of mtd `partition'
-sf erase offset|partition [+]len        - erase `len' bytes from `offset'
-                                          or from start of mtd `partition'
-                                         `+len' round up `len' to block size
-sf update addr offset|partition len     - erase and write `len' bytes from memory
-                                          at `addr' to flash at `offset'
-                                          or to start of mtd `partition'
-sf protect lock/unlock sector len       - protect/unprotect 'len' bytes starting
-                                          at address 'sector'
-=> sf probe
-SF: Detected w25q32 with page size 256 Bytes, erase size 4 KiB, total 4 MiB
-=> sf read 0x40000000 0 0x10
-device 0 offset 0x0, size 0x10
-SF: 16 bytes @ 0x0 Read: OK
-=>
-```
+   Usage:
+   sf probe [[bus:]cs] [hz] [mode] - init flash device on given SPI bus
+                                     and chip select
+   sf read addr offset|partition len       - read `len' bytes starting at
+                                             `offset' or from start of mtd
+                                             `partition'to memory at `addr'
+   sf write addr offset|partition len      - write `len' bytes from memory
+                                             at `addr' to flash at `offset'
+                                             or to start of mtd `partition'
+   sf erase offset|partition [+]len        - erase `len' bytes from `offset'
+                                             or from start of mtd `partition'
+                                            `+len' round up `len' to block size
+   sf update addr offset|partition len     - erase and write `len' bytes from memory
+                                             at `addr' to flash at `offset'
+                                             or to start of mtd `partition'
+   sf protect lock/unlock sector len       - protect/unprotect 'len' bytes starting
+                                             at address 'sector'
+   => sf probe
+   SF: Detected w25q32 with page size 256 Bytes, erase size 4 KiB, total 4 MiB
+   => sf read 0x40000000 0 0x10
+   device 0 offset 0x0, size 0x10
+   SF: 16 bytes @ 0x0 Read: OK
+   =>
+   ```
 
 4. Common Interfaces
 
-```c
-include <spi.h>
-#include <spi_flash.h>
+   ```c
+   include <spi.h>
+   #include <spi_flash.h>
 
-struct udevice *new, *bus_dev;
-int ret;
-static struct spi_flash *flash;
+   struct udevice *new, *bus_dev;
+   int ret;
+   static struct spi_flash *flash;
 
-//Specify SPI bus and cs (chip select), e.g. 0，0
-ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
-flash = spi_flash_probe(bus, cs, speed, mode);
+   //Specify SPI bus and cs (chip select), e.g. 0，0
+   ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
+   flash = spi_flash_probe(bus, cs, speed, mode);
 
-ret = spi_flash_read(flash, offset, len, buf);
-```
+   ret = spi_flash_read(flash, offset, len, buf);
+   ```
 
 ### HDMI Configuration and Debugging
 
@@ -2178,17 +2178,17 @@ This section primarily focuses on how to enable the HDMI (High-Definition Multim
 
    **Example Configuration**:
 
-```c
-&dpu {
-        status = "okay";
-};
+   ```c
+   &dpu {
+           status = "okay";
+   };
 
-&hdmi {
-        pinctrl-names = "default";
-        pinctrl-0 = <&pinctrl_hdmi_0>;
-        status = "okay";
-};
-```
+   &hdmi {
+           pinctrl-names = "default";
+           pinctrl-0 = <&pinctrl_hdmi_0>;
+           status = "okay";
+   };
+   ```
 
 ### Boot Logo Configuration and Display
 
@@ -2213,11 +2213,11 @@ This section explains how to configure and display a boot logo during the U-Boot
 2. **Environment Variable Setup**
    Add the following environment variables (`splashimage`、`splashpos`  and `splashfile` ) to support boot logo display. These should be defined in U-Boot’s configuration file located at `uboot-2022.10/include/configs/k1-x.h`
 
-```c
-//uboot-2022.10/include/configs/k1-x.h
+   ```c
+   //uboot-2022.10/include/configs/k1-x.h
     ... ...
     ... ...
- #define CONFIG_EXTRA_ENV_SETTINGS \
+   #define CONFIG_EXTRA_ENV_SETTINGS \
         ... ...
         ... ...
      "splashimage=" __stringify(CONFIG_FASTBOOT_BUF_ADDR) "\0" \
@@ -2229,14 +2229,14 @@ This section explains how to configure and display a boot logo during the U-Boot
      BOOTENV_DEVICE_CONFIG \
      BOOTENV
 
- #endif /* __CONFIG_H */
-```
+   #endif /* __CONFIG_H */
+   ```
 
-**Explanation**:
+   **Explanation**:
 
-- `splashimage`: Memory address where the boot logo image will be loaded.
-- `splashpos`: Image position on the screen. `"m,m"` means centered both horizontally and vertically.
-- `splashfile`: Filename of the BMP image to be displayed. This image must be placed in the same partition as `bootfs`.
+   - `splashimage`: Memory address where the boot logo image will be loaded.
+   - `splashpos`: Image position on the screen. `"m,m"` means centered both horizontally and vertically.
+   - `splashfile`: Filename of the BMP image to be displayed. This image must be placed in the same partition as `bootfs`.
 
 3. **Packaging the BMP Image into BootFS**
    To ensure the BMP logo is included in BootFS:
@@ -2256,22 +2256,22 @@ This section explains how to configure and display a boot logo during the U-Boot
    - **Update the Packaging Script**
      Check that `prepare_img.sh` correctly includes the BMP file `bianbu.bmp`:
 
-```shell
-//buildroot-ext/board/spacemit/k1/prepare_img.sh
-#!/bin/bash
+     ```shell
+     //buildroot-ext/board/spacemit/k1/prepare_img.sh
+     #!/bin/bash
 
-######################## Prepare sub-iamges and pack ####################
-#$0 is this file path
-#$1 is buildroot output images dir
+     ######################## Prepare sub-iamges and pack ####################
+     #$0 is this file path
+     #$1 is buildroot output images dir
 
-IMGS_DIR=$1
-DEVICE_DIR=$(dirname $0)
+     IMGS_DIR=$1
+     DEVICE_DIR=$(dirname $0)
 
-... ...
+     ... ...
 
-UBOOT_LOGO_FILE="$DEVICE_DIR/bianbu.bmp"
+     UBOOT_LOGO_FILE="$DEVICE_DIR/bianbu.bmp"
 
-```
+     ```
 
 4. **Updating the Boot Logo**
    To update the boot logo, simply replace the existing `bianbu.bmp` file located in the following directory:
@@ -2311,31 +2311,31 @@ This section mainly introduces how to enable and use the Boot Menu feature in U-
    - `bootmenu_delay=5`: the system waits 5 seconds on the boot menu for user to choose a boot option.
    - `bootdelay=5`: after a boot option is selected, the system waits another 5 seconds before starting.
 
-```c
-//buildroot-ext/board/spacemit/k1/env_k1-x.txt
-bootdelay=5
+   ```c
+   //buildroot-ext/board/spacemit/k1/env_k1-x.txt
+   bootdelay=5
 
-# Boot menu definitions
-boot_default=echo "Current Boot Device: ${boot_device}"
-flash_default=echo "Returning to Boot Menu..."
-spacemit_flashing_usb=echo "recovery from usb...... "; \
-                      spacemit_flashing usb;
-spacemit_flashing_mmc=echo "recovery from mmc...... " \
-                      spacemit_flashing mmc;
-spacemit_flashing_net=echo "recovery from net...... " \
-                      spacemit_flashing net;
-bootmenu_delay=5
-bootmenu_0="-------- Boot Options --------"=run boot_default
-bootmenu_1="Boot from Nor"=run nor_boot
-bootmenu_2="Boot from Nand"=run nand_boot
-bootmenu_3="Boot from MMC"=run try_mmc
-bootmenu_4="Autoboot"=run autoboot
-bootmenu_5="Show current Boot Device"=run boot_default
-bootmenu_6="-------- Flash Options --------"=run flash_default
-bootmenu_7="recovery from usb"=run spacemit_flashing_usb
-bootmenu_8="recovery from mmc"=run spacemit_flashing_mmc
-bootmenu_9="recovery from net"=run spacemit_flashing_net
-```
+   # Boot menu definitions
+   boot_default=echo "Current Boot Device: ${boot_device}"
+   flash_default=echo "Returning to Boot Menu..."
+   spacemit_flashing_usb=echo "recovery from usb...... "; \
+                         spacemit_flashing usb;
+   spacemit_flashing_mmc=echo "recovery from mmc...... " \
+                         spacemit_flashing mmc;
+   spacemit_flashing_net=echo "recovery from net...... " \
+                         spacemit_flashing net;
+   bootmenu_delay=5
+   bootmenu_0="-------- Boot Options --------"=run boot_default
+   bootmenu_1="Boot from Nor"=run nor_boot
+   bootmenu_2="Boot from Nand"=run nand_boot
+   bootmenu_3="Boot from MMC"=run try_mmc
+   bootmenu_4="Autoboot"=run autoboot
+   bootmenu_5="Show current Boot Device"=run boot_default
+   bootmenu_6="-------- Flash Options --------"=run flash_default
+   bootmenu_7="recovery from usb"=run spacemit_flashing_usb
+   bootmenu_8="recovery from mmc"=run spacemit_flashing_mmc
+   bootmenu_9="recovery from net"=run spacemit_flashing_net
+   ```
 
 3. **Accessing the Boot Menu**
    After powering on the board, press and hold the `Esc` key to enter the Boot Menu interface.
@@ -2345,6 +2345,7 @@ bootmenu_9="recovery from net"=run spacemit_flashing_net
 This section introduces the Fastboot command support for the **K1-DEB1** solution.
 
 #### Configuration
+
 To enable Fastboot support, follow these steps:
 
 - **Launch the configuration menu**
@@ -2369,28 +2370,28 @@ To enable Fastboot support, follow these steps:
 **Method 1: Using U-Boot Shell**
 
 - **Access U-Boot Shell**
-     During system boot-up, press the `s` key to enter the U-Boot shell.
+   During system boot-up, press the `s` key to enter the U-Boot shell.
 
 - **Execute Fastboot Command**
 
-```shell
-=> fastboot 0
-```
+   ```shell
+   => fastboot 0
+   ```
 
-The default fastboot buffer address/size is defined by the macros `CONFIG_FASTBOOT_BUF_ADDR` and `CONFIG_FASTBOOT_BUF_SIZE`.
+   The default fastboot buffer address/size is defined by the macros `CONFIG_FASTBOOT_BUF_ADDR` and `CONFIG_FASTBOOT_BUF_SIZE`.
 
-```shell
-#or fastboot -l 0x30000000 -s 0x10000000 0，Specify the buffer address and size.
-=> fastboot 0
-k1xci_udc: phy_init
-k1xci_udc probe
-k1xci_udc: pullup 1
--- suspend --
-handle setup GET_DESCRIPTOR, 0x80, 0x6 index 0x0 value 0x100 length 0x40
-handle setup SET_ADDRESS, 0x0, 0x5 index 0x0 value 0x22 length 0x0
-handle setup GET_DESCRIPTOR, 0x80, 0x6 index 0x0 value 0x100 length 0x12
-..
-```
+   ```shell
+   #or fastboot -l 0x30000000 -s 0x10000000 0，Specify the buffer address and size.
+   => fastboot 0
+   k1xci_udc: phy_init
+   k1xci_udc probe
+      k1xci_udc: pullup 1
+      -- suspend --
+      handle setup GET_DESCRIPTOR, 0x80, 0x6 index 0x0 value 0x100 length 0x40
+      handle setup SET_ADDRESS, 0x0, 0x5 index 0x0 value 0x22 length 0x0
+      handle setup GET_DESCRIPTOR, 0x80, 0x6 index 0x0 value 0x100 length 0x12
+      ..
+   ```
 
 **Method 2: From Bianbu OS**
 
@@ -2425,36 +2426,36 @@ fastboot get_staged file            # Upload data and name it file. Depends on t
 
 - **FAT**
 
-```shell
-=> fat
-  fatinfo fatload fatls fatmkdir fatrm fatsize fatwrite
-=> fatls mmc 2:5
- 50896911   uImage.itb
-     4671   env_k1-x.txt
+  ```shell
+  => fat
+    fatinfo fatload fatls fatmkdir fatrm fatsize fatwrite
+  => fatls mmc 2:5
+   50896911   uImage.itb
+       4671   env_k1-x.txt
 
-2 file(s), 0 dir(s)
+  2 file(s), 0 dir(s)
 
-=> fatload mmc 2:5 0x40000000 uImage.itb #load uImage.itb到0x40000000
-50896911 bytes read in 339 ms (143.2 MiB/s)
-=>
-```
+  => fatload mmc 2:5 0x40000000 uImage.itb #load uImage.itb到0x40000000
+  50896911 bytes read in 339 ms (143.2 MiB/s)
+  =>
+  ```
 
 - **EXT4**
 
-similar to `fat` command.
+  similar to `fat` command.
 
-```shell
-=> ext4
-  ext4load ext4ls ext4size
-=> ext4load
-ext4load - load binary file from a Ext4 filesystem
+  ```shell
+  => ext4
+    ext4load ext4ls ext4size
+  => ext4load
+  ext4load - load binary file from a Ext4 filesystem
 
-Usage:
-ext4load <interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]
-    - load binary file 'filename' from 'dev' on 'interface'
-      to address 'addr' from ext4 filesystem
-=>
-```
+  Usage:
+  ext4load <interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]
+      - load binary file 'filename' from 'dev' on 'interface'
+        to address 'addr' from ext4 filesystem
+  =>
+  ```
 
 ### Common U-Boot Commands
 
@@ -2462,60 +2463,60 @@ This section outlines frequently used U-Boot commands
 
 1. **Basic Commands**
 
-```shell
-printenv  - print environment variables
-md        - memory display
-mw        - memory write (fill)
-fdt       - flattened device tree utility commands
+   ```shell
+   printenv  - print environment variables
+   md        - memory display
+   mw        - memory write (fill)
+   fdt       - flattened device tree utility commands
 
 
 
-help      - print command description/usage
-```
+   help      - print command description/usage
+   ```
 
 2. `fdt`
 
-The `fdt` command is primarily used to print the contents of DTS (Device Tree Source), such as the DTB (Device Tree Blob) file loaded after U-Boot starts.
+   The `fdt` command is primarily used to print the contents of DTS (Device Tree Source), such as the DTB (Device Tree Blob) file loaded after U-Boot starts.
 
-```shell
-=> fdt
-fdt - flattened device tree utility commands
+   ```shell
+   => fdt
+   fdt - flattened device tree utility commands
 
-Usage:
-fdt addr [-c] [-q] <addr> [<size>]  - Set the [control] fdt location to <addr>
-fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active
-fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed
-fdt print  <path> [<prop>]          - Recursive print starting at <path>
-fdt list   <path> [<prop>]          - Print one level starting at <path>
-fdt get value <var> <path> <prop> [<index>] - Get <property> and store in <var>
+   Usage:
+   fdt addr [-c] [-q] <addr> [<size>]  - Set the [control] fdt location to <addr>
+   fdt move   <fdt> <newaddr> <length> - Copy the fdt to <addr> and make it active
+   fdt resize [<extrasize>]            - Resize fdt to size + padding to 4k addr + some optional <extrasize> if needed 
+   fdt print  <path> [<prop>]          - Recursive print starting at <path>
+   fdt list   <path> [<prop>]          - Print one level starting at <path>
+   fdt get value <var> <path> <prop> [<index>] - Get <property> and store in <var>
                                       In case of stringlist property, use optional <index>
                                       to select string within the stringlist. Default is 0.
-fdt get name <var> <path> <index>   - Get name of node <index> and store in <var>
-fdt get addr <var> <path> <prop>    - Get start address of <property> and store in <var>
-fdt get size <var> <path> [<prop>]  - Get size of [<property>] or num nodes and store in <var>
-fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]
-fdt mknode <path> <node>            - Create a new node after <path>
-fdt rm     <path> [<prop>]          - Delete the node or <property>
-fdt header [get <var> <member>]     - Display header info
+   fdt get name <var> <path> <index>   - Get name of node <index> and store in <var>
+   fdt get addr <var> <path> <prop>    - Get start address of <property> and store in <var>
+   fdt get size <var> <path> [<prop>]  - Get size of [<property>] or num nodes and store in <var>
+   fdt set    <path> <prop> [<val>]    - Set <property> [to <val>]
+   fdt mknode <path> <node>            - Create a new node after <path>
+   fdt rm     <path> [<prop>]          - Delete the node or <property>
+   fdt header [get <var> <member>]     - Display header info
                                       get - get header member <member> and store it in <var>
-fdt bootcpu <id>                    - Set boot cpuid
-fdt memory <addr> <size>            - Add/Update memory node
-fdt rsvmem print                    - Show current mem reserves
-fdt rsvmem add <addr> <size>        - Add a mem reserve
-fdt rsvmem delete <index>           - Delete a mem reserves
-fdt chosen [<start> <size>]         - Add/update the /chosen branch in the tree
+   fdt bootcpu <id>                    - Set boot cpuid
+   fdt memory <addr> <size>            - Add/Update memory node
+   fdt rsvmem print                    - Show current mem reserves
+   fdt rsvmem add <addr> <size>        - Add a mem reserve
+   fdt rsvmem delete <index>           - Delete a mem reserves
+   fdt chosen [<start> <size>]         - Add/update the /chosen branch in the tree
                                         <start>/<size> - initrd start addr/size
-NOTE: Dereference aliases by omitting the leading '/', e.g. fdt print ethernet0.
-=>
+   NOTE: Dereference aliases by omitting the leading '/', e.g. fdt print ethernet0.
+   =>
 
-=> fdt addr $fdtcontroladdr
-=> fdt print
-/ {
+   => fdt addr $fdtcontroladdr
+   => fdt print
+   / {
         compatible = "spacemit,k1x", "riscv";
         #address-cells = <0x00000002>;
         #size-cells = <0x00000002>;
         model = "spacemit k1-x deb1 board";
-... ...
+   ... ...
         memory@0 {
                 device_type = "memory";
                 reg = <0x00000000 0x00000000 0x00000000 0x80000000>;
@@ -2524,29 +2525,29 @@ NOTE: Dereference aliases by omitting the leading '/', e.g. fdt print ethernet0.
                 bootargs = "earlycon=sbi console=ttyS0,115200 debug loglevel=8,initcall_debug=1 rdinit=/init.tmp";
                 stdout-path = "serial0:115200n8";
         };
-};
+   };
 
-=> fdt print /chosen
-chosen {
+   => fdt print /chosen
+   chosen {
         bootargs = "earlycon=sbi console=ttyS0,115200 debug loglevel=8,initcall_debug=1 rdinit=/init.tmp";
         stdout-path = "serial0:115200n8";
-};
-=>
-```
+   };
+   =>
+   ```
 
 3. shell command
 
-U-Boot supports shell-style commands such as `if/fi,` `echo`, etc.
+   U-Boot supports shell-style commands such as `if/fi,` `echo`, etc.
 
-```shell
-=> if test ${boot_device} = nand; then echo "nand boot"; else echo "not nand boot";fi
-not nand boot
-=> printenv boot_device
-boot_device=nor
-=> if test ${boot_device} = nor; then echo "nor boot"; else echo "not nor boot";fi
-nor boot
-=>
-```
+   ```shell
+   => if test ${boot_device} = nand; then echo "nand boot"; else echo "not nand boot";fi
+   not nand boot
+   => printenv boot_device
+   boot_device=nor
+   => if test ${boot_device} = nor; then echo "nor boot"; else echo "not nor boot";fi
+   nor boot
+   =>
+   ```
 
 ## OpensBI Functionality and Configuration
 
@@ -2590,6 +2591,394 @@ make PLATFORM=generic PLATFORM_DEFCONFIG=k1-x_deb1_defconfig menuconfig
 ```
 
 ![a](static/JdMVb4GyioYNhMxUOhHc8R3enEd.png)
+
+## OTA Upgrade
+
+### Scope and Implementation Notes
+
+This section describes how to add OTA functionality to the **k1-bl-v2.2.10-release** baseline. The patch applies only to the current k1-bl-v2.2.10-release baseline. Applying it to earlier versions may result in patch conflicts that require manual resolution.
+
+The patch supports eMMC and SPI NAND. It adds the `recovery`, `misc`, `userdata`, and backup U-Boot `uboot_b` partitions; an independent recovery system; and the `recovery-updater`, `misc-state`, `ota-start`, and `reboot-to-recovery` tools. U-Boot uses the OTA state stored in `misc` to determine whether to enter recovery. The updated system restores the normal state after passing a health check.
+
+> **Note:** Initial OTA enablement changes the partition layout and U-Boot boot logic. An OTA package cannot be used to migrate directly from an unadapted earlier firmware. First flash the complete standard flashing package built as described in this section. Full flashing repartitions the device; back up device data beforehand. OTA updates of the `FSBL`, `opensbi`, and `recovery` partitions are not recommended. If power is lost during an update, the next reboot continues in upgrade mode.
+
+The patch package contains:
+
+| Target Repository/Directory | Patch/Source | Purpose |
+| --- | --- | --- |
+| buildroot-ext | 0001-feat-Add-recovery-system-with-dedicated-partition.patch | Adds recovery system and eMMC OTA partitions |
+| buildroot-ext | 0002-add-recovery-updater-and-misc-state-to-system.patch | Integrates upgrade tools, state utilities, and OTA scripts |
+| buildroot-ext | 0003-add-state-change-deel.patch | Completes upgrade state transitions |
+| buildroot-ext | 0004-add-misc-state-recovery-updater-compile.patch | Enables OTA tools in the K1 v2 default config |
+| buildroot-ext | 0005-create-ota.zip.patch | Generates the eMMC OTA package |
+| buildroot-ext | 0006-mmc-support-buot_b-flash.patch | Adds eMMC uboot_b partition and upgrade flow |
+| buildroot-ext | 0007-support-nand-flash-and-boot.patch | Improves SPI NAND flashing and boot |
+| buildroot-ext | 0008-support-nand-ota.patch | Adds SPI NAND recovery, partitions, and OTA package |
+| bsp/uboot-2022.10 | 0001-uboot-support-recovery-start.patch | Boots into recovery based on misc state |
+| bsp/uboot-2022.10 | 0002-mmc-support-uboot_b-partition-boot.patch | Supports booting from the eMMC backup U-Boot partition |
+| bsp/uboot-2022.10 | 0003-support-nand-flash-and-boot.patch | Improves SPI NAND flashing, detection, and boot |
+| bsp/uboot-2022.10 | 0004-support-nand-ota.patch | Supports SPI NAND OTA and recovery boot |
+| bsp/linux-6.6 | 0001-support-gd-nand.patch | Adds GigaDevice SPI NAND models |
+| package-src | misc-state, recovery-updater | OTA state management and recovery updater source code |
+
+### Preparing the OTA Patch
+
+The OTA patch package is available from the SpacemiT download server. Run the following commands from the parent directory of the SDK:
+
+~~~shell
+cd /path/to/workdir
+wget https://archive.spacemit.com/solutions/buildroot_ota/ota_support_adapt_k1-bl-v2.2.10-release.zip
+unzip ota_support_adapt_k1-bl-v2.2.10-release.zip
+~~~
+
+The commands create the `ota_support_adapt_k1-bl-v2.2.10-release` directory.
+
+The following procedure assumes that the SDK and patch directories are at the same level:
+
+~~~text
+workdir/
+├── k1-bl-v2.2.10-release/
+└── ota_support_adapt_k1-bl-v2.2.10-release/
+~~~
+
+Enter the SDK root directory downloaded from k1-bl-v2.2.10-release. Confirm that the SDK builds successfully and contains no local changes. To avoid conflicts, apply the patches to the following commit baselines:
+
+~~~shell
+cd /path/to/k1-bl-v2.2.10-release
+
+cd buildroot-ext
+gitl
+commit aec6a45b44904033159b6143e4f05371b3a50470 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 64d5d53 063e2bc
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:42:33 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: Ia51431ef09484d6d308ed79b8b3a2a7294bfb78d
+
+cd ../bsp-src/uboot-2022.10/
+gitl
+commit 46a4f510352684407c074b7c0e9114b5443dcc59 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: d61c8c77e2 dcdcab9e95
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:38:21 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: Icd5172b4b621e491617f54fbcf9a0f8dd8276774
+
+cd ../linux-6.6/
+gitl
+commit 21f2edd50954020f22954d3be8b9202120ae1ae4 (HEAD -> robot-dev, tag: k1-bl-v2.2.10-release, origin/k1-bl-v2.2.y, m/main, k1-bl-v2.2.y)
+Merge: 0c505572f3e0 e01ff0f2bc31
+Author: liujing <jing.liu@spacemit.com>
+Date:   Fri Jun 5 10:36:37 2026 +0800
+
+    Update for v2.2.10
+
+    Change-Id: I5270c04112dd12ffa96f60880c02d32058da572e
+
+~~~
+
+If any affected repository contains local changes, stash them with `git stash`. Then record the absolute path to the patch directory and copy the two source packages:
+
+~~~shell
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/misc-state/ package-src/
+cp -r ota_support_adapt_k1-bl-v2.2.10-release/package-src/recovery-updater/ package-src/
+~~~
+
+### Applying Patches
+
+Apply the three patch series in the numeric order specified by their filename prefixes. The following wildcard expansions preserve that order:
+
+~~~shell
+# From the SDK root directory
+cd buildroot-ext/
+git am ../ota_support_adapt_k1-bl-v2.2.10-release/buildroot-ext/*.patch
+
+# Apply patches 0001–0004 (4 U-Boot patches in total)
+cd ../bsp-src/uboot-2022.10/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/uboot-2022.10/*.patch
+
+# Apply 1 Linux 6.6 patch
+cd ../linux-6.6/
+git am ../../ota_support_adapt_k1-bl-v2.2.10-release/bsp/linux-6.6/*.patch
+~~~
+
+The patch application should complete without errors. If a conflict occurs, check for local changes and verify that the repository commits match the v2.2.10 baseline.
+
+### Recompiling
+
+The patches modify the eMMC and SPI NAND defconfigs. Before the first OTA firmware build, `make envconfig` **must** be run again; an incremental build alone is insufficient.
+
+```shell
+make envconfig  # Select the required target solution/version
+make uboot-rebuild && make linux-rebuild && make
+```
+
+### First Deployment of OTA Firmware
+
+Initial deployment **must** use the full flashing package appropriate for the storage medium and capacity. Flash the device completely by following the procedure described earlier in this document:
+
+- eMMC: use `Buildroot-k1_v2.zip`
+- 512 MiB SPI NAND: use `Buildroot-k1_v2_nand-512M.zip`. A 256 MiB NAND device does not have sufficient capacity for the default partition layout. Supporting a smaller NAND device requires manually reducing the partition layout.
+
+A complete flash creates the OTA partitions and writes the new SPL/U-Boot, recovery, and system images. Flashing only `bootfs` or `rootfs` is **not** sufficient because the U-Boot boot logic would not match the actual partition table.
+
+After the first boot, verify the OTA tools and initial state:
+
+~~~shell
+command -v ota-start
+command -v recovery-updater
+command -v misc-state
+misc-state get-state
+~~~
+
+The initial output of `misc-state get-state` must be `NORMAL`.
+
+### Performing eMMC OTA Upgrade
+
+Copy the new `Buildroot-k1_v2-ota.zip` package to the device's `/userdata/` directory. To upgrade the default partitions, run:
+
+~~~shell
+# Transfer the OTA package to the board as required.
+ota-start /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+By default, eMMC OTA upgrades `uboot`, `uboot_b`, `bootfs`, and `rootfs`. The partitions for an individual upgrade can also be specified:
+
+~~~shell
+# Upgrade system partitions only
+ota-start -p bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+
+# Upgrade U-Boot and system partitions
+ota-start -p uboot,uboot_b,bootfs,rootfs /userdata/Buildroot-k1_v2-ota.zip
+~~~
+
+`ota-start` saves the package as `/userdata/update.zip`, writes the partition list and the `UPDATING` state to `misc`, and reboots automatically. After U-Boot enters recovery, `recovery-updater` writes the images and performs readback verification, then changes the state to `UPDATED_PENDING_BOOT`. After the new system passes its health check, the state returns to `NORMAL` and `/userdata/update.zip` is deleted.
+
+If power is lost during the upgrade, the next boot re-enters upgrade mode according to the `misc` state. The upgrade is not retried after more than three failed attempts.
+
+### Performing SPI NAND OTA Upgrade
+
+Select the OTA package that matches the actual SPI NAND capacity. The 256 MiB and 512 MiB packages are **not** interchangeable. By default, NAND OTA upgrades `uboot`, `uboot_b`, and `bootfs`. Updating `rootfs` is not recommended because the `userdata` partition must reserve space for the OTA package.
+
+~~~shell
+# 256 MiB SPI NAND
+ota-start /userdata/Buildroot-k1_v2_nand-256M-ota.zip
+
+# 512 MiB SPI NAND
+ota-start /userdata/Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+An individual upgrade can also be limited to a subset of the allowed partitions:
+
+~~~shell
+ota-start -p bootfs /path/to/Buildroot-k1_v2_nand-512M-ota.zip
+~~~
+
+SPI NAND OTA permits updates only to `uboot`, `uboot_b`, and `bootfs`. The `rootfs`, `recovery`, `misc`, and `env` partitions are not included in the NAND OTA allowlist; `ota-start` rejects requests to update them. To update `recovery` or `rootfs`, or to change the NAND partition layout, reflash the device using a full flashing package.
+
+NAND recovery selects `partition_256M.json` or `partition_512M.json` according to capacity and uses `flash_erase`, `nandwrite`, or `ubiformat` to write the corresponding MTD partition. Readback verification is enabled by default.
+
+### OTA FAQ
+
+#### NAND 256 MiB Capacity Support
+
+To support a 256 MiB NAND device, use the following configuration. Each partition must accommodate its corresponding image. Adapt the values as required for other capacities.
+
+- **Enable 256 MiB image generation**
+
+  In `prepare_img.sh`, configure:
+
+  ```
+  NAND_VARIANTS=(
+      "256M:partition_256M.json:2048:126976:128KiB:300:256:256"
+  )
+  ```
+
+  The parameters are defined as follows:
+
+  ```
+  min_io            2048
+  LEB               126976
+  PEB               128KiB
+  bootfs max LEB    300
+  recovery max LEB  256
+  userdata max LEB  256
+  ```
+
+  If only 256 MiB is supported, remove the 512 MiB entry. Retain both entries to generate both packages.
+
+- **Modify U-Boot default partition table**
+
+  Set `uboot_defconfig` to:
+
+  ```
+  spi4.0:
+  256K@512K(env),
+  256K@768K(opensbi),
+  2M@1M(uboot),
+  2M@3M(uboot_b),
+  24M@5M(recovery),
+  1M@29M(misc),
+  24M@30M(bootfs),
+  32M@54M(userdata),
+  -@86M(rootfs)
+  ```
+
+  The combined configuration is:
+
+  ```
+  CONFIG_MTDPARTS_DEFAULT="spi4.0:256K@512K(env),256K@768K(opensbi),2M@1M(uboot),2M@3M(uboot_b),24M@5M(recovery),1M@29M(misc),24M@30M(bootfs),32M@54M(userdata),-@86M(rootfs)"
+  ```
+
+- **Modify U-Boot DTS**
+
+  ```
+  partition@3600000 {
+      label = "userdata";
+      reg = <0x03600000 0x02000000>;
+  };
+
+  partition@5600000 {
+      label = "rootfs";
+      reg = <0x05600000 0x00000000>;
+  };
+  ```
+
+- **Modify the 256 MiB flashing JSON**
+
+  ```
+  partition_256M.json:
+
+  {
+    "name": "userdata",
+    "offset": "54M",
+    "size": "32M",
+    "image": "userdata.ubi"
+  },
+  {
+    "name": "rootfs",
+    "offset": "86M",
+    "size": "170M",
+    "image": "rootfs.ubi"
+  }
+  ```
+
+- **Modify the default output symlink**
+
+  The script currently links the 512 MiB package by default:
+
+  ```
+  ln -sf "${TARGET_IMAGE_BASE}-512M.zip" "$latest_path"
+  ```
+
+  For 256 MiB-only support, change it to:
+
+  ```
+  ln -sf "${TARGET_IMAGE_BASE}-256M.zip" "$latest_path"
+  ```
+
+- **Preserve userdata auto-expansion**
+
+  Retain the following setting. For 256 MiB, the maximum `userdata` UBIFS LEB count must be `256`; do not reuse the previous value of `160` or the 512 MiB value of `80`.
+
+  ```
+  vol_flags=autoresize
+  ```
+
+#### Custom Partition Upgrade Protection
+
+By default, partitions such as `fsbl` and `recovery` are protected from OTA updates to prevent a power interruption during an update from leaving the device unbootable.
+
+To customize the protected partitions, first assess the risk associated with a power interruption during the update:
+
+- **OTA allowed update list**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/target_overlay/usr/sbin/ota-start`, line 5:
+
+  ```
+  PARTITIONS=uboot,uboot_b,bootfs
+  ```
+
+  Also modify the parameter validation:
+
+  ```
+  case "$part" in
+      uboot|uboot_b|bootfs)
+  ```
+
+  Removing a partition from this list prevents the normal system from updating it through `ota-start`.
+
+- **Recovery default update list**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/dracut-modules/99recovery/recovery-init`, line 119:
+
+  ```
+  partitions="uboot,uboot_b,bootfs"
+  # Must remain consistent with the ota-start default list.
+  ```
+
+- **recovery-updater partition policy**
+
+  Edit `bianbu-linux-pub/package-src/recovery-updater/src/main.c`, line 22:
+
+  ```c
+  static const char *dangerous_partitions[] = {
+      "bootinfo", "fsbl", "env", "opensbi",
+      "uboot", "uboot_b", "userdata", "misc", NULL
+  };
+
+  static const char *nand_default_partitions[] = {
+      "uboot", "uboot_b", "bootfs", NULL
+  };
+  ```
+
+  Notes:
+  - `nand_default_partitions` specifies the default partitions permitted for NAND OTA updates.
+  - `dangerous_partitions` requires an explicit `--partitions` argument; it does not prohibit the update.
+  - For absolute protection, add a `protected_partitions[]` array that rejects updates even when `-p` is explicitly specified.
+
+- **OTA package contents**
+
+  Edit `bianbu-linux-pub/buildroot-ext/board/spacemit/k1_nand/prepare_img.sh`, line 265:
+
+  ```
+  zip "$target_ota_zip" \
+      u-boot.itb \
+      bootfs.ubi \
+      partition_512M.json
+  ```
+
+  Do not include images for protected partitions in the OTA package. Add images for any newly permitted partitions.
+
+#### State and Recovery
+
+Use the following commands to view the OTA state:
+
+~~~shell
+misc-state get-state
+misc-state get-bootcount
+misc-state get-partitions
+~~~
+
+| State | Meaning |
+| --- | --- |
+| NORMAL | Normal boot, no pending OTA |
+| UPDATING | The upgrade package is ready; the next boot enters recovery to perform the update |
+| UPDATED_PENDING_BOOT | The partition write succeeded; the new system is awaiting boot and health-check completion |
+| RECOVERY_REQUIRED | Recovery is required, or the update failed and is awaiting recovery processing |
+
+To enter recovery manually for investigation, run:
+
+~~~shell
+reboot-to-recovery
+# After entering recovery, run misc-state clear-all to clear the flags.
+~~~
+
+This command sets `RECOVERY_REQUIRED`, clears the boot counter, and reboots. Do not modify the OTA state manually during normal operation. U-Boot and the system health check handle boot retries and state recovery. If repeated boot failures persist, inspect the U-Boot and recovery logs through the serial port, then restore the device using the appropriate full flashing package.
 
 ## FAQ
 
@@ -2640,54 +3029,54 @@ The SDK design separates U-Boot and OpensBI loading. Developers can merge the tw
 - **Create the ITS Description File**
   Create a new file named `u-boot-opensbi.its` with the following contents:
 
-```sh
-/dts-v1/;
+  ```sh
+  /dts-v1/;
 
-/ {
-        description = "U-boot FIT image for k1x";
-        #address-cells = <2>;
-        fit,fdt-list = "of-list";
+  / {
+          description = "U-boot FIT image for k1x";
+          #address-cells = <2>;
+          fit,fdt-list = "of-list";
 
-        images {
-                uboot {
-                        description = "U-Boot";
-                        type = "standalone";
-                        os = "U-Boot";
-                        arch = "riscv";
-                        compression = "none";
-                        load = <0x0 0x00200000>;
-                        data = /incbin/("./u-boot-nodtb.bin");
-                };
+          images {
+                  uboot {
+                          description = "U-Boot";
+                          type = "standalone";
+                          os = "U-Boot";
+                          arch = "riscv";
+                          compression = "none";
+                          load = <0x0 0x00200000>;
+                          data = /incbin/("./u-boot-nodtb.bin");
+                  };
 
-                opensbi {
-                        description = "OpenSBI fw_dynamic Firmware";
-                        type = "firmware";
-                        os = "opensbi";
-                        arch = "riscv";
-                        compression = "none";
-                        load = <0x0 0x0>;
-                        entry = <0x0 0x0>;
-                        data = /incbin/("./fw_dynamic.bin");
-                };
-                fdt_14 {
-                        description = "k1-x_MUSE-Card";
-                        type = "flat_dt";
-                        compression = "none";
-                        data = /incbin/("./uboot/k1-x_MUSE-Card.dtb");
-                };
-        };
+                  opensbi {
+                          description = "OpenSBI fw_dynamic Firmware";
+                          type = "firmware";
+                          os = "opensbi";
+                          arch = "riscv";
+                          compression = "none";
+                          load = <0x0 0x0>;
+                          entry = <0x0 0x0>;
+                          data = /incbin/("./fw_dynamic.bin");
+                  };
+                  fdt_14 {
+                          description = "k1-x_MUSE-Card";
+                          type = "flat_dt";
+                          compression = "none";
+                          data = /incbin/("./uboot/k1-x_MUSE-Card.dtb");
+                  };
+          };
 
-        configurations {
-                default = "conf_14";
-                conf_14 {
-                        description = "k1-x_MUSE-Card";
-                        firmware = "opensbi";
-                        loadables = "uboot";
-                        fdt = "fdt_14";
-                };
-        };
-};
-```
+          configurations {
+                  default = "conf_14";
+                  conf_14 {
+                          description = "k1-x_MUSE-Card";
+                          firmware = "opensbi";
+                          loadables = "uboot";
+                          fdt = "fdt_14";
+                  };
+          };
+  };
+  ```
 
 - Generate `uboot-opensbi.itb` by placing the required files in the same directory
 
@@ -2699,9 +3088,9 @@ The SDK design separates U-Boot and OpensBI loading. Developers can merge the tw
 - **Build the Unified Image**
   Run:
 
-```sh
-uboot-2022.10/tools/mkimage -f u-boot-opensbi.its -r u-boot-opensbi.itb
-```
+  ```sh
+  uboot-2022.10/tools/mkimage -f u-boot-opensbi.its -r u-boot-opensbi.itb
+  ```
 
 **Step 3: Modify Partition Table**
 
@@ -3207,69 +3596,68 @@ To speed up USB transfers of large image files, SpacemiT’s flashing process co
 If you **want to flash gzip images directly** to a custom partition (without decompressing), here are two options:
 
 - **Option 1: Skip gzip check for specific partitions**
-For example, to skip gzip handling for a partition named `usbfs` as below:
+  For example, to skip gzip handling for a partition named `usbfs` as below:
 
-```c
-diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
-index 88d8778376..a37cbde596 100644
---- a/drivers/fastboot/fb_mmc.c
-+++ b/drivers/fastboot/fb_mmc.c
-@@ -689,7 +689,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
-            fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
-                return;
- 
--       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0) {
-+       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0 && strcmp("usbfs", cmd) != 0) {
-                /*is gzip data and equal part name*/
-                gzip_image = true;
-                if (strcmp(cmd, part_name_t)){
+  ```c
+  diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
+  index 88d8778376..a37cbde596 100644
+  --- a/drivers/fastboot/fb_mmc.c
+  +++ b/drivers/fastboot/fb_mmc.c
+  @@ -689,7 +689,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
+              fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
+                  return;
+   
+  -       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0) {
+  +       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0 && strcmp("usbfs", cmd) != 0) {
+                  /*is gzip data and equal part name*/
+                  gzip_image = true;
+                  if (strcmp(cmd, part_name_t)){
 
 
-```
+  ```
 
-- method 2, Turn off the compressed image brushing function(***not recommended, resulting in longer flashing time***)
 - **Option 2: Disable Gzip Support for Flashing (Not Recommended: Slower Flashing)**
 
-```c
-//Disable gzip detection in U-Boot
-//uboot-2022.10
-diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
-index 88d8778376..5f8d4f8931 100644
---- a/drivers/fastboot/fb_mmc.c
-+++ b/drivers/fastboot/fb_mmc.c
-@@ -689,7 +689,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
-            fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
-                return;
- 
--       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0) {
-+       if (false) {
-                /*is gzip data and equal part name*/
-                gzip_image = true;
-                if (strcmp(cmd, part_name_t)){
+  ```c
+  //Disable gzip detection in U-Boot
+  //uboot-2022.10
+  diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
+  index 88d8778376..5f8d4f8931 100644
+  --- a/drivers/fastboot/fb_mmc.c
+  +++ b/drivers/fastboot/fb_mmc.c
+  @@ -689,7 +689,7 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
+              fastboot_mmc_get_part_info(cmd, &dev_desc, &info, response) < 0)
+                  return;
+   
+  -       if (check_gzip_format((uchar *)download_buffer, src_len) >= 0) {
+  +       if (false) {
+                  /*is gzip data and equal part name*/
+                  gzip_image = true;
+                  if (strcmp(cmd, part_name_t)){
 
 
-//Disable image compression with the flash tool
-//buildroot-ext: You can directly modify the partition_universal.json file inside the flashing package. Make sure the last line in the JSON file does not have a trailing comma 
-diff --git a/board/spacemit/k1/partition_universal.json b/board/spacemit/k1/partition_universal.json
-index e02a1d0..e9da5a9 100644
---- a/board/spacemit/k1/partition_universal.json
-+++ b/board/spacemit/k1/partition_universal.json
-@@ -36,15 +36,13 @@
-             "name": "bootfs",
-             "offset": "4M",
-             "size": "256M",
--            "image": "bootfs.img",
--            "compress": "gzip-5"
-+            "image": "bootfs.img"
-         },
-         {
-             "name": "rootfs",
-             "offset": "260M",
-             "size": "-",
--            "image": "rootfs.ext4",
--            "compress": "gzip-5"
-+            "image": "rootfs.ext4"
-         }
-     ]
- }
-```
+  //Disable image compression with the flash tool
+  //buildroot-ext: You can directly modify the partition_universal.json file inside the flashing package. Make sure the last line in the JSON file does not have a trailing comma 
+  diff --git a/board/spacemit/k1/partition_universal.json b/board/spacemit/k1/partition_universal.json
+  index e02a1d0..e9da5a9 100644
+  --- a/board/spacemit/k1/partition_universal.json
+  +++ b/board/spacemit/k1/partition_universal.json
+  @@ -36,15 +36,13 @@
+               "name": "bootfs",
+               "offset": "4M",
+               "size": "256M",
+  -            "image": "bootfs.img",
+  -            "compress": "gzip-5"
+  +            "image": "bootfs.img"
+           },
+           {
+               "name": "rootfs",
+               "offset": "260M",
+               "size": "-",
+  -            "image": "rootfs.ext4",
+  -            "compress": "gzip-5"
+  +            "image": "rootfs.ext4"
+           }
+       ]
+  }
+  ```

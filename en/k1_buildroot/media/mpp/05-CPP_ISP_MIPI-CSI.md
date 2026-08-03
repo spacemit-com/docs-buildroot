@@ -23,7 +23,7 @@ ISP is used to process the image signals output by the sensor. It realizes image
 - When two pipeline work simultaneously:
   - Without PDAF (Phase Detection Auto Focus) enabled,the maximum input image size is 4748x8188.
   - With PDAF enabled, the maximum input image size is 3264x8188.
-- When a signle pipeline works:
+- When a single pipeline works:
   - Without PDAF enabled, the maximum input size is 9496x8188.
   - With PDAF enabled, the maximum input size is 6528x8188.
 - Both the input width and height must be multiples of 4. 
@@ -33,7 +33,7 @@ ISP is used to process the image signals output by the sensor. It realizes image
 CPP processes ISP-output NV12 data offline via pyramid-based time-sharing multi-layer processing, providing lens distortion correction, spatial and temporal denoising, frequency domain denoising and edge enhancement.
 
 - Supports input format: NV12_DWT
-- Supports output format: NV12\DWT、FBC_DWT
+- Supports output format: NV12/DWT、FBC_DWT
   (NV12_DWT format consist of standard NV12 Buffer and ASR-proprietary DWT Buffer)
 - Supports maximum image size:
   - Width: 4224
@@ -58,7 +58,7 @@ During code development, please first configure the Sensor, VI, ISP, and CPP mod
 **Development Process Overview**
 
 1. **Initialization configuration**: Configure Sensor, VI, ISP and CPP modules in sequence.
-2. **Register the callback**: Register buffer functions for each modules.
+2. **Register the callback**: Register buffer functions for each module.
 3. **Startup process**: Streamon ISP and Sensor in sequence. 
 4. **Data flow**：
    - After the Sensor streamon, the ISP image processing will trigger an interrupt. 
@@ -127,7 +127,7 @@ Basic usage examples:
 ```shell
 Usage instance：cam-test <file.json>
 
-//Single pipeline onlien test：imx135(4208x3120@30fps raw10 4lane) –> ISP -> DDR(1080p@30fps) -> CPP
+//Single pipeline online test：imx135(4208x3120@30fps raw10 4lane) –> ISP -> DDR(1080p@30fps) -> CPP
 Command：cam-test demo/cfgs/0/camtest_sensor0_mode0.json
 
 //Single pipeline online test：imx135(4208x2416@30fps raw10 4lane) –> ISP -> DDR(1080p@30fps) -> CPP
@@ -168,7 +168,7 @@ Command：cam-test demo/cfgs/1/camtest_main_aux.json
 
 ```
 
-#### 3.2.2 JSON Parament Description
+#### 3.2.2 JSON Parameter Description
 
 Take `sdktest_main_aux.json` as an example:
 
@@ -252,8 +252,8 @@ Basic usage example:
 
 ```shell
 Usage instance：cam_sensors_test [devId] [sensors_name]
-
 ```
+
 After executing the command, input `s` in interactive terminal to stream on. 
 If the program reports no errors, the following process is normal: sensor detect -> init -> stream on.
 

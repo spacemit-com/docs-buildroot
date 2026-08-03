@@ -4,8 +4,7 @@ sidebar_position: 5
 
 # ESOS Development Guides
 
-- [ESOS 开发指南](esos_dev_guide.md)
-- [ESOS 驱动](esos_driver/index.md)
-- [ESOS电源管理](esos_power.md) 
-- [ESOS 异构通讯](esos_comm.md)
-
+- [ESOS Development Guides](esos_dev_guide.md)
+- [ESOS Drivers](esos_driver/index.md)
+- [ESOS Power Management](esos_power.md) 
+- [ESOS Heterogeneous Communication](esos_comm.md)

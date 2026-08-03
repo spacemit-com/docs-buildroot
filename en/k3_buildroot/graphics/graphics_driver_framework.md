@@ -10,7 +10,7 @@ sidebar_position: 2
 
 The K3 platform supports two mutually exclusive PowerVR GPU solutions:
 
-- **Proprietary Solution (Recommended):** Offers suppior  performance and full functionality, including support for DVFS and thermal control.
+- **Proprietary Solution (Recommended):** Offers superior performance and full functionality, including support for DVFS and thermal control.
 - **Open-Source Solution:** Based on Mesa and open-source kernel drivers. Kernel version 6.12 or later and Mesa version 26.1 or later are required.
 
 ## Proprietary Driver Solution

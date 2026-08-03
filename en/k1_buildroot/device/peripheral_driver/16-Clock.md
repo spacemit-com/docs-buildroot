@@ -186,13 +186,6 @@ Obtain a clock handle
 struct clk *clk_get(struct device *dev, const char *id);
 
 /*
-* clk_get - get clk
-* @dev: device
-* @id: clock name of dts "clock-names"
-*/
-struct clk *clk_get(struct device *dev, const char *id);
-
-/*
 * devm_clk_get - get clk
 * @dev：device
 * @id：clock name of dts "clock-names"

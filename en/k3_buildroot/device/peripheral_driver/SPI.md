@@ -2,11 +2,11 @@
 
 This document describes SPI functionality and usage.
 
-## Module Overview
+## Overview
 
 **SPI (Serial Peripheral Interface)** is a serial communication interface between the SoC (System on Chip) and peripherals, and supports only x1 mode. SPI has two modes: **Master** and **Slave**. Typically, one master device controls one or more slave devices for communication. The master device selects a slave device, completes data exchange, provides the clock, and initiates read and write operations. K3 SPI currently supports **Master mode only**.
 
-### Functional Overview
+### Functionality
 
 ![](static/linux_spi.png)  
 
@@ -56,9 +56,9 @@ Use an oscilloscope or logic analyzer to measure the SCK (Serial Clock) frequenc
 
 ## Configuration
 
-This mainly includes **driver enablement configuration** and **DTS configuration**.
+This mainly includes **Kconfig configuration** and **DTS configuration**.
 
-### CONFIG Configuration
+### Kconfig Configuration
 
 `CONFIG_SPI`: Provides support for the SPI bus protocol. By default, this option is set to `Y`.
 

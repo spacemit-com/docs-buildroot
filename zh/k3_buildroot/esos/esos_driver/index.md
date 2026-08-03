@@ -13,3 +13,5 @@ sidebar_position: 2
 - [RCAN](rcan.md)
 - [RUART](ruart.md)
 - [RGMAC](rgmac.md)
+- [DMA](dma.md)
+- [RPMsg](rpmsg.md)
