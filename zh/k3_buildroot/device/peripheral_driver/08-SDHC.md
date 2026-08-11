@@ -110,6 +110,7 @@ sdcard: mmc@d4280000 {
         clocks = <&syscon_apmu CLK_APMU_SDH_AXI>,
                  <&syscon_apmu CLK_APMU_SDH0>;
         clock-names = "core", "io";
+        interrupt-parent = <&saplic>;
         interrupts = <99 IRQ_TYPE_LEVEL_HIGH>;
         resets = <&syscon_apmu RESET_APMU_SDH_AXI>,
                  <&syscon_apmu RESET_APMU_SDH0>;
@@ -174,7 +175,54 @@ K3 板级中，SD 卡控制器支持三组 pinctrl：
 
 - `default`：默认工作模式，工作在3.3v IO场景；
 - `uhs`：UHS 模式，工作在1.8v IO场景，驱动会动态切pinctrl模式；
-- `debug`：用于外接卡打印子板的调试场景。
+- `debug`：调试场景，根据方案需求选择以下两种 pinctrl 之一配置到 `pinctrl-2`：
+  - `mmc1_debug_cfg`：将 PAD 132/133（SD DAT3/DAT2）复用为 UART0 TX/RX，其余引脚保持 SD 功能，用于外接调试子板打印场景（参考 EVB）；
+  - `mmc1_jtag_cfg`：将 PAD 132/133/134/137（SD DAT3/DAT2/DAT1/CLK）复用为 JTAG 的 TDI/TMS/TDO/TCK，用于 JTAG 调试场景（参考 COM260）。
+
+  驱动在 probe 时默认切入 `debug` 状态。检测到 SD 卡插入后自动切换到 `default` 或者 `uhs` 模式，拔出后自动切换回 `debug`。因此调试功能仅在 SD 卡未工作时可用。
+
+`mmc1_debug_cfg` 配置参考（k3-pinctrl.dtsi，EVB 使用）：
+
+```dts
+mmc1_debug_cfg: mmc1-debug-cfg {
+        mmc1-0-pins {
+                pinmux = <K3_PADCONF(132, 2)>,  /* uart0 tx */
+                         <K3_PADCONF(133, 2)>,  /* uart0 rx */
+                         <K3_PADCONF(134, 0)>,  /* mmc1 dat1 */
+                         <K3_PADCONF(135, 0)>,  /* mmc1 dat0 */
+                         <K3_PADCONF(136, 0)>;  /* mmc1 cmd */
+
+                bias-pull-up;
+                drive-strength = <8>;
+                power-source = <3300>;
+        };
+
+        mmc1-1-pins {
+                pinmux = <K3_PADCONF(137, 0)>;  /* mmc1 clk */
+
+                bias-pull-down;
+                drive-strength = <8>;
+                power-source = <3300>;
+        };
+};
+```
+
+`mmc1_jtag_cfg` 配置参考（k3-pinctrl.dtsi，COM260 使用）：
+
+```dts
+mmc1_jtag_cfg: mmc1-jtag-cfg {
+        mmc1-0-pins {
+                pinmux = <K3_PADCONF(132, 5)>,  /* pri tdi */
+                         <K3_PADCONF(133, 5)>,  /* pri tms */
+                         <K3_PADCONF(134, 5)>,  /* pri tdo */
+                         <K3_PADCONF(137, 5)>;  /* pri tck */
+
+                bias-pull-up;
+                drive-strength = <8>;
+                power-source = <3300>;
+        };
+};
+```
 
 SDIO 控制器和 eMMC 控制器不支持1.8v和3.3v IO切换，只需要配置一组 pinctrl。
 
@@ -232,9 +280,10 @@ K3 COM260 上的 `sdcard` 方案配置：
 
 ```dts
 &sdcard {
-        pinctrl-names = "default","uhs";
+        pinctrl-names = "default","uhs","debug";
         pinctrl-0 = <&mmc1_cfg &mmc1_cd_cfg>;
         pinctrl-1 = <&mmc1_uhs_cfg &mmc1_cd_cfg>;
+        pinctrl-2 = <&mmc1_jtag_cfg &mmc1_cd_cfg>;
         bus-width = <4>;
         wp-inverted;
         cd-gpios = <&gpio 0 4 GPIO_ACTIVE_HIGH>;
@@ -257,13 +306,25 @@ K3 COM260 上的 `sdcard` 方案配置：
 - `no-mmc`：禁止该控制器枚举 eMMC 设备，SD 卡控制器需要配置；
 - `no-sdio`：禁止该控制器枚举 SDIO 设备，SD 卡控制器需要配置；
 - `clock-frequency`：指定时钟源，SD 卡选择的是 204M 时钟源，控制器输出最高频率 204M ；
-- `spacemit,tx_delaycode`：指定tuning的tx参数，根据实际硬件进行调整，未配置时默认使用 0x7f。
+- `spacemit,tx_delaycode`：指定tuning的tx参数，根据实际硬件进行调整，未配置时默认使用 0x7f；
+- `spacemit,rx_tuning_limit`：软件 RX tuning 时要求 pass 窗口的最小宽度（delay code 数量），低于此值则 tuning 失败。未配置时默认为 50，可根据实际硬件 tuning 结果调整；
+- `spacemit,rx_tuning_type`：RX tuning 在 pass 窗口内的取点位置，`0` 为窗口 1/3 处，`1` 为窗口中点，`2` 为窗口 2/3 处。未配置时默认为 `1`（取中点）；
+- `spacemit,phy_driver_sel`：PHY 驱动能力选择，未配置时默认为 `0x4`。
 
 #### SDIO 配置示例
 
 K3 EVB 中的 `sdio` 方案配置：
 
 ```dts
+vmmc_sdio: regulator-vmmc-sdio {
+        compatible = "regulator-fixed";
+        regulator-name = "vmmc-sdio";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        enable-active-high;
+        gpio = <&gpio 3 6 GPIO_ACTIVE_HIGH>;
+};
+
 sdio_pwrseq: sdio-pwrseq {
         compatible = "mmc-pwrseq-simple";
 
@@ -283,7 +344,17 @@ sdio_pwrseq: sdio-pwrseq {
         keep-power-in-suspend;
         clock-frequency = <375000000>;
         spacemit,tx_delaycode = <0x7f>;
+        #address-cells = <1>;
+        #size-cells = <0>;
         status = "okay";
+
+        wifi@1 {
+                reg = <1>;
+                compatible = "realtek,rtl8852bs";
+                pinctrl-names = "default";
+                pinctrl-0 = <&wifi_hostwake_cfg>;
+                interrupts-extended = <&pinctrl 101 IRQ_TYPE_EDGE_FALLING>;
+        };
 };
 ```
 
@@ -298,7 +369,8 @@ sdio_pwrseq: sdio-pwrseq {
 - `keep-power-in-suspend`：系统休眠时保持设备供电不断电，Wi-Fi 等需要保持连接或支持唤醒的场景必须配置；
 - `clock-frequency`：指定时钟源，SDIO 选择的是 375M 时钟源，控制器内部进行二分频，输出最高频率 187M ；
 - `spacemit,tx_delaycode`：指定tuning的tx delay参数，根据实际硬件进行调整，未配置时默认使用 0x7f；
-- `reset-gpios`：指定 SDIO 设备的 reset 引脚，对于 WiFi 设备一般对应 REG_ON，有效电平根据实际需求配置。
+- `reset-gpios`：指定 SDIO 设备的 reset 引脚，对于 WiFi 设备一般对应 REG_ON，有效电平根据实际需求配置；
+- `wifi@1`：SDIO 子设备节点，`reg` 对应 SDIO 功能号（Wi-Fi 为 1），`compatible` 根据实际 Wi-Fi 芯片填写；`interrupts-extended` 配置 host wake 中断引脚，需同时配置对应的 pinctrl（`wifi_hostwake_cfg`）。
 
 #### eMMC 配置示例
 
@@ -333,11 +405,15 @@ K3 驱动支持 rx 自动 tuning ，但是需要根据硬件layout差异配置 t
 需要tuning的模式有：
 
 - SDR50/SDR104
-- HS200/HS400
+- HS200/HS400（HS400 在 HS200 阶段完成 tuning 后再切入）
+
+且只有工作频率高于 100MHz 时才会执行 tuning ，低于该门限驱动直接跳过。
 
 其中 eMMC tuning 时采用默认的 tx timing ，不需要在方案DTS设置`spacemit,tx_delaycode` ，而 SD 卡和 SDIO 如果未指定 tx delaycode，会使用默认值 0x7f 。
 
 用户在使用 SD 卡或 SDIO 模组时，如果出现 tx 的 crc 错误，大概率需要调整`spacemit,tx_delaycode` 参数做进一步验证。
+
+rx tuning 的行为可以通过 `spacemit,rx_tuning_limit` 和 `spacemit,rx_tuning_type` 微调：前者控制判定 tuning 成功所需的最小 pass 窗口宽度，若日志中出现 `fail to find valid tuning window` 且实测窗口偏窄，可适当降低该值；后者控制在 pass 窗口内选取 delay code 的位置，默认取中点，一般不需要修改。
 
 ## 接口介绍
 
@@ -352,11 +428,25 @@ static const struct sdhci_ops spacemit_sdhci_ops = {
         .set_bus_width           = sdhci_set_bus_width,
         .set_clock               = spacemit_sdhci_set_clock,
         .set_uhs_signaling       = spacemit_sdhci_set_uhs_signaling,
-        .voltage_switch          = spacemit_sdhci_voltage_switch,
         .set_power               = sdhci_set_power_and_bus_voltage,
         .platform_execute_tuning = spacemit_sdhci_execute_sw_tuning,
 };
 ```
+
+除此之外，驱动在 probe 阶段还会覆盖 `mmc_host_ops` 中的部分回调：
+
+```c
+mops = &host->mmc_host_ops;
+if (!(host->mmc->caps2 & MMC_CAP2_NO_MMC)) {
+        mops->hs400_prepare_ddr     = spacemit_sdhci_pre_select_hs400;
+        mops->hs400_complete        = spacemit_sdhci_post_select_hs400;
+        mops->hs400_downgrade       = spacemit_sdhci_pre_hs400_to_hs200;
+        mops->hs400_enhanced_strobe = spacemit_sdhci_hs400_enhanced_strobe;
+}
+mops->card_busy = spacemit_sdhci_card_busy;
+```
+
+其中前四个仅对 eMMC 控制器生效，用于 HS400 / HS400ES 的时序切换；`card_busy` 对所有控制器都替换为平台实现。
 
 `sdhci.c` 驱动实现了以下接口：
 
@@ -387,7 +477,7 @@ static const struct mmc_host_ops sdhci_ops = {
 void spacemit_sdio_detect_change(int enable_scan);
 ```
 
-其中 `enable_scan` 为 1 时触发主动扫描，为 0 时停止扫描。WiFi 驱动在加载时传入 1，卸载时传入 0。
+调用该接口会重置 SDIO host 的 rescan 状态并触发一次设备扫描，WiFi 驱动在加载时调用即可。当前实现未使用 `enable_scan` 参数，传入任意值都会触发扫描。
 
 ### Debug 介绍
 
