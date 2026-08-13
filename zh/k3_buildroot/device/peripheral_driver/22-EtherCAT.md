@@ -146,7 +146,7 @@ EtherCAT 相关代码位于 `drivers/net/ethercat` 目录下：
 | 自动从站配置 | 支持自动扫描并配置连接的从站设备，简化网络配置 |
 | 分布式时钟同步 | 实现小于 1 µs 精度的分布式时钟（DC）同步 |
 | 多协议支持 | 支持 CoE、SoE、FoE 等协议 |
-| 高实时性能 | 支持 1ms DC 周期，满足大部分工业应用的实时性要求 |
+| 高实时性能 | 支持 500us DC 周期，满足大部分工业应用的实时性要求 |
 | 多主站组合 | 支持配置多个主站，每个主站可管理两个网络设备：主设备和备用设备 |
 
 ## 配置介绍
@@ -412,55 +412,66 @@ EtherCAT 主站测试步骤：
 [  966.756564] EtherCAT 0: Slave states on main device: PREOP.
 
 ```
+在测试前，为减少其他任务调度对实时性能的影响，可以通过 cgroup v2 隔离指定 CPU，并将测试程序运行在该 CPU 上。例如隔离 CPU 2：
 
-测试用例可基于 [EtherLab 官方示例](https://gitlab.com/etherlab.org/ethercat) 中的 `examples/dc_user/main.c` 进行开发，以下示例在 1 ms DC 通讯周期下，连接 1 个从站进行测试，输出如下：
+```bash
+cd /sys/fs/cgroup
+
+echo +cpuset > cgroup.subtree_control
+mkdir -p rt-cpu2
+echo 2 > rt-cpu2/cpuset.cpus
+echo isolated > rt-cpu2/cpuset.cpus.partition
+```
+
+然后将测试程序运行在该隔离 CPU 上：
+```bash
+bash -c '
+echo $$ > /sys/fs/cgroup/rt-cpu2/cgroup.procs
+exec env EC_RT_CPU=2 /path/to/test_program
+'
+```
+测试用例可基于 [EtherLab 官方示例](https://gitlab.com/etherlab.org/ethercat) 中的 `examples/dc_user/main.c` 进行开发，以下示例在 500us DC 通讯周期下，连接 1 个从站进行 24h 测试，输出如下：
 
 ```c
-period         995180 ...    1004620
-exec             4680 ...      48215
-latency          3125 ...       7421
-
-period         995420 ...    1004875
-exec             4755 ...      47106
-latency          3268 ...       7354
-
-period         995060 ...    1004510
-exec             4898 ...      46892
-latency          3415 ...       7288
-
-period         995330 ...    1004790
-exec             4528 ...      47936
-latency          3372 ...       7410
-
-period         995210 ...    1004685
-exec             4680 ...      48524
-latency          3291 ...       7398
-
-period         995560 ...    1004980
-exec             4712 ...      47680
-latency          3446 ...       7305
-
-period         995140 ...    1004565
-exec             4586 ...      48312
-latency          3218 ...       7442
-
-period         995470 ...    1004890
-exec             4864 ...      46975
-latency          3364 ...       7386
-
-period         995090 ...    1004470
-exec             4638 ...      48744
-latency          3482 ...       7468
-
-period         995380 ...    1004760
-exec             4781 ...      47296
-latency          3337 ...       7349
+progress: 86393/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86394/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86395/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86396/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86397/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86398/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86399/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+progress: 86400/86400
+period        485042 ...   517083
+exec            6709 ...   39833
+latency         3843 ...   21318
+[84309.611731] EtherCAT 0: Releasing master
 ```
 
 **注：**
-- `period`：给出的数值是每秒内通讯周期波动范围。
-- `exec`：给出的数值是每秒内主站周期任务执行时间波动范围。
-- `latency`：给出的数值是每秒内主站唤醒延迟波动范围。
+- `period`：给出的数值是整个测试周期内通讯周期的波动范围。
+- `exec`：给出的数值是整个测试周期内主站周期任务执行时间的波动范围。
+- `latency`：给出的数值是整个测试周期内主站唤醒延迟的波动范围。
 
 ## FAQ
 
