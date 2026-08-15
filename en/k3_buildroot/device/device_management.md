@@ -24,6 +24,9 @@ bsp-src/linux-6.18/arch/riscv/boot/dts/spacemit/k3-pico-itx.dts
 bsp-src/linux-6.18/arch/riscv/boot/dts/spacemit/Makefile
 buildroot-ext/configs/spacemit_k3_defconfig
 buildroot-ext/board/spacemit/k3/env_k3.txt
+bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/k3_rt240_<board>.dts
+bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/k3_rt241_<board>.dts
+esos_rt24.its
 ```
 
 **`bsp-src/uboot-2022.10/arch/riscv/dts/<board>.dts`**
@@ -57,6 +60,18 @@ Buildroot configuration file.
 **`buildroot-ext/board/spacemit/k3/env_k3.txt`**
 
 U-Boot environment file.
+
+**`bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/k3_rt240_<board>.dts`**
+
+Device tree for ESOS Core0 (os0), running on K3 RCPU Core0.
+
+**`bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/k3_rt241_<board>.dts`**
+
+Device tree for ESOS Core1 (os1), running on K3 RCPU Core1.
+
+**`esos_rt24.its`**
+
+Configuration file for the ESOS FIT image. It contains the RCPU DTB image nodes and configuration nodes for each board.
 
 ## Adding a New Device
 
@@ -164,11 +179,79 @@ After bring-up and feature validation are complete, it is recommended to add the
     BR2_PACKAGE_ALSA_UTILS=y
    ```
 
-8. After the changes are complete, rebuild U-Boot, the kernel, and the SDK.
+8. If ESOS, the real-time system running on the K3 RCPU, is used, add the ESOS DTS configuration. ESOS uses a dual-core architecture consisting of Core0 and Core1, with an independent DTS file for each core. The relevant files are:
+
+   ```shell
+   bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/Makefile
+   bsp/spacemit/platform/rt24/os0_rcpu/<board>/dts/k3_rt240_<board>.dts
+   bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/Makefile
+   bsp/spacemit/platform/rt24/os1_rcpu/<board>/dts/k3_rt241_<board>.dts
+   esos_rt24.its
+   ```
+
+   Use an existing board, such as `pico-itx`, as a template to create the DTS directory and file for os0 (Core0):
+
+   ```shell
+   cp -r bsp/spacemit/platform/rt24/os0_rcpu/pico-itx bsp/spacemit/platform/rt24/os0_rcpu/k3_newdev
+   ```
+
+   Rename the DTS file to `k3_rt240_k3_newdev.dts`, and adjust the CPU frequency, GPIO, mailbox, power-management (`regulators`), and other nodes according to the hardware differences.
+
+   Similarly, create the DTS directory and file for os1 (Core1):
+
+   ```shell
+   cp -r bsp/spacemit/platform/rt24/os1_rcpu/pico-itx bsp/spacemit/platform/rt24/os1_rcpu/k3_newdev
+   ```
+
+   Rename the DTS file to `k3_rt241_k3_newdev.dts`, and adjust peripheral nodes such as UART, SPI, and ETH according to the hardware differences. The Makefile format in both directories is fixed and automatically compiles all `.dts` files in the directory; no modification is required.
+
+   Modify `esos_rt24.its` by adding two DTB image nodes under the `images` node and the corresponding configuration node under the `configurations` node:
+
+   ```diff
+   @@ images @@
+   +       rcpu0-dtb-k3_newdev {
+   +               description = "ESOS Core0 k3_newdev dtb";
+   +               type = "standalone";
+   +               os = "esos";
+   +               arch = "riscv";
+   +               compression = "lzo";
+   +               load = <0x1 0xf01000>;
+   +               entry = <0x1 0xf01000>;
+   +               data = /incbin/("../output/esos/k3_rt240_k3_newdev.dtb.lzo");
+   +               hash {
+   +                       algo = "crc32";
+   +               };
+   +       };
+   +
+   +       rcpu1-dtb-k3_newdev {
+   +               description = "ESOS Core1 k3_newdev dtb";
+   +               type = "standalone";
+   +               os = "esos";
+   +               arch = "riscv";
+   +               compression = "lzo";
+   +               load = <0x1 0xF0D800>;
+   +               entry = <0x1 0xF0D800>;
+   +               data = /incbin/("../output/esos/k3_rt241_k3_newdev.dtb.lzo");
+   +               hash {
+   +                       algo = "crc32";
+   +               };
+   +       };
+
+   @@ configurations @@
+   +       conf_dual_N {
+   +               description = "k3_newdev";
+   +               loadables = "rcpu-data-null", "rcpu0-dtb-k3_newdev", "rcpu1-dtb-k3_newdev", "rcpu0-fw", "rcpu1-fw";
+   +       };
+   ```
+
+   > In `conf_dual_N`, replace `N` with the current highest existing configuration number plus 1. Keep the `load` and `entry` addresses consistent with those of the other boards; no changes are required.
+
+9. After the changes are complete, rebuild U-Boot, the kernel, ESOS, and the SDK.
 
    ```shell
    make uboot-rebuild
    make linux-rebuild
+   make esos-rebuild
    make
    ```
 
@@ -272,6 +355,8 @@ The following examples show how to update `Product Name`, `Base MAC Address`, an
    ```
 
    `Programming passed.` indicates that the write operation succeeded.
+
+   > **Important:** When modifying Product Name, ensure that the `model` field in the DTS file matches it. Refer to the DTS model naming rules section.
 
 
 4. Program `Base MAC Address`, for example `FE:FE:FE:21:47:AC`.

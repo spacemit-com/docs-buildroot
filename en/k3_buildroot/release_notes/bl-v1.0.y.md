@@ -4,6 +4,27 @@ sidebar_position: 1
 
 # Buildroot 1.0
 
+## v1.0.5 Release Notes
+
+Release Date: 2026-07-23
+
+### Major Updates
+
+- Fixed the NVMe timeout issue.
+- Fixed the black screen and unavailable mouse and keyboard after resuming from suspend.
+- Fixed the issue where TX delay did not take effect during SD/SDIO TX tuning.
+- Fixed the load access fault issue when `remoteproc` obtains `get_loaded_rsc_table`.
+- Fixed an issue where abnormal VPU messages could cause the decoder to hang.
+- Fixed the cluster power-off failure when the rvtrace clock is enabled by default.
+- Added support for PXE booting through the second boot device specified by TLV.
+- Added support for RVA23 extension feature descriptions in DTS.
+- Added support for using the SoC RTC as the clock source for RT-Linux.
+- Optimized asynchronous PCIe resume to reduce resume time.
+- Optimized the suspend flow by switching to a hardware-aware external interrupt mechanism.
+- Optimized the I2C, GMAC, QSPI, and eSPI pinctrl drive strength on the PICO board.
+- Optimized cpuidle to power off cluster3 synchronously when enabled.
+- Optimized perf rvtrace by using an ELF-based method instead of `/dev/mem` access.
+
 ## V1.0.0 Release Notes
 
 Release Date: 2026-04-30

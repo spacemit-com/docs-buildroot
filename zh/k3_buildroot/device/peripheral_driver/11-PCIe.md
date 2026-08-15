@@ -577,3 +577,84 @@ reserved-memory {
 3. **验证 GPIO 功能**：在启动时通过 `cat /sys/kernel/debug/gpio` 确认该 GPIO 已被 PCIe 驱动申请并正确控制
 4. **查看内核日志**：`dmesg | grep -i pcie` 查找 GPIO 申请失败或方向设置错误的信息
 
+
+### 3. k3 PCIe不支持16位msi消息中断
+**原理说明**:
+
+Spacemit K3遵循RISC-V AIA协议规范，其内部MSI控制器（IMSIC）仅接收32位的配置写入。
+
+**原因分析**:
+
+部分老旧PCIe外设默认发起的是16位传统MSI消息，会导致K3 IMSIC直接丢弃该数据，表现为系统能正常识别PCI设备并为其分配中断号，但运行期间完全接收不到硬件中断响应。
+
+**设备msi中断位数确定**:
+
+将pcie ep msi中断消息写入地址(即msi中断控制器寄存器地址)修改为ddr某个地址mem1，通过读取ddr mem1的值检查pcie ep发送的msi中断消息值。
+
+```diff
+diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
+index 2f647cac4cae..0ba07cbd67b9 100644
+--- a/drivers/pci/msi/msi.c
++++ b/drivers/pci/msi/msi.c
+@@ -184,17 +184,34 @@ void __pci_read_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
+ 	}
+ }
+ 
++static u64 *msi_vaddr = NULL;
++static dma_addr_t msi_dma_handle;
++
+ static inline void pci_write_msg_msi(struct pci_dev *dev, struct msi_desc *desc,
+ 				     struct msi_msg *msg)
+ {
+ 	int pos = dev->msi_cap;
+ 	u16 msgctl;
+ 
++	if (!msi_vaddr) {
++		msi_vaddr = dmam_alloc_coherent(&dev->dev, sizeof(u64),
++						&msi_dma_handle, GFP_KERNEL);
++		if (!msi_vaddr) {
++			pr_err("Failed to allocate MSI address\n");
++			return;
++		}
++		memset(msi_vaddr, 0, 64);
++		dev_info(&dev->dev, "MSI address allocated at 0x%llx, msi vaddr 0x%llx\n",
++				(unsigned long long)msi_dma_handle,
++				(unsigned long long)(uintptr_t)msi_vaddr);
++	}
++
+ 	pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ 	msgctl &= ~PCI_MSI_FLAGS_QSIZE;
+ 	msgctl |= FIELD_PREP(PCI_MSI_FLAGS_QSIZE, desc->pci.msi_attrib.multiple);
+ 	pci_write_config_word(dev, pos + PCI_MSI_FLAGS, msgctl);
+ 
++#if 0
+ 	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, msg->address_lo);
+ 	if (desc->pci.msi_attrib.is_64) {
+ 		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI,  msg->address_hi);
+@@ -202,6 +219,20 @@ static inline void pci_write_msg_msi(struct pci_dev *dev, struct msi_desc *desc,
+ 	} else {
+ 		pci_write_config_word(dev, pos + PCI_MSI_DATA_32, msg->data);
+ 	}
++#else
++
++	dev_info(&dev->dev, "MSI msg orgin address 0x%08x%08x, data 0x%x\n", msg->address_hi, msg->address_lo, msg->data);
++   /* 对pcie ep msi中断消息地址，写入原始值0x12345678;检查pcie ep设备是否有写入msi消息，包括写入的消息的位数。
++	 * 假设msg->data为0x0008，该值也是pcie ep写入rc端的msi消息值
++    * 如果pcie ep写入消息为32位，则msi_vaddr地址的内容会为0x00000008;
++    * 如果pcie ep写入消息为16位，则msi_vaddr地址的内容会位0x12340008 
++	 */
++	*msi_vaddr = 0x12345678;                  
++
++	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, msi_dma_handle & 0xFFFFFFFF);
++	if (desc->pci.msi_attrib.is_64) {
++		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI,  (msi_dma_handle >> 32) & 0xFFFFFFFF);
++		pci_write_config_word(dev, pos + PCI_MSI_DATA_64, msg->data);
++	} else {
++		pci_write_config_word(dev, pos + PCI_MSI_DATA_32, msg->data);
++	}
++
++#endif
+ 	/* Ensure that the writes are visible in the device */
+ 	pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ }
+```

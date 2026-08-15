@@ -313,6 +313,49 @@ uart1    Character Device     0
 2. Confirm that the corresponding UART node in the board-level DTS is set to `status = "okay"`.
 3. Check the kernel log to confirm driver initialization, for example: `dmesg | grep uart`.
 
+### Enable Boot-Time Logs
+
+1. Confirm that `BSP_USING_UART` is enabled.
+2. Copy the DTS configuration for the os1 UART to os0, and disable the UART configuration for os1.
+
+   The following example shows the configuration changes for `com260_ifx`:
+
+   ```c
+   diff --git a/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts b/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
+   index c9f64a295..407810b9a 100644
+   --- a/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
+   +++ b/bsp/spacemit/platform/rt24/os0_rcpu/com260_ifx/dts/k3_rt240_com260_ifx.dts
+   @@ -39,7 +39,14 @@
+    };
+
+    &uart0 {
+   -       status = "disabled";
+   +       &uart0 {
+   +       pinctrl-names = "default";
+   +       pinctrl-0 = <&ruart0_3_cfg>;
+   +       status = "okay";
+   +       reg = <0xc0881000 0x100>;
+   +       interrupts = <0 17 0>;
+   +       clocks = <&ccu CLK_RCPU_UART0>, <&ccu CLK_RST_RCPU_UART0>;
+   +};
+    };
+
+    &mailbox3 {
+   diff --git a/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts b/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
+   index c46bcc811..fd3d386a2 100644
+   --- a/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
+   +++ b/bsp/spacemit/platform/rt24/os1_rcpu/com260_ifx/dts/k3_rt241_com260_ifx.dts
+   @@ -34,7 +34,7 @@
+    &uart0 {
+       pinctrl-names = "default";
+       pinctrl-0 = <&ruart0_3_cfg>;
+   -       status = "okay";
+   +       status = "disabled";
+       reg = <0xc0881000 0x100>;
+       interrupts = <0 17 0>;
+       clocks = <&ccu CLK_RCPU_UART0>, <&ccu CLK_RST_RCPU_UART0>;
+   ```
+
 ### Garbled Receive Data
 
 1. Confirm that both ends use the same baud rate.

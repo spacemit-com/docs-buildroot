@@ -230,6 +230,27 @@ ffmpeg -f rawvideo -pix_fmt nv12 -s 1920x1080 -r 30 -i input.yuv -c:v hevc_stcod
 ffmpeg -f rawvideo -pix_fmt yuv420p -s 1280x720 -r 30 -i input.yuv -c:v mjpeg_stcodec output.mjpg
 ```
 
+### 硬件编解码示例代码
+
+除命令行方式外，也可通过 FFmpeg 的 C API（`libavcodec`/`libavformat`）直接调用平台硬件编解码器。下面的示例仓库提供了 H.264、H.265/HEVC、MJPEG 的硬件解码与编码 demo：
+
+- 仓库地址：[https://github.com/spacemit-com/multimedia-demo/tree/main/ffmpeg-demo](https://github.com/spacemit-com/multimedia-demo/tree/main/ffmpeg-demo)
+
+仓库包含：
+
+- `decode/`：通用硬件解码 demo，根据输入码流自动选择 `h264_stcodec` / `hevc_stcodec` / `mjpeg_stcodec` 解码器。
+- `encode/`：通用硬件编码 demo，可将原始 NV12 数据编码为 H.264 / H.265 / MJPEG。
+- `benchmark.sh`：使用真实 1080p 码流测试编解码帧率。
+
+克隆并编译：
+
+```shell
+git clone https://github.com/spacemit-com/multimedia-demo.git
+cd multimedia-demo/ffmpeg-demo
+sudo apt install libavcodec-dev libavformat-dev libavutil-dev
+make
+```
+
 ### 视频转码
 
 * hevc转h264

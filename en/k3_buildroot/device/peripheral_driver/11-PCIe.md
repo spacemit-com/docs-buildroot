@@ -1,14 +1,14 @@
 # PCIe
 
-This document describes PCIe functionality and usage.
+This document describes PCIe functionality and usage on the K3 platform.
 
 ## Overview
 
-PCIe (Peripheral Component Interconnect Express) is a high-speed serial computer expansion bus standard. It uses high-speed serial point-to-point, dual-channel, high-bandwidth transmission, and each connected device has exclusive access to its channel bandwidth.
+PCIe (Peripheral Component Interconnect Express) is a high-speed serial computer expansion bus standard that uses point-to-point, full-duplex links. Each connected device has dedicated access to link bandwidth.
 
-The K3 platform provides 5 PCIe controllers (Port A ~ Port E) and 6 independent PHYs, supporting multiple PCIe peripherals, including NVMe SSDs, SATA controllers, and Wi-Fi modules.
+The K3 platform provides five PCIe controllers (Port A through Port E) and six independent PHYs. It supports a range of PCIe peripherals, including NVMe SSDs, SATA controllers, and Wi-Fi modules.
 
-**Note:** Port D and USB3 controller share the same PHY hardware resource, so they cannot be enabled simultaneously. You must enable either PCIe or USB3 in the device tree according to actual requirements.
+**Note:** Port D and the USB3 controller share the same PHY hardware resource and cannot be enabled simultaneously. Enable either PCIe or USB3 in the device tree, as required.
 
 ### Functionality
 
@@ -28,11 +28,11 @@ The Linux PCIe subsystem framework consists of the following three components:
 
 3. **PCIe Device Driver**
 
-    - Device drivers for specific PCIe devices, such as GPUs, NICs, and NVMe devices
+   - Provides drivers for specific PCIe devices, such as GPUs, NICs, and NVMe devices.
 
 ### Source Code Structure
 
-The controller driver code is located in the `drivers/pci/controller/dwc` directory:
+The PCIe controller driver source is located in `drivers/pci/controller/dwc`:
 
 ```
 |-- pcie-designware.c           #dwc pcie common driver code
@@ -47,31 +47,31 @@ The controller driver code is located in the `drivers/pci/controller/dwc` direct
 
 | Feature | Description |
 | :-----| :----|
-| Supported Modes | Supports RC (Root Complex) mode |
-| Supported Protocols and Lane Counts | Supports Gen3x1, Gen3x2, Gen3x4, and Gen3x8 |
-| Supported Devices | Supports NVMe SSDs, PCIe-to-SATA devices, PCIe network cards, and PCIe graphics cards |
+| Supported Modes | RC (Root Complex) mode |
+| Supported Protocols and Lane Counts | Gen3x1, Gen3x2, Gen3x4, and Gen3x8 |
+| Supported Devices | NVMe SSDs, PCIe-to-SATA devices, PCIe network cards, and PCIe graphics cards |
 
 ### Mapping Between Controllers and PHYs
 
-The mapping between the 5 PCIe controllers and 6 PHYs on the K3 platform is as follows:
+The following table maps the five PCIe controllers to the six PHYs on the K3 platform:
 
 | Controller | Port | Maximum Lane Number | Available PHY | Description |
 | :-----| :----| :----| :----| :----|
-| pcie0_rc | Port A | x8 | phy0~phy5 | Supports x8/x4/x2 modes and can aggregate multiple PHYs |
-| pcie1_rc | Port B | x2 | phy1 | Available only when Port A is used in x2 mode |
-| pcie2_rc | Port C | x2 | phy2, phy3 | Supports x2 (dual-PHY) or x1 mode |
-| pcie3_rc | Port D | x1 | phy4 | Shared with USB3; only one can be used |
-| pcie4_rc | Port E | x1 | phy5 | Independent |
+| pcie0_rc | Port A | x8 | phy0~phy5 | Supports x8, x4, and x2 modes and can aggregate multiple PHYs |
+| pcie1_rc | Port B | x2 | phy1 | Available only when Port A operates in x2 mode |
+| pcie2_rc | Port C | x2 | phy2, phy3 | Supports x2 (dual-PHY) and x1 modes |
+| pcie3_rc | Port D | x1 | phy4 | Shares a PHY with USB3; only one can be used |
+| pcie4_rc | Port E | x1 | phy5 | Used independently |
 
 ### Performance Parameters
 
-| SSD Model (Capacity) | Sequential Read (MB/s) | Sequential Write (MB/s)| Random Read (4K MB/s) | Random Write(4K MB/s) |
+| SSD Model (Capacity) | Sequential Read (MB/s) | Sequential Write (MB/s) | Random Read (4K MB/s) | Random Write (4K MB/s) |
 | :-----| :----: | :----: | :----: | :----: |
 | Colorful CN600 128GB | 1280 | 1156 | 358 | 352 |
 | HS-SSD-C2000Pro 256G | 2150 | 258 | 321 | 209 |
 | MAXIO MAP1202 512G | 3470 | 3138 | 282 | 325 |
 
-> The data is based on `deb1` (K3) + a PCIe Gen3 x4 slot, tested on the Buildroot 2024.12 + Linux-6.18 SDK using the `fio` method described below. All random workloads use a 4K block size.
+> The data was measured on `deb1` (K3) with a PCIe Gen3 x4 slot, using the Buildroot 2024.12 + Linux-6.18 SDK and the `fio` test method described below. All random workloads use a 4K block size.
 
 **Test Method**
 
@@ -91,18 +91,18 @@ fio --name=nvme_rand_write --filename=/mnt/nvme_vfat/fiotest.bin --size=1G --bs=
 
 ## Configuration
 
-This mainly includes **Kconfig configuration** and **DTS configuration**.
+Configuration consists of **Kconfig configuration** and **DTS configuration**.
 
 ### Kconfig Configuration
 
-`CONFIG_PCI` provides support for the PCI and PCIe bus protocols. This option defaults to `Y`.
+`CONFIG_PCI` enables support for PCI and PCIe bus protocols. This option defaults to `Y`.
 
 ```
 Device Drivers
     PCI support (PCI [=y])
 ```
 
-`PCIE_SPACEMIT_K1` provides support for the K3 PCIe controller driver. This option defaults to `Y`.
+`PCIE_SPACEMIT_K1` enables support for the K3 PCIe controller driver. This option defaults to `Y`.
 
 ```
 Device Drivers
@@ -137,11 +137,11 @@ Each PCIe Root Complex on K3 declares four types of address windows in the DTS: 
 | Non-prefetchable MEM | ~2046.94 MiB (`0x7fef0000`) | ~1022.94 MiB (`0x3fef0000`) |
 | Prefetchable MEM | 4 GiB | 4 GiB |
 
-> The non-prefetchable MEM windows for Port D/E are smaller because their overall address-space windows are smaller than those of Port A/B/C. After subtracting the config and I/O regions, less space remains.
+> The non-prefetchable MEM windows for Port D and Port E are smaller because their total address-space windows are smaller than those of Port A, Port B, and Port C. Less space remains after the config and I/O regions are allocated.
 
 ##### Configuration Space Description
 
-Take Port A (`pcie0_rc`) as an example to illustrate how address space is configured in the DTS:
+Port A (`pcie0_rc`) illustrates address-space configuration in the DTS:
 
 ```c
 pcie0_rc: pcie@80000000 {
@@ -159,7 +159,7 @@ pcie0_rc: pcie@80000000 {
 };
 ```
 
-Each entry in the `ranges` property follows the format `<flags child-bus-address cpu-physical-address size>`. The meaning of the flags field is as follows:
+Each `ranges` entry uses the format `<flags child-bus-address cpu-physical-address size>`. The `flags` field is defined as follows:
 
 | flags | Type |
 | :--- | :--- |
@@ -167,7 +167,7 @@ Each entry in the `ranges` property follows the format `<flags child-bus-address
 | `0x02000000` | 32-bit non-prefetchable memory space |
 | `0x43000000` | 64-bit prefetchable memory space |
 
-The three `ranges` entries for Port A correspond to the following windows:
+The three Port A `ranges` entries correspond to the following windows:
 
 | Window | CPU Physical Address | Size |
 | :--- | :--- | :--- |
@@ -175,11 +175,11 @@ The three `ranges` entries for Port A correspond to the following windows:
 | Non-prefetchable MEM | `0x11_0011_0000` | `0x7fef_0000` (~2046.94 MiB) |
 | Prefetchable MEM | `0x18_0000_0000` | `0x1_0000_0000` (4 GiB) |
 
-`config` space is allocated via the `reg` property, with base address `0x11_0000_0000` and size 64 KiB.
+The `config` space is allocated through the `reg` property, with a base address of `0x11_0000_0000` and a size of 64 KiB.
 
 #### PHY Configuration
 
-K3 PCIe uses independent PHY nodes. Both the PHY and the controller must be enabled in the board-level DTS.
+K3 PCIe uses independent PHY nodes. The PHY and the controller must both be enabled in the board-level DTS.
 
 The PHY node is defined in `k3.dtsi`:
 
@@ -197,21 +197,21 @@ phy0: phy-pcie@81d00000 {
 
 #### pinctrl Configuration
 
-The PCIe `pinctrl` handles only sideband signals, not the high-speed differential lanes. The actual data link is bound to the PCIe PHY node through `phys = <&phyX ...>`. `pinctrl` mainly handles the following signal types:
+PCIe `pinctrl` handles only sideband signals, not high-speed differential lanes. The data link is bound to the PCIe PHY node through `phys = <&phyX ...>`. `pinctrl` primarily handles the following signals:
 
 - `PERST#`: Device reset signal
 - `WAKE#`: Device wake signal
 - `CLKREQ#`: Reference clock request signal
 
-The configuration steps are recommended to be performed in the following order:
+Perform configuration in the following order:
 
-1. First, use the schematic to confirm which sideband signals are actually routed on the board and which PAD groups they connect to.
-2. Then locate the corresponding `pcie*_cfg` group in `k3-pinctrl.dtsi`.
-3. If the common `pinctrl` group does not exactly match your board-level wiring, redefine the group in the board-level DTS and keep only the PADs that are actually used.
+1. Use the schematic to identify the sideband signals routed on the board and the PAD group connected to each signal.
+2. Locate the corresponding `pcie*_cfg` group in `k3-pinctrl.dtsi`.
+3. If the common `pinctrl` group does not exactly match the board-level wiring, redefine the group in the board-level DTS and retain only the PADs in use.
 
-In `K3_PADCONF(pin, func)`, `pin` is the PAD number and `func` is the selected mux function for that PAD. Properties such as `bias-disable`, `bias-pull-up`, `drive-strength`, and `power-source` must match the board-level voltage domain and pull-up configuration.
+In `K3_PADCONF(pin, func)`, `pin` is the PAD number and `func` is the mux function selected for that PAD. Properties such as `bias-disable`, `bias-pull-up`, `drive-strength`, and `power-source` must match the board-level voltage domain and pull-up configuration.
 
-Taking `deb1` as an example, the board-level DTS trims the common pinctrl group. For example, `pcie0-1-cfg` retains only `PERST#` and `CLKREQ#` and does not configure `WAKE#`:
+On `deb1`, the board-level DTS trims the common pinctrl group. For example, `pcie0-1-cfg` retains only `PERST#` and `CLKREQ#`; `WAKE#` is not configured:
 
 ```c
 pcie0-1-cfg {
@@ -225,16 +225,67 @@ pcie0-1-cfg {
 };
 ```
 
-The unit of the `power-source` field is mV, and `<1800>` corresponds to 1.8 V. If the board-level design connects the sideband signals to 3.3 V, change this value to `<3300>` according to the schematic so that the PAD voltage domain matches the peripheral.
+The `power-source` field is specified in mV; `<1800>` corresponds to 1.8 V. If the board-level design connects sideband signals to 3.3 V, change this value to `<3300>` according to the schematic to match the PAD voltage domain to the peripheral.
 
-If your board does not route out the `WAKE#` signal, you can override the default pin group in the board-level DTS by referring to this method, instead of rigidly using the 3-wire configuration shared in `k3-pinctrl.dtsi`.
+If the board does not route the `WAKE#` signal, override the default pin group in the board-level DTS as shown above rather than applying the three-signal configuration shared in `k3-pinctrl.dtsi`.
+
+#### PERST# Control Methods
+
+The K3 PCIe driver supports two PERST# (reset signal) control methods:
+
+1. **GPIO Control**
+2. **PMU Register Control** (default)
+
+**Priority Rule:** The driver first checks for the `reset-gpios` property in the device tree. When the property is present, GPIO controls PERST#; otherwise, the driver uses PMU register control.
+
+##### GPIO Control Method
+
+This method directly controls the PERST# pin level through the GPIO subsystem. It is commonly used when the hardware PERST pin is assigned to another function and a GPIO is used for PERST#.
+
+**Configuration Example**:
+
+```c
+&pcie0_rc {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pcie0_1_cfg>;
+        phys = <&phy0>, <&phy1>;
+        phy-names = "phy0", "phy1";
+        num-lanes = <4>;
+        reset-gpios = <&gpio 3 28 GPIO_ACTIVE_LOW>;  /* GPIO_120, active low */
+        status = "okay";
+};
+```
+
+**Parameter Description**:
+
+- `reset-gpios = <&gpio bank pin flags>`
+  - `&gpio`: GPIO controller node
+  - `bank pin`: GPIO number. For example, `3 28` denotes pin 28 in GPIO bank 3, or global GPIO_120.
+  - `flags`: `GPIO_ACTIVE_LOW` specifies active-low operation, which drives the output low when asserted.
+
+##### PMU Register Control Method
+
+This method indirectly controls PERST# through PMU (Power Management Unit) registers. It is the K3 default when `reset-gpios` is not configured in the device tree.
+
+**Configuration Example**:
+
+```c
+&pcie0_rc {
+        pinctrl-names = "default";
+        pinctrl-0 = <&pcie0_1_cfg>;
+        phys = <&phy0>, <&phy1>;
+        phy-names = "phy0", "phy1";
+        num-lanes = <4>;
+        /* No reset-gpios configured; driver will use PMU register control */
+        status = "okay";
+};
+```
 
 #### Board DTS Configuration Example (deb1)
 
-The `deb1` board uses the `k3_deb1.dts` file. It enables `phy0/1/2/3/5` and `pcie0/1/2/4` by default, while `phy4` and `pcie3_rc` remain disabled.
+The `deb1` board uses `k3_deb1.dts`. It enables `phy0/1/2/3/5` and `pcie0/1/2/4`, while `phy4` and `pcie3_rc` remain disabled.
 
-Important note on the relationship between Port A and Port B:
-Although the `k3_deb1.dts` example sets `pcie0_rc { num-lanes = <4>; }`, the driver will dynamically downgrade Port A to x2 at runtime after detecting that the bifurcation GPIO is asserted, freeing the other two lanes for Port B. In other words, whether `pcie1_rc` can actually be enabled depends on the actual level of the bifurcation GPIO, not just the static `num-lanes` value in DTS.
+Port A and Port B are interdependent. Although the `k3_deb1.dts` example sets `pcie0_rc { num-lanes = <4>; }`, the driver reduces Port A to x2 at run time when the bifurcation GPIO is asserted, making the other two lanes available to Port B. Therefore, `pcie1_rc` operation depends on the bifurcation GPIO level, not only on the static DTS `num-lanes` value.
 
 First, enable the relevant PHYs:
 
@@ -301,23 +352,20 @@ Then configure each PCIe controller:
         status = "okay";
 };
 ```
-Here:
-The `spacemit,bifurcation-gpios` property of `pcie0_rc` is used to control the bifurcation mode of Port A.
-The `spacemit,device-detect-gpios` property of `pcie1_rc` is a board-level device-detection GPIO.
-During board-level porting, in addition to `status` and `phys`, these two GPIOs must also be verified against the schematic.
+The `spacemit,bifurcation-gpios` property of `pcie0_rc` controls the bifurcation mode of Port A. The `spacemit,device-detect-gpios` property of `pcie1_rc` is a board-level device-detection GPIO. During board-level porting, verify these GPIOs against the schematic together with `status` and `phys`.
 
 **Configuration Description:**
 
-- `pinctrl-0`: Selects the PADs to which the sideband signals are physically connected. Verify whether PERST#/WAKE#/CLKREQ# are all actually routed on the board. If a signal is not routed out, trim the pin group as shown in the earlier example to avoid enabling floating PADs by mistake.
-- `phys` / `phy-names`: The list of PHYs bound to the controller. The order must match the hardware lane wiring. For example, Port A on `deb1` requires `phy0` + `phy1` to operate at x4.
-- `num-lanes`: Describes the expected number of lanes. It must satisfy two conditions at the same time: (1) whether the board actually routes that many lanes to the slot; (2) whether it matches the bifurcation/retimer DIP-switch settings. It is recommended to include the hardware wiring table directly in the documentation for cross-checking during debugging.
-- `spacemit,bifurcation-gpios`: Whether this is required depends on the board design. If this GPIO is detected high, it indicates that a device is connected to the other PCIe interface sharing the same PHY. On `deb1`, this determines whether lanes are allocated to Port B.
-- `spacemit,device-detect-gpios`: Whether this is required depends on the board design. If this GPIO is detected low, it indicates that no device is connected to the PCIe interface, allowing the driver to disable unused controllers.
+- `pinctrl-0`: Selects the PADs physically connected to sideband signals. Confirm that PERST#/WAKE#/CLKREQ# are routed on the board. If a signal is not routed, trim the pin group as shown earlier to avoid enabling floating PADs.
+- `phys` / `phy-names`: Lists the PHYs bound to the controller. The order must match the hardware lane wiring. For example, Port A on `deb1` requires `phy0` + `phy1` to operate at x4.
+- `num-lanes`: Specifies the expected lane count. The count must match both the number of lanes routed to the slot and the bifurcation/retimer DIP-switch setting. Document the hardware wiring table for use during debugging.
+- `spacemit,bifurcation-gpios`: Whether this property is required depends on the board design. A high level indicates that a device is connected to the other PCIe interface sharing the same PHY. On `deb1`, this determines whether lanes are assigned to Port B.
+- `spacemit,device-detect-gpios`: Whether this property is required depends on the board design. A low level indicates that no device is connected to the PCIe interface, allowing the driver to disable unused controllers.
 - `status`: Enables or disables the controller.
 
 #### Complete PCIe DTS
 
-Take the `pcie0_rc` (Port A) controller in DTS as an example:
+The following DTS node defines the `pcie0_rc` (Port A) controller:
 
 ```
 pcie0_rc: pcie@80000000 {
@@ -387,7 +435,7 @@ void pci_unregister_driver(struct pci_driver *dev);
 
 ### sysfs
 
-`/sys/bus/pci`: provides information about PCI bus devices and drivers in the system:
+`/sys/bus/pci` provides information about PCI bus devices and drivers:
 
 ```
 |-- devices                 // Devices on the PCI bus
@@ -402,47 +450,47 @@ void pci_unregister_driver(struct pci_driver *dev);
 
 ## Testing
 
-1. Check PCI bus topology information.
+1. View PCI bus topology information.
 
-```
-#lspci
-```
+   ```
+   #lspci
+   ```
 
-2. Check detailed information for a PCI device.
+2. View detailed information for a PCI device.
 
-```
-lspci -vvvs <BDF>
-```
+   ```
+   lspci -vvvs <BDF>
+   ```
 
-3. NVMe SSD read test
+3. Test NVMe SSD read performance.
 
-```
-fio --name read --eta-newline=5s --filename=/dev/nvme0n1 --rw=read --size=2g --io_size=10g --blocksize=1024k --ioengine=libaio --fsync=10000 --iodepth=32 --direct=1 --numjobs=1 --runtime=60 --group_reporting
-```
+   ```
+   fio --name read --eta-newline=5s --filename=/dev/nvme0n1 --rw=read --size=2g --io_size=10g --blocksize=1024k --ioengine=libaio --fsync=10000 --iodepth=32 --direct=1 --numjobs=1 --runtime=60 --group_reporting
+   ```
 
-4. NVMe SSD write test
+4. Test NVMe SSD write performance.
 
-```
-fio --name write --eta-newline=5s --filename=/dev/nvme0n1 --rw=write --size=2g --io_size=60g --blocksize=1024k --ioengine=libaio --fsync=10000 --iodepth=32 --direct=1 --numjobs=1 --runtime=60 --group_reporting
-```
+   ```
+   fio --name write --eta-newline=5s --filename=/dev/nvme0n1 --rw=write --size=2g --io_size=60g --blocksize=1024k --ioengine=libaio --fsync=10000 --iodepth=32 --direct=1 --numjobs=1 --runtime=60 --group_reporting
+   ```
 
 ## Compatibility with 32-bit PCIe EP Devices
 
 ### Background
 
-On the K3 platform, all DDR physical addresses are located above 4 GiB, starting at `0x1_0000_0000`. Some PCIe endpoint devices, such as the MT7921E Wi-Fi card, support only 32-bit DMA addressing and therefore cannot directly access system memory above 4 GiB, resulting in DMA transfer failures.
+On the K3 platform, all DDR physical addresses are above 4 GiB, beginning at `0x1_0000_0000`. Some PCIe endpoint devices, such as the MT7921E Wi-Fi card, support only 32-bit DMA addressing and cannot access system memory above 4 GiB directly, causing DMA transfer failures.
 
 ### Solution
 
-This issue can be resolved using **restricted DMA pool + dma-ranges address mapping**:
+Use a **restricted DMA pool + dma-ranges address mapping** to resolve this issue:
 
-1. Reserve a dedicated DMA region in memory
-2. Use the PCIe Address Translation Unit (ATU) to map the 32-bit bus addresses visible to the endpoint device to this physical memory region
-3. The endpoint device performs DMA operations using 32-bit bus addresses, and the PCIe controller automatically handles address translation
+1. Reserve a dedicated DMA memory region.
+2. Use the PCIe Address Translation Unit (ATU) to map the 32-bit bus addresses visible to the endpoint device to that physical memory region.
+3. The endpoint device performs DMA operations with 32-bit bus addresses, while the PCIe controller performs address translation automatically.
 
 ### Kconfig Configuration
 
-The following kernel configurations should be enabled:
+Enable the following kernel configurations:
 
 ```
 CONFIG_SWIOTLB=y                  # Software I/O TLB, provides bounce buffer support
@@ -454,7 +502,7 @@ CONFIG_DMA_RESTRICTED_POOL=y      # Support restricted DMA pool
 
 #### 1. Reserve DMA Memory Pool
 
-Add a restricted DMA pool under the `reserved-memory` node. The following example reserves 32 MiB starting at `0x1_f000_0000`:
+Add a restricted DMA pool under the `reserved-memory` node. The following example reserves 32 MiB at `0x1_f000_0000`:
 
 ```c
 reserved-memory {
@@ -471,7 +519,7 @@ reserved-memory {
 
 #### 2. Configure PCIe Controller Node
 
-Add `dma-ranges` and `memory-region` to the corresponding PCIe controller node:
+Add `dma-ranges` and `memory-region` to the applicable PCIe controller node:
 
 ```c
 &pcie4_rc {
@@ -482,7 +530,7 @@ Add `dma-ranges` and `memory-region` to the corresponding PCIe controller node:
 };
 ```
 
-Meaning of the `dma-ranges` entry:
+The `dma-ranges` entry is defined as follows:
 
 | Field | Value | Description |
 | :--- | :--- | :--- |
@@ -491,14 +539,121 @@ Meaning of the `dma-ranges` entry:
 | CPU physical address | `0x1_f000_0000` | Actual physical memory address |
 | Size | `0x0_0200_0000` | 32 MiB |
 
-Workflow: The EP device initiates DMA reads or writes to bus address `0x8000_0000` → the PCIe ATU translates it to CPU physical address `0x1_f000_0000` → the access reaches the reserved DMA memory pool.
+Workflow: The EP device initiates a DMA read or write at bus address `0x8000_0000` → the PCIe ATU translates the address to CPU physical address `0x1_f000_0000` → the access reaches the reserved DMA memory pool.
 
 ## FAQ
 
 ### 1. SSD Not Detected by the System: How to Diagnose the Issue?
 
-1. **First, check whether it is enumerated on the PCIe bus.** Run `lspci | grep -i -E "nvme|non-volatile"`. If there is no output, the host has not detected the NVMe device at the PCIe bus level.
-2. **Check the pin configuration and voltage domains.** In DTS, `pinctrl`, `power-source`, and `spacemit,*-gpios` must exactly match the board schematic. Make sure the pin number, mux function, PAD power domain, voltage level, and physically connected sideband signals all match.
-3. **Rule out SSD hardware failure.** Replace the SSD with a known-good NVMe drive, or test the suspected faulty SSD on another working platform to confirm whether the issue is caused by device damage.
-4. **Check initialization timing and signal quality.** If the link drops randomly or fails during link training, use an oscilloscope or protocol analyzer to inspect the timing, voltage swing, and signal integrity (SI) of signals such as PERST#, CLKREQ#, and REFCLK. If necessary, work with the vendor engineering team for joint debugging.
+1. **Confirm PCIe bus enumeration.** Run `lspci | grep -i -E "nvme|non-volatile"`. No output indicates that the host has not detected the NVMe device on the PCIe bus.
+2. **Verify pin configuration and voltage domains.** The DTS `pinctrl`, `power-source`, and `spacemit,*-gpios` properties must match the board schematic. Confirm the pin number, mux function, PAD power domain, voltage level, and physically connected sideband signals.
+3. **Exclude SSD device failure.** Replace the SSD with a known-good NVMe SSD or test the suspected SSD on another known-working platform to determine whether the device is damaged.
+4. **Check initialization timing and signal quality.** If the link intermittently drops or link training fails, use an oscilloscope or protocol analyzer to inspect the timing, voltage swing, and signal integrity (SI) of PERST#, CLKREQ#, REFCLK, and other signals. Coordinate with the vendor's engineering support when necessary.
 
+### 2. When Should GPIO Control of PERST# Be Used?
+
+**Recommended Scenario**:
+
+- The schematic explicitly routes PERST# to an independent GPIO pin.
+
+**Configuration Method**:
+
+Add the `reset-gpios` property to the PCIe controller node:
+
+```c
+&pcie0_rc {
+        reset-gpios = <&gpio 3 28 GPIO_ACTIVE_LOW>;  /* Using GPIO_120 */
+        /* ... other configuration ... */
+};
+```
+
+**Troubleshooting**:
+
+If PCIe does not operate correctly after GPIO configuration:
+
+1. **Confirm the GPIO number.** Verify the GPIO pin connected to PERST# in the schematic.
+2. **Check GPIO polarity.** `GPIO_ACTIVE_LOW` indicates active-low operation, which drives the output low when asserted. `GPIO_ACTIVE_HIGH` indicates active-high operation.
+3. **Verify GPIO operation.** At boot, run `cat /sys/kernel/debug/gpio` to confirm that the PCIe driver has requested and is controlling the GPIO correctly.
+4. **Check kernel logs.** Run `dmesg | grep -i pcie` for GPIO request failures or incorrect GPIO direction settings.
+
+### 3. K3 PCIe Does Not Support 16-bit MSI Message Interrupts
+
+**Background**:
+
+SpacemiT K3 follows the RISC-V AIA protocol specification, and its internal MSI controller (IMSIC) accepts only 32-bit configuration writes.
+
+**Root Cause Analysis**:
+
+Some legacy PCIe peripherals issue 16-bit legacy MSI messages by default, which causes the K3 IMSIC to drop the data directly. This results in the system correctly enumerating the PCI device and assigning it an interrupt number, while the device never actually receives a hardware interrupt response at runtime.
+
+**Determining the Device's MSI Message Width**:
+
+Modify the address to which the PCIe EP writes its MSI interrupt message (i.e., the MSI interrupt controller register address) to point to a specific DDR address, `mem1`, and check the MSI interrupt message value sent by the PCIe EP by reading the value at DDR `mem1`.
+
+```diff
+diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
+index 2f647cac4cae..0ba07cbd67b9 100644
+--- a/drivers/pci/msi/msi.c
++++ b/drivers/pci/msi/msi.c
+@@ -184,17 +184,34 @@ void __pci_read_msi_msg(struct msi_desc *entry, struct msi_msg *msg)
+ 	}
+ }
+
++static u64 *msi_vaddr = NULL;
++static dma_addr_t msi_dma_handle;
++
+ static inline void pci_write_msg_msi(struct pci_dev *dev, struct msi_desc *desc,
+ 				     struct msi_msg *msg)
+ {
+ 	int pos = dev->msi_cap;
+ 	u16 msgctl;
+
++	if (!msi_vaddr) {
++		msi_vaddr = dmam_alloc_coherent(&dev->dev, sizeof(u64),
++						&msi_dma_handle, GFP_KERNEL);
++		if (!msi_vaddr) {
++			pr_err("Failed to allocate MSI address\n");
++			return;
++		}
++		memset(msi_vaddr, 0, 64);
++		dev_info(&dev->dev, "MSI address allocated at 0x%llx, msi vaddr 0x%llx\n",
++				(unsigned long long)msi_dma_handle,
++				(unsigned long long)(uintptr_t)msi_vaddr);
++	}
++
+ 	pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ 	msgctl &= ~PCI_MSI_FLAGS_QSIZE;
+ 	msgctl |= FIELD_PREP(PCI_MSI_FLAGS_QSIZE, desc->pci.msi_attrib.multiple);
+ 	pci_write_config_word(dev, pos + PCI_MSI_FLAGS, msgctl);
+
++#if 0
+ 	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, msg->address_lo);
+ 	if (desc->pci.msi_attrib.is_64) {
+ 		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI,  msg->address_hi);
+@@ -202,6 +219,20 @@ static inline void pci_write_msg_msi(struct pci_dev *dev, struct msi_desc *desc,
+ 	} else {
+ 		pci_write_config_word(dev, pos + PCI_MSI_DATA_32, msg->data);
+ 	}
++#else
++
++	dev_info(&dev->dev, "MSI msg orgin address 0x%08x%08x, data 0x%x\n", msg->address_hi, msg->address_lo, msg->data);
++   /* Write the raw value 0x12345678 to the pcie ep msi interrupt message address; check whether the pcie ep device wrote an msi message, including the width of the message written.
++	 * Assume msg->data is 0x0008, which is also the msi message value the pcie ep writes to the rc side.
++    * If the pcie ep writes a 32-bit message, the content at msi_vaddr will be 0x00000008;
++    * If the pcie ep writes a 16-bit message, the content at msi_vaddr will be 0x12340008
++	 */
++	*msi_vaddr = 0x12345678;
++
++	pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_LO, msi_dma_handle & 0xFFFFFFFF);
++	if (desc->pci.msi_attrib.is_64) {
++		pci_write_config_dword(dev, pos + PCI_MSI_ADDRESS_HI,  (msi_dma_handle >> 32) & 0xFFFFFFFF);
++		pci_write_config_word(dev, pos + PCI_MSI_DATA_64, msg->data);
++	} else {
++		pci_write_config_word(dev, pos + PCI_MSI_DATA_32, msg->data);
++	}
++
++#endif
+ 	/* Ensure that the writes are visible in the device */
+ 	pci_read_config_word(dev, pos + PCI_MSI_FLAGS, &msgctl);
+ }
+```

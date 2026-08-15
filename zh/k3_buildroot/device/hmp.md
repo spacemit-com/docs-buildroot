@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 9
 ---
 
 # K3 HMP (Heterogeneous Multi-Processing) 使用说明

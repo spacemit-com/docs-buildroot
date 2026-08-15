@@ -112,8 +112,9 @@ iperf3 -s -B 192.168.0.1
 # deb1 B shell: set interface IP to 192.168.0.2
 ifconfig end0 192.168.0.2 netmask 255.255.255.0
 ```
+**Step2：** `deb1 B` 启动 iperf3 客户端
 
-**Step2：** 基于 TCP 协议单向打流
+**测试项1：** 基于 TCP 协议单向打流
 ```bash
 # deb1 B shell: test TCP TX throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 60
@@ -121,14 +122,14 @@ iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 60
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 60 -R
 ```
 
-**Step3：** 基于 TCP 协议双向打流
+**测试项2：** 基于 TCP 协议双向打流
 
 ```bash
 # deb1 B shell: test TCP full-duplex throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -t 100 --bidir
 ```
 
-**Step4：** 基于 UDP 协议单向打流
+**测试项3：** 基于 UDP 协议单向打流
 
 ```bash
 # deb1 B shell: test UDP TX throughput
@@ -137,7 +138,7 @@ iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60 -R
 ```
 
-**Step5：** 基于 UDP 协议双向打流
+**测试项4：** 基于 UDP 协议双向打流
 ```bash
 # deb1 B shell: test UDP full-duplex throughput
 iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60 --bidir
@@ -151,7 +152,7 @@ iperf3 -c 192.168.0.1 -B 192.168.0.2 -u -b 1000M -t 60 --bidir
 
 **环境要求：** `deb1 A`、`deb1 B` 需安装 linuxptp
 
-**Step1：** 基于 L2 以太网帧进行时间同步
+**测试项1：** 基于 L2 以太网帧进行时间同步
 ```bash
 # deb1 A shell: start PTP master over L2 Ethernet frames
 ptp4l -i end0 -2 -H -m
@@ -159,7 +160,7 @@ ptp4l -i end0 -2 -H -m
 ptp4l -i end0 -2 -H -m -s
 ```
 
-**Step2：** 基于 UDP/IPv4 进行时间同步
+**测试项2：** 基于 UDP/IPv4 进行时间同步
 ```bash
 # deb1 A shell: set interface IP to 192.168.0.1
 ifconfig end0 192.168.0.1 netmask 255.255.255.0

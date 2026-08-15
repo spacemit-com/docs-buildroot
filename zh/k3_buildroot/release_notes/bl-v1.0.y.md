@@ -4,6 +4,27 @@ sidebar_position: 1
 
 # Buildroot 1.0
 
+## v1.0.5 更新说明
+
+发布日期：2026-07-23
+
+### 主要更新
+
+- 修复nvme timeout问题
+- 修复休眠唤醒后黑屏及鼠标键盘不可用问题
+- 修复 SD/SDIO TX tuning 时 TX delay 不生效问题
+- 修复 remoteproc 获取 get_loaded_rsc_table 中的 load access fault 问题
+- 修复 VPU 异常消息导致解码卡死的问题
+- 修复 cluster 下电失败问题（默认使能 rvtrace 时钟）
+- 支持通过 TLV 第二启动设备进行 PXE 启动
+- 支持 RVA23 扩展特性描述 (DTS)
+- 支持 RT-Linux 使用 SoC RTC 作为时钟源
+- 优化 PCIe 异步 resume，缩短恢复时间
+- 优化 suspend 流程，改用硬件感知的外部中断方式
+- 优化 pico 板 I2C / GMAC / QSPI / eSPI pinctrl 驱动强度
+- 优化 cpuidle，使能时同步下电 cluster3
+- 优化 perf rvtrace：改用 ELF-based 方式替代 /dev/mem 访问
+
 ## v1.0.2 更新说明
 
 发布日期：2026-05-29

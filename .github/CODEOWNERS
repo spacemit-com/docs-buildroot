@@ -30,8 +30,8 @@
 /zh/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911
 /en/**/esos/esos_driver/pinctrl.md @george-hu-spacemit @TroyMitchell911
 
-/zh/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
-/en/**/esos/esos_driver/i2c.md @yhd0727 @yeshan-li-spacemit
+/zh/**/esos/esos_driver/i2c.md @yhd0727 @ljysy
+/en/**/esos/esos_driver/i2c.md @yhd0727 @ljysy
 
 /zh/**/esos/esos_driver/spi.md @ljysy @peixin-xie-spacemit
 /en/**/esos/esos_driver/spi.md @ljysy @peixin-xie-spacemit
@@ -85,8 +85,8 @@
 /zh/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 /en/**/device/peripheral_driver/05-UART.md @yhd0727 @TroyMitchell911
 
-/zh/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit
-/en/**/device/peripheral_driver/06-I2C.md @yhd0727 @yeshan-li-spacemit
+/zh/**/device/peripheral_driver/06-I2C.md @yhd0727 @ljysy
+/en/**/device/peripheral_driver/06-I2C.md @yhd0727 @ljysy
 
 /zh/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
 /en/**/device/peripheral_driver/07-QSPI.md @ljysy @peixin-xie-spacemit
@@ -100,8 +100,8 @@
 /zh/**/device/peripheral_driver/10-USB/ @wanlong1981 @rzbdz
 /en/**/device/peripheral_driver/10-USB/ @wanlong1981 @rzbdz
 
-/zh/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
-/en/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @yeshan-li-spacemit
+/zh/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @ljysy
+/en/**/device/peripheral_driver/11-PCIe.md @george-hu-spacemit @ljysy
 
 /zh/**/device/peripheral_driver/12-Display.md @lijun-li-spacemit @lanzreal
 /en/**/device/peripheral_driver/12-Display.md @lijun-li-spacemit @lanzreal
@@ -127,8 +127,8 @@
 /zh/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
 /en/**/device/peripheral_driver/18-CRYPTO.md @ljysy @yhd0727
 
-/zh/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
-/en/**/device/peripheral_driver/21-DMA.md @yhd0727 @yeshan-li-spacemit
+/zh/**/device/peripheral_driver/21-DMA.md @yhd0727 @ljysy
+/en/**/device/peripheral_driver/21-DMA.md @yhd0727 @ljysy
 
 /zh/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit @1024panda
 /en/**/device/peripheral_driver/22-EtherCAT.md @george-hu-spacemit @1024panda
@@ -169,8 +169,8 @@
 /en/**/media/mpp/05-CPP_ISP_MIPI-CSI.md @qiang-fu-spacemit @haodong-xu-spacemit
 
 # Graphics
-/zh/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
-/en/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @yeshan-li-spacemit
+/zh/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @ljysy
+/en/**/graphics/AMD_graphics_card_adaptation_reference.md @xiaoguorou @ljysy
 
 /zh/**/graphics/ @xiaoguorou @Sterling-Ash
 /en/**/graphics/ @xiaoguorou @Sterling-Ash
@@ -179,8 +179,8 @@
 /en/**/graphics/panel_porting_guide.md @lijun-li-spacemit @lanzreal
 
 # Kernel Debug
-/zh/**/kernel_debug/ @ljysy @yeshan-li-spacemit
-/en/**/kernel_debug/ @ljysy @yeshan-li-spacemit
+/zh/**/kernel_debug/ @ljysy @ljysy
+/en/**/kernel_debug/ @ljysy @ljysy
 
 # FAQ
 /zh/faqs.md @jing-liu-spacemit
