@@ -327,6 +327,81 @@ K3 EVB 上的 `emmc` 方案配置：
 - `no-sdio`：禁止该控制器枚举 SDIO 设备，eMMC 控制器需要配置；
 - `clock-frequency`：指定时钟源，eMMC 选择的是 375M 时钟源，控制器内部进行二分频，输出最高频率 187M ；
 
+**注意：eMMC 引脚和驱动能力配置的特殊性**
+
+eMMC 与 SD 卡和 SDIO 在配置上有以下重要区别：
+
+##### 1. eMMC 不需要配置 pinctrl
+
+与 SD 卡和 SDIO 不同，**eMMC 使用专用引脚，不需要在 DTS 中配置 pinctrl**。
+
+- **SD 卡**需要配置 `pinctrl-names` 和 `pinctrl-0`/`pinctrl-1`，因为需要支持 3.3V/1.8V 动态切换；
+- **SDIO** 需要配置 pinctrl，因为引脚可能存在复用；
+- **eMMC** 使用专用引脚（引脚 153-163），无需在 DTS 中配置 pinctrl。
+
+eMMC 专用引脚列表（引脚 153-163）：
+
+| 引脚编号 | 引脚名称 | 功能说明 |
+| :------ | :------- | :------- |
+| 153 | EMMC_D0 | eMMC 数据线 0 |
+| 154 | EMMC_D1 | eMMC 数据线 1 |
+| 155 | EMMC_D2 | eMMC 数据线 2 |
+| 156 | EMMC_D3 | eMMC 数据线 3 |
+| 157 | EMMC_D4 | eMMC 数据线 4 |
+| 158 | EMMC_D5 | eMMC 数据线 5 |
+| 159 | EMMC_D6 | eMMC 数据线 6 |
+| 160 | EMMC_D7 | eMMC 数据线 7 |
+| 161 | EMMC_DS | eMMC Data Strobe（HS400ES 专用） |
+| 162 | EMMC_CLK | eMMC 时钟线 |
+| 163 | EMMC_CMD | eMMC 命令线 |
+
+注：这些引脚只有两个功能选择：eMMC 功能或 GPIO 功能。
+
+##### 2. eMMC 驱动能力配置
+
+eMMC 的引脚驱动能力通过 **MMC 控制器驱动内部的 PHY 配置寄存器** 进行控制，而不是通过 pinctrl 子系统。
+
+驱动支持通过 DTS 属性 `spacemit,phy_driver_sel` 配置 PHY 驱动强度：
+
+```dts
+&emmc {
+        bus-width = <8>;
+        non-removable;
+        mmc-hs400-1_8v;
+        mmc-hs400-enhanced-strobe;
+        no-sd;
+        no-sdio;
+        clock-frequency = <375000000>;
+        spacemit,phy_driver_sel = <0x4>;  /* PHY 驱动强度配置 */
+        status = "okay";
+};
+```
+
+**`spacemit,phy_driver_sel` 参数说明：**
+
+- **取值范围**：0x0 ~ 0x7（3-bit 配置，对应寄存器 `SDHC_PHY_DRIVE_SEL` 字段）
+- **默认值**：0x4（`PHY_DRIVE_SEL_DEFAULT`）
+- **配置位置**：MMC 控制器 PHY_PADCFG 寄存器（偏移 0x178）
+- **生效时机**：驱动在 `spacemit_sdhci_reset()` 函数中初始化时写入
+
+不同 `phy_driver_sel` 值对应的驱动能力（具体数值需参考硬件手册）：
+
+| phy_driver_sel 值 | 驱动能力等级 | 适用场景 |
+| :---------------- | :---------- | :------- |
+| 0x0 ~ 0x2 | 较弱 | 短走线、轻负载 |
+| 0x3 ~ 0x4 | 中等（推荐） | 标准走线长度 |
+| 0x5 ~ 0x7 | 较强 | 长走线、重负载、HS400 模式 |
+
+**调试建议：**
+
+如果 eMMC 出现以下问题，可以尝试调整 `spacemit,phy_driver_sel`：
+
+1. **CRC 错误、tuning 失败**：尝试增大驱动强度（0x5 ~ 0x7）
+2. **信号过冲、眼图质量差**：尝试减小驱动强度（0x2 ~ 0x3）
+3. **HS400/HS400ES 不稳定**：建议使用 0x4 或更高的驱动强度
+
+注意：此参数仅影响 eMMC PHY 驱动能力，与 pinctrl 驱动强度配置（`drive-strength`）是两套独立机制。
+
 ### tuning 相关说明
 
 K3 驱动支持 rx 自动 tuning ，但是需要根据硬件layout差异配置 tx delaycode。
