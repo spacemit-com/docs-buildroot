@@ -193,7 +193,7 @@ rcu_nocbs=2,3，将 RCU 回调迁移至未隔离核心。
 ### 代码下载
 
 ```
-https://gitlab.dc.com:8443/network/dpdk-spacemit.git
+https://github.com/spacemit-com/dpdk-spacemit.git
 ```
 
 ### 安装依赖
