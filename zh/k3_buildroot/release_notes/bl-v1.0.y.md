@@ -4,6 +4,23 @@ sidebar_position: 1
 
 # Buildroot 1.0
 
+## v1.0.7 更新说明
+
+发布日期：2026-08-26
+
+### 主要更新
+
+- 支持 RISC-V64 加密加速
+- 支持读取 K3 chipid
+- 修复 PCIe 唤醒恢复时链路训练失败问题
+- 修复 MIPI DSI 面板时未切换到 DSI 功能（默认走DP/eDP 导致显示异常）
+- 修复 EDID 模式被重复删除的问题
+- 修复 UFS spacemit 读写混合序列化
+- 修复 fastboot oem_read 在 >4GB 偏移时的截断问题
+- 修复 DDR reg_base 掩码越界校验
+- 修复 USB hub 端口复位后增加 TRSTRCY 恢复延迟
+- 优化 K3 OPP 表，采用 efuse 校准值作为热温参考
+
 ## v1.0.5 更新说明
 
 发布日期：2026-07-23
