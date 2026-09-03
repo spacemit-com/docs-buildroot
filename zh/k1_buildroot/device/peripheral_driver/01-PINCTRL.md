@@ -246,6 +246,7 @@ tx pin 的上下拉功能不满足，默认定义为关闭上下拉，当前需�
 
 ### pin 使用示例
 
+#### 选择 pinctrl 配置使用示例
 eth0 引用方案中重写定义的 `pinctrl_gmac0`
 
 ```c
@@ -262,6 +263,38 @@ eth0 {
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_gmac0_1>;
 };
+```
+
+#### 配置使用 pinctrl 控制器为 interrupt parent 的中断引脚
+
+部分驱动需要使用 pin 作为 pinctrl 控制器管理的中断引脚（通常使用 gpio 作为 pin 的 `interrupt-parent` 能够满足大部分需求，
+但是如果有支持从系统休眠中通过中断唤醒的功能，就必须使用 pinctrl 控制器作为 `interrupt-parent`）。
+
+首先需要参考内核目录 `include/dt-bindings/pinctrl/k1-x-pinctrl.h` 获取 pin id。
+
+如某个驱动需要使用 `GPIO58` 作为 pinctrl 中断引脚使用，首先查询 pin id：
+
+```bash
+$ grep -rn "#define GPIO_58" include/dt-bindings/pinctrl/k1-x-pinctrl.h
+68:#define GPIO_58  PINID(58)
+```
+
+`PINID` 的定义为 `PINID(x) = x + 1`。然后计算中断号，计算公式为：
+
+```
+Interrupt number = pinid * 4
+```
+如 `GPIO58` 计算得到中断号为 `59 *4 = 236`。
+
+然后在 dts 对应设备节点上填写中断号信息，指定 interrupt-parent 为 pinctrl 节点：
+
+```c
+some-device@0 {
+      .....
+		interrupt-parent = <&pinctrl>;
+		interrupts = <236>;
+      .....
+}
 ```
 
 ## 接口介绍
