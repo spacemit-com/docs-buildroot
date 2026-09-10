@@ -73,6 +73,10 @@ Linux Kernel + DTB (Image.itb)
 - 哈希算法：`SHA256`
 - 签名算法：`SHA256 + RSA2048`
 
+验签算法使用SHA256+RSA2048时，各级镜像数据格式，以及签名过程如下图所示:
+
+![SignedImageOverview](static/secureboot_1.png)
+
 ### 密钥体系
 
 K3 使用分级密钥，各密钥职责独立：
@@ -607,6 +611,26 @@ make fit_sign key_dir=$(pwd)/keys
 | 签名组合镜像 | `uboot-opensbi_sign.itb` | 见下方提示 |
 
 签名完成后按常规流程打包与烧录，参见[启动开发指南](boot.md)。
+
+## 启动流程
+
+### bootrom
+
+![brom](static/secureboot_2.png)
+
+bootrom作为安全启动的信任根，在SOC设计阶段已经固定下来，无法修改。烧写efuse secure_boot_enable后，安全启动被使能。
+
+### FSBL
+
+FSBL作为第一级bootloader，完成第二级bootloader的签名验证，用于第二级bootloader验签的公钥存储于FSBL中。
+
+![FSBL](static/secureboot_3.png)
+
+### uboot
+
+uboot作为第二级bootloader，完成kernel和init ramdisk的签名验证，对应该签名验证的公钥存储于uboot中。
+
+![uboot](static/secureboot_4.png)
 
 ## 烧录与 eFuse
 
