@@ -124,6 +124,7 @@ K3 共有 5 个 USB 控制器，分别为：
 
 ```bash
 echo host > /sys/kernel/debug/usb/cad00000.usb3/mode
+# 如果使用系统不是 root 用户，需要命令前加上 sudo 命令。建议直接在 root 用户下进行操作。
 ```
 
 对于其他纯 Host 控制器（USB2.0 Host, PortB, PortC, PortD），无需此操作。
