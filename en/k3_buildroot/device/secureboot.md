@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 4
 ---
 
@@ -73,6 +73,10 @@ Signature-verification responsibilities at each stage:
 - Hash algorithm: `SHA256`
 - Signature algorithm: `SHA256 + RSA2048`
 
+When SHA256 + RSA2048 is used for verification, the data format of each image stage and the signing process are shown below:
+
+![SignedImageOverview](static/secureboot_1.png)
+
 ### Key Hierarchy
 
 K3 uses a hierarchical key architecture; each key serves a distinct purpose:
@@ -117,7 +121,7 @@ The following example shows the key structures in a signing ITS, using `devices/
 			load = <0x1 0x02000000>;
 			entry = <0x1 0x02000000>;
 			hash {
-        algo = "sha256";        /* Hash calculated independently for each image */
+				algo = "sha256";        /* Each image has its own hash */
 			};
 		};
 
@@ -135,31 +139,31 @@ The following example shows the key structures in a signing ITS, using `devices/
 	configurations {
 		default = "conf_1";
 		conf_11 {
-      description = "k3-pico-itx";    /* Must match product_name */
+			description = "k3-pico-itx";    /* Must match product_name */
 			kernel = "kernel";
 			fdt = "fdt_11";
 			signature-kernel {
 				algo = "sha256,rsa2048";
-        key-name-hint = "kernel_key_prv";  /* Corresponding key filename */
-        sign-images = "kernel", "fdt";     /* Signature coverage */
+				key-name-hint = "kernel_key_prv";  /* Corresponding key filename */
+				sign-images = "kernel", "fdt";     /* Signature coverage */
 			};
 		};
 	};
 };
 ```
 
-Key fields:
+Key field descriptions:
 
-| Field | Description |
+| Field | Meaning |
 |---|---|
-| `hash` | Digest node for each image; included in signature calculation |
-| `key-name-hint` | Key filename without an extension. `mkimage` uses it to find `<hint>.key` and `<hint>.crt` in the key directory. |
-| `sign-images` | List of images covered by the signature; images not listed are not protected by the signature. |
-| `description` | Board identifier for the configuration, used for board matching at runtime |
+| `hash` | Hash node for each image; included in signature calculation |
+| `key-name-hint` | Key filename (without extension); `mkimage` uses this to find `<hint>.key` and `<hint>.crt` in the key directory |
+| `sign-images` | List of images covered by the signature; unlisted images are not protected |
+| `description` | Board-type identifier for the configuration; used for board matching at runtime |
 
-Signing ITS files and signature coverage at each stage:
+Signing ITS files at each stage and their signature coverage:
 
-| ITS file | Signed object | `key-name-hint` | `sign-images` |
+| ITS File | Signed Object | `key-name-hint` | `sign-images` |
 |---|---|---|---|
 | `opensbi/platform/generic/spacemit/fw_dynamic_sign.its` | OpenSBI | `uboot_key_prv` | `firmware` |
 | `uboot-2022.10/board/spacemit/k3/configs/uboot_fdt_sign.its` | U-Boot + DTB | `uboot_key_prv` | `loadables`, `fdt` |
@@ -168,54 +172,54 @@ Signing ITS files and signature coverage at each stage:
 
 :::warning
 
-The `key-name-hint` in `devices/k3/common/uboot-opensbi_sign.its` still uses the legacy key name `uboot_pubkey_prv`, whereas SDK key directories provide the unified `uboot_key_prv`. Before signing with this ITS, change its `key-name-hint` to `uboot_key_prv`; otherwise, `mkimage` fails because it cannot find the corresponding key file.
+The `key-name-hint` in `devices/k3/common/uboot-opensbi_sign.its` still uses the legacy key name `uboot_pubkey_prv`, while the SDK key directories now provide the unified name `uboot_key_prv`. If using this ITS for signing, change its `key-name-hint` to `uboot_key_prv` first; otherwise, `mkimage` will fail due to missing key files.
 
 :::
 
 ### Public-Key Injection Mechanism
 
-This is the most important and most frequently misunderstood aspect of K3 Secure Boot: **the public keys used for verification are not loaded from an external source at runtime; they are statically injected into the bootloader device trees at build time**.
+This is the most critical and often misunderstood aspect of K3 Secure Boot: **the public keys used for verification are not loaded from external sources at runtime; they are statically injected into the bootloader's own device tree at build time**.
 
 Injection is performed by `uboot-2022.10/arch/riscv/dts/secure_boot.dtsi`:
 
 ```c
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RSA_VERIFY)
-  #include "key/uboot_key_pub.dtsi"    /* SPL stage: inject U-Boot verification public key */
+	#include "key/uboot_key_pub.dtsi"    /* SPL stage: inject public key for verifying U-Boot */
 #endif
 
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_RSA_VERIFY
-  #include "key/kernel_key_pub.dtsi"   /* U-Boot: inject kernel verification public key */
+	#include "key/kernel_key_pub.dtsi"   /* U-Boot: inject public key for verifying kernel */
 #endif
 #endif
 ```
 
-This dtsi is included by the board-specific DTS. Therefore:
+This dtsi is included by board-specific DTS files, so:
 
 ```text
 When building SPL
   CONFIG_SPL_RSA_VERIFY=y
   → Includes uboot_key_pub.dtsi
-  → SPL DTB contains the uboot_key public key
+  → SPL DTB contains uboot_key public key
   → SPL can verify u-boot.itb / fw_dynamic.itb
 
 When building U-Boot
   CONFIG_RSA_VERIFY=y
   → Includes kernel_key_pub.dtsi
-  → Every board-specific DTB contains the kernel_key public key
+  → Each board-specific DTB contains kernel_key public key
   → U-Boot can verify Image.itb
 ```
 
-Public-key dtsi format (`arch/riscv/dts/key/kernel_key_pub.dtsi`):
+The format of a public-key dtsi (e.g., `arch/riscv/dts/key/kernel_key_pub.dtsi`):
 
 ```dts
 / {
 	signature {
 		key-kernel_key_prv {
-      required = "conf";              /* Configuration signature verification is mandatory */
+			required = "conf";              /* Must verify configuration signature */
 			algo = "sha256,rsa2048";
 			rsa,r-squared = <...>;
-      rsa,modulus = <...>;            /* RSA public-key modulus */
+			rsa,modulus = <...>;            /* RSA public-key modulus */
 			rsa,exponent = <0x00000000 0x00010001>;
 			rsa,n0-inverse = <...>;
 			rsa,num-bits = <0x00000800>;
@@ -225,53 +229,52 @@ Public-key dtsi format (`arch/riscv/dts/key/kernel_key_pub.dtsi`):
 };
 ```
 
-At runtime, U-Boot reads the `/signature` node from its control FDT (`gd->fdt_blob`) and verifies the signatures using every public key marked `required = "conf"`. Boot is rejected if verification fails for any required public key.
+At runtime, U-Boot reads the `/signature` node from its own control FDT (`gd->fdt_blob`) and verifies all public keys marked `required = "conf"`. If any required key fails verification, boot is refused.
 
 :::danger
 
-When replacing keys, **replacing the key files alone is insufficient**. The public-key modulus is hard-coded in the public-key `dtsi`. Regenerate the `dtsi` with the new public key and rebuild U-Boot; otherwise, the device retains the old public key and cannot verify images signed with the new private key.
+When replacing keys, **simply replacing the key files is insufficient**. The public-key dtsi hard-codes the public-key modulus; you must regenerate the dtsi with the new public key and rebuild U-Boot. Otherwise, the device will still contain the old public key and cannot verify images signed with the new private key.
 
 :::
 
-### Board-Specific FIT Configuration Selection
+### Board-Type FIT Configuration Selection
 
-Signed FIT images typically contain configurations for multiple board types. U-Boot selects a configuration by exact string matching:
+A signed FIT typically contains configurations for multiple board types. U-Boot selects the appropriate configuration through exact string matching:
 
 ```text
-Read product_name (from EEPROM TLV or a default value)
+Read product_name (from EEPROM TLV or default value)
   ↓
-Iterate through descriptions of FIT configurations
+Iterate through each FIT configuration's description
   ↓
 strcmp(product_name, description) matches → Select that configuration
   ↓
-No matches → Fall back to the configuration specified by default in the ITS
+No match found → Fall back to the configuration specified by default in the ITS
 ```
 
-The `default` property in the `configurations` node defines the fallback target, for example, `default = "conf_1"`.
+The fallback target is determined by the `default` field in the `configurations` node, such as `default = "conf_1"`.
 
-Therefore, a configuration `description` must be the **bare board name** without a `.dtb` suffix:
+Therefore, the configuration `description` must be the **bare board name** without a `.dtb` suffix:
 
 ```dts
 conf_11 {
-  description = "k3-pico-itx";        /* Correct */
-  /* description = "k3-pico-itx.dtb";    Incorrect; cannot match */
+	description = "k3-pico-itx";        /* Correct */
+	/* description = "k3-pico-itx.dtb";    Wrong; will not match */
 };
 ```
 
 :::warning
 
-If board matching fails, U-Boot reports no error and silently falls back to the configuration specified by `default`. If the fallback DTB does not match the actual hardware, for example because its storage controller is disabled, the kernel may fail to mount the rootfs, obscuring the root cause. When creating a signed FIT for multiple board types, ensure that each `description` exactly matches the corresponding board `product_name`.
+Board-matching failure does not produce an error; instead, it silently falls back to the `default` configuration. If that default board's DTB does not match the actual hardware (e.g., a storage controller is disabled), the symptom will be failure to mount rootfs after kernel startup, misleading troubleshooting efforts. When creating multi-board signed FIT images, ensure that each `description` strictly matches the corresponding board's `product_name`.
 
 :::
 
-
 ### ESOS Firmware Signing
 
-ESOS (Embedded System OS) is real-time firmware that runs on the K3 coprocessors (`rcpu0` / `rcpu1`). It is independent of the Linux boot chain on the main processor and is delivered in a separate `esos.itb` partition. When Secure Boot is enabled, `esos.itb` is also FIT-signed and uses the same verification key as OpenSBI and U-Boot.
+ESOS (Embedded System OS) is real-time firmware running on K3 coprocessors (rcpu0/rcpu1). It operates independently of the main processor's Linux boot chain and is delivered as a separate `esos.itb` partition. When Secure Boot is enabled, `esos.itb` is also FIT-signed using the same keys as OpenSBI and U-Boot.
 
 **Signing Key**
 
-ESOS is signed with `uboot_key_prv`, using the same `key-name-hint` as OpenSBI and U-Boot. The corresponding `uboot_key_pub` public key is statically injected through the SPL DTB when U-Boot is built. The `-K` parameter is not required during signing.
+ESOS uses `uboot_key_prv` for signing, with the same `key-name-hint` as OpenSBI and U-Boot. The corresponding public key `uboot_key_pub` is already statically injected into the SPL DTB at U-Boot build time, so the `-K` parameter is not needed during signing.
 
 **ITS Structure**
 
@@ -303,39 +306,40 @@ configurations {
 };
 ```
 
-`compression = "none"` means that ELF data packaged into the FIT is uncompressed. Before invoking `mkimage`, the build script runs `lzop` on `.elf` files in the output directory. However, `lzop` retains source files by default, so `.elf` and `.elf.lzo` coexist and `mkimage` can read the `.elf` file normally.
+`compression = "none"` indicates that the ELF data packaged into the FIT is not compressed. The build script runs `lzop` on the `.elf` files in the output directory before calling `mkimage`, but `lzop` preserves the source files by default, so both `.elf` and `.elf.lzo` coexist, and `mkimage` can read the `.elf` files normally.
 
 **KEY_DIR Master Switch**
 
-`KEY_DIR` controls whether ESOS is signed, following the same convention used by the other three repositories:
+`KEY_DIR` controls whether ESOS is signed, consistent with the other three repositories:
 
-| `KEY_DIR` | ITS template | Artifact |
+| `KEY_DIR` | ITS Template | Output |
 |---|---|---|
-| Unset | `esos_rt24.its`      | Standard `esos.itb` |
+| Not set | `esos_rt24.its`      | Unsigned `esos.itb` |
 | Set | `esos_rt24_sign.its` | Signed `esos.itb` |
 
-Both paths produce an artifact named `esos.itb`, which is programmed to the `esos` partition (NOR Flash example: 1 MiB @ 704 KiB).
+Both paths produce an output named `esos.itb`, which is flashed to the `esos` partition (NOR Flash example: 1 MiB @ 704 KiB).
+
 ## Key Preparation
 
 ### Key and Certificate Generation
 
-Use `openssl` to generate RSA2048 private keys and self-signed certificates. Secure private keys appropriately; disclosure is equivalent to compromising Secure Boot.
+Use `openssl` to generate RSA2048 private keys and self-signed certificates. Private keys must be securely stored; a leak is equivalent to Secure Boot failure.
 
-Using `kernel_key_prv` as an example:
+Example using `kernel_key_prv`:
 
 ```sh
-# Generate a private key (without a passphrase for automated builds)
+# Generate private key (no passphrase for automated builds)
 openssl genrsa -out kernel_key_prv.key 2048
 
-# Generate a certificate (adjust the validity period as required)
+# Generate certificate (adjust validity period as needed)
 openssl req -batch -new -x509 -days 3650 \
     -key kernel_key_prv.key -out kernel_key_prv.crt
 
-# Export the public key from the private key
+# Export public key from private key
 openssl rsa -in kernel_key_prv.key -pubout -out kernel_key_pub.key
 ```
 
-Inspect the contents:
+View contents:
 
 ```sh
 openssl rsa  -in kernel_key_prv.key -text -noout      # Private key
@@ -343,7 +347,7 @@ openssl x509 -in kernel_key_prv.crt -text -noout      # Certificate
 openssl rsa  -in kernel_key_pub.key -pubin -text -noout   # Public key
 ```
 
-Generate the following complete key set as required (`rootfs_key` is unused by the current boot chain):
+Generate the complete key set (as needed; `rootfs_key` is unused by the current boot chain):
 
 ```sh
 for name in root_key_prv spl_key_prv uboot_key_prv kernel_key_prv; do
@@ -353,36 +357,36 @@ for name in root_key_prv spl_key_prv uboot_key_prv kernel_key_prv; do
 done
 ```
 
-### Files Required for a Custom Key Directory
+### Files Required in a Custom Key Directory
 
-The key directory specified by `KEY_DIR` / `key_dir` must contain the following files with the required names. The SDK-provided `uboot-2022.10/board/spacemit/k3/configs/key/` directory provides an example layout.
+The key directory pointed to by `KEY_DIR` / `key_dir` must provide the following files with fixed naming. Refer to the SDK's built-in directory `uboot-2022.10/board/spacemit/k3/configs/key/` for organization.
 
-**Required files**: Missing files cause the build or subsequent signature verification to fail.
+**Required files** (missing files will cause build failures or verification failures):
 
 | File | Consumer | Purpose |
 |---|---|---|
-| `root_key_prv.key` | FSBL packaging tool | Signs cert0; the SHA256 of its public key is ROTPKH. |
+| `root_key_prv.key` | FSBL packaging tool | Signs cert0; its public-key SHA256 is the ROTPKH |
 | `spl_key_prv.key` | FSBL packaging tool | Signs the FSBL binary (cert1) |
-| `uboot_key_pub.key` | FSBL packaging tool | Embedded in cert0 `oem_key` for SPL signature verification |
+| `uboot_key_pub.key` | FSBL packaging tool | Embedded into cert0's `oem_key` for SPL verification |
 | `uboot_key_prv.key` | `mkimage` | Signs `u-boot.itb` and `fw_dynamic.itb` |
-| `uboot_key_prv.crt` | `mkimage` | Extracts public-key parameters for the SPL DTB |
+| `uboot_key_prv.crt` | `mkimage` | Extracts public-key parameters for SPL DTB |
 | `kernel_key_prv.key` | `mkimage` | Signs `Image.itb` |
-| `kernel_key_prv.crt` | `mkimage` | Extracts public-key parameters for the U-Boot DTB |
+| `kernel_key_prv.crt` | `mkimage` | Extracts public-key parameters for U-Boot DTB |
 
 **Optional files**:
 
 | File | Description |
 |---|---|
-| `root_key_pub.key`, `spl_key_pub.key`, `kernel_key_pub.key` | Useful for verification and archiving; not read directly by the build workflow |
+| `root_key_pub.key`, `spl_key_pub.key`, `kernel_key_pub.key` | For verification and archival; not directly read by the build process |
 | `rootfs_key_prv.crt`, `rootfs_key_pub.key` | Reserved for rootfs verification; unused by the current boot chain |
 
-Naming conventions:
+Naming convention rationale:
 
-- **`.key` and `.crt` pair**: Based on the ITS `key-name-hint`, `mkimage -k <dir>` locates `<hint>.key` (the private key used for signing) and `<hint>.crt` (the certificate used to extract public-key parameters). Both are required.
-- **Standalone `_pub.key`**: The `uboot_pubkey` entry in `fsbl.json` directly references `key/uboot_key_pub.key` because this public key is embedded in the certificate only and does not participate in signing.
-- **`root_key` and `spl_key` require private keys only**: They are used by the FSBL packaging tool, which derives public keys from private keys and does not require `.crt` files.
+- **`.key` + `.crt` pairs**: `mkimage -k <dir>` uses the `key-name-hint` from the ITS to find `<hint>.key` (private key for signing) and `<hint>.crt` (certificate for extracting public-key parameters). Both are required.
+- **`_pub.key` standalone**: The `uboot_pubkey` entry in `fsbl.json` directly references `key/uboot_key_pub.key` because this public key only needs to be embedded in the certificate and does not participate in signing.
+- **`root_key` and `spl_key` only need private keys**: They are used by the FSBL packaging tool, which derives the public key from the private key; no `.crt` is needed.
 
-A minimal functional key directory:
+A minimal usable key directory:
 
 ```text
 keys/
@@ -390,70 +394,70 @@ keys/
 ├── spl_key_prv.key           # Signs FSBL
 ├── uboot_key_prv.key         # Signs OpenSBI / U-Boot
 ├── uboot_key_prv.crt
-├── uboot_key_pub.key         # Embedded in the FSBL certificate
-├── kernel_key_prv.key        # Signs the kernel
+├── uboot_key_pub.key         # Embedded in FSBL certificate
+├── kernel_key_prv.key        # Signs kernel
 └── kernel_key_prv.crt
 ```
 
-Example generation script:
+Generation script example:
 
 ```sh
 mkdir -p keys && cd keys
 
-# root_key and spl_key: private keys only
+# root_key and spl_key: private key only
 for name in root_key_prv spl_key_prv; do
     openssl genrsa -out "$name.key" 2048
 done
 
-# uboot_key and kernel_key: private keys + certificates
+# uboot_key and kernel_key: private key + certificate
 for name in uboot_key_prv kernel_key_prv; do
     openssl genrsa -out "$name.key" 2048
     openssl req -batch -new -x509 -days 3650 \
         -key "$name.key" -out "$name.crt"
 done
 
-# uboot_key public key (required by the FSBL certificate)
+# uboot_key public key (required by FSBL certificate)
 openssl rsa -in uboot_key_prv.key -pubout -out uboot_key_pub.key
 ```
 
 :::warning
 
-`uboot_key_pub.key` must correspond exactly to `uboot_key_prv.key`. If they do not match, the public key embedded in FSBL cannot verify `u-boot.itb` signed with that private key, resulting in signature-verification failure at the SPL stage.
+`uboot_key_pub.key` must strictly correspond to `uboot_key_prv.key`. If they do not match, the public key embedded in FSBL cannot verify `u-boot.itb` signed with that private key, manifesting as SPL-stage verification failure.
 
 :::
 
 ### Other Key Directories
 
-The SDK also contains several key-related directories with different purposes:
+Several other key-related directories exist in the SDK with different purposes:
 
 | Path | Purpose |
 |---|---|
-| `uboot-2022.10/board/spacemit/k3/configs/key/` | Default U-Boot key directory used when `KEY_DIR` is unspecified; use as a naming reference. |
-| `opensbi/platform/generic/spacemit/key/` | Default OpenSBI key directory; overridden by keys in `KEY_DIR` during `deb` builds. |
-| `uboot-2022.10/arch/riscv/dts/key/` | Public-key `dtsi` files generated from keys, not standard key files |
+| `uboot-2022.10/board/spacemit/k3/configs/key/` | U-Boot default key directory (used when `KEY_DIR` is not specified); can serve as a naming reference |
+| `opensbi/platform/generic/spacemit/key/` | OpenSBI default key directory; overridden by keys in `KEY_DIR` during deb builds |
+| `uboot-2022.10/arch/riscv/dts/key/` | Public-key dtsi files derived from keys; not standard key files |
 
-Recommended practice: Store proprietary keys in a dedicated directory outside the source tree and provide the directory through `KEY_DIR` / `key_dir`, preventing private keys from entering version control.
+Recommended practice: store proprietary keys in a standalone directory outside the source tree and inject them via `KEY_DIR` / `key_dir` to prevent private keys from entering version control.
 
 :::warning
 
-SDK-provided keys are for development validation only. **All customers receive the same set** and they must never be used for production. Before mass production, replace them with proprietary keys and regenerate the public-key dtsi files.
+SDK-provided keys are for development and verification only. **All customers receive the same set** and must never be used for production. Replace with proprietary keys before production and regenerate the public-key dtsi files accordingly.
 
 :::
 
 ## Enabling Secure Boot
 
-K3 provides two build paths with different signing enablement methods:
+K3 provides two build paths with different methods for enabling signing:
 
-| Path | Purpose | Signing enablement |
+| Path | Purpose | Signing Enablement |
 |---|---|---|
-| **deb package build** (each component uses `scripts/build.sh -d`) | Produces upgradable `deb` packages | Pass `KEY_DIR`; scripts automatically configure signing and inject public keys. |
-| **Image build** (top-level `make`) | Produces flashable images | Manually modify the defconfig, then run `make fit_sign`. |
+| **deb Package Build** (each component's `scripts/build.sh -d`) | Produces upgradeable deb packages | Pass `KEY_DIR`; script automatically configures and injects public keys |
+| **Image Build** (top-level `make`) | Produces flash images | Manually modify defconfig, then run `make fit_sign` |
 
-The `deb` path is recommended because it provides a higher degree of automation and reduces the risk of manual errors.
+The deb path is recommended for its higher automation and lower risk of manual errors.
 
-### Method 1: `deb` Build Path (Recommended)
+### Method 1: deb Build Path (Recommended)
 
-`KEY_DIR` is the signing master switch. Setting it enables signing; leaving it unset produces standard packages.
+`KEY_DIR` is the master switch for signing. Setting it enables signing; not setting it produces unsigned packages.
 
 ```sh
 # OpenSBI
@@ -466,33 +470,33 @@ cd uboot-2022.10 && KEY_DIR=/path/to/keys ./scripts/build.sh -d
 cd linux-6.18 && KEY_DIR=/path/to/keys ./scripts/build_kernel.sh -d
 ```
 
-The scripts perform the following tasks automatically:
+Work automatically performed by the script:
 
-| Component | `KEY_DIR` set | `KEY_DIR` unset |
+| Component | `KEY_DIR` Set | `KEY_DIR` Not Set |
 |---|---|---|
-| OpenSBI | Appends `CONFIG_FIT_SIGNATURE=y` to the defconfig; overrides the provided key directory with keys from `KEY_DIR` | Removes this line from the defconfig |
-| U-Boot | Appends `CONFIG_SPL_FIT_SIGNATURE=y` and `CONFIG_RSA_VERIFY=y` to the defconfig; checks key pairs in `KEY_DIR` and **regenerates corresponding public-key dtsi files when present** | Removes these two lines from the defconfig |
-| Kernel | Post-processes the `deb` and injects signed `Image.itb` | Produces a standard `deb` |
+| OpenSBI | Appends `CONFIG_FIT_SIGNATURE=y` to defconfig; overwrites built-in key directory with keys from `KEY_DIR` | Removes this line from defconfig |
+| U-Boot | Appends `CONFIG_SPL_FIT_SIGNATURE=y`, `CONFIG_RSA_VERIFY=y` to defconfig; checks key pairs in `KEY_DIR`, **regenerates corresponding public-key dtsi if they exist** | Removes these two lines from defconfig |
+| Kernel | Post-processes deb to inject signed `Image.itb` | Produces unsigned deb |
 
-Automatic regeneration of the U-Boot public-key dtsi files is critical: it ensures that the public keys compiled into the device correspond exactly to the signing private keys without requiring manual maintenance:
+U-Boot's automatic public-key dtsi regeneration is the most critical—it ensures that the public key compiled into the device strictly corresponds to the signing private key, eliminating manual maintenance:
 
 ```text
-KEY_DIR/kernel_key_prv.{key,crt} present
+KEY_DIR/kernel_key_prv.{key,crt} exist
   → Regenerate arch/riscv/dts/key/kernel_key_pub.dtsi
 
-KEY_DIR/uboot_key_prv.{key,crt} present
+KEY_DIR/uboot_key_prv.{key,crt} exist
   → Regenerate arch/riscv/dts/key/uboot_key_pub.dtsi
 ```
 
 :::warning
 
-If the corresponding `.key` / `.crt` is missing from `KEY_DIR`, the script prints a warning and **retains the existing `dtsi`** rather than terminating with an error. The resulting firmware still embeds the old public key and cannot verify images signed with a new key. After building, check the log for `[sign][WARN] ... left as-is`.
+If the corresponding `.key` / `.crt` files are missing from `KEY_DIR`, the script only prints a warning and **leaves the existing dtsi unchanged**; it does not abort with an error. In this case, the compiled firmware still embeds the old public key and will fail to verify images signed with the new key. Check the log for `[sign][WARN] ... left as-is` after building.
 
 :::
 
 :::tip
 
-Changes that `KEY_DIR` makes to the defconfig and public-key `dtsi` files are **retained in the working tree** and visible in `git diff`. This is intentional, allowing customers to manage proprietary public keys in version control. When switching back to a standard build, scripts automatically remove the signing switches.
+Modifications to defconfig and public-key dtsi made by `KEY_DIR` are **retained in the working tree** and visible in `git diff`. This is intentional to allow customers to version-control their proprietary public keys. The script automatically removes the signing switches when switching back to unsigned builds.
 
 :::
 
@@ -533,7 +537,7 @@ The two switch groups apply to different stages, and both are required:
 | `CONFIG_SPL_FIT_SIGNATURE`, `CONFIG_SPL_RSA_VERIFY` | SPL (FSBL) | Verifies `u-boot.itb` / `fw_dynamic.itb`; triggers `uboot_key_pub.dtsi` injection. |
 | `CONFIG_FIT_SIGNATURE`, `CONFIG_RSA_VERIFY` | U-Boot | Verifies `Image.itb`; triggers `kernel_key_pub.dtsi` injection. |
 
-Alternatively, select these options under `Boot images` and `Library routines → Security support` through `make uboot_menuconfig`.
+Alternatively, select these options under `Boot images` and `Library routines →Security support` through `make uboot_menuconfig`.
 
 #### OpenSBI Configuration
 
@@ -607,6 +611,26 @@ This target performs the following steps:
 | Sign combined image | `uboot-opensbi_sign.itb` | See the note below. |
 
 After signing, package and flash the image through the standard procedure. See the [Boot Development Guide](boot.md).
+
+## Boot Flow
+
+### BootROM
+
+![brom](static/secureboot_2.png)
+
+BootROM serves as the root of trust for Secure Boot. It is fixed during SoC design and cannot be modified. When the eFuse `secure_boot_enable` is programmed, Secure Boot is enabled.
+
+### FSBL
+
+FSBL, as the first-stage bootloader, performs signature verification of the second-stage bootloader. The public key used for verifying the second-stage bootloader is stored in FSBL.
+
+![FSBL](static/secureboot_3.png)
+
+### U-Boot
+
+U-Boot, as the second-stage bootloader, performs signature verification of the kernel and init ramdisk. The public keys for this verification are stored in U-Boot.
+
+![uboot](static/secureboot_4.png)
 
 ## Flashing and eFuse
 
@@ -717,7 +741,7 @@ Recommended production process:
 
 :::tip
 
-The eFuse programming method depends on the production-line tool. See [Production Programming Guide](tlv.md) and [Product Line Tool](plt.md).
+The eFuse programming method depends on the production-line tool. See the [Production Programming Guide](tlv.md) and the production tool documentation.
 
 :::
 
@@ -761,8 +785,8 @@ A signed `deb` is not an additional package. It is a post-processed standard `bi
 
 ```text
 make bindeb-pkg
-    → Generate a complete linux-image-<ABI>.deb
-      (modules / vmlinuz / DTB / config / System.map / maintainer scripts)
+  → Generate a complete linux-image-<ABI>.deb
+    (modules / vmlinuz / DTB / config / System.map / maintainer scripts)
   ↓
 make_signed_kernel_deb.sh
   ├── Unpack the deb
@@ -875,7 +899,7 @@ Changes to `env_k3.txt` do not take effect in signed mode. To adjust boot variab
 
 ```text
 CONFIG_FIT_SIGNATURE=y   → knl_name=Image.itb  → Use bootm (with signature verification)
-Not enabled               → knl_name=Image.gz   → Use booti (without signature verification)
+Not enabled              → knl_name=Image.gz   → Use booti (without signature verification)
 ```
 
 After loading the image, U-Boot determines whether it is in FIT format. FIT images use `bootm` to trigger signature verification; otherwise, `booti` starts the image directly.
