@@ -124,6 +124,7 @@ wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
 ├── bsp-src
 │   ├── linux-6.18 # linux kernel源码
 │   ├── opensbi # opensbi源码
+│   ├── optee_os # OP-TEE 源码
 │   └── uboot-2022.10 # uboot源码
 ├── buildroot # buildroot主目录
 ├── buildroot-ext # 客制化扩展，包含board、configs、package、patches子目录
@@ -144,6 +145,8 @@ wget -c -r -nv -np -nH -R "index.html*" http://archive.spacemit.com/buildroot/dl
 │   └── v2d-test # 2D Unit test program
 ├── scripts # 编译使用到的脚本
 ```
+
+安全相关的源码为 `bsp-src/optee_os`（TEE OS）与 `buildroot-ext/package/secure-firmware`（安全镜像的打包）。安全方案的整体架构、TEE 的构建与集成、镜像与分区、TA/CA 开发见[安全](./security/index.md)。
 
 ## 交叉编译
 

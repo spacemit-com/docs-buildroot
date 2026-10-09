@@ -14,4 +14,5 @@ sidebar_position: 2
 - [图形编程](./graphics/index.md)
 - [DPDK开发](./dpdk/index.md)
 - [系统排查](./kernel_debug/index.md)
+- [安全](./security/index.md)
 - [常见问题](faqs.md)
