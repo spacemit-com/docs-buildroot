@@ -188,6 +188,7 @@ ccic_dma: cam_ccic_dma@d420f000 {
 
 
 
+
 ## 3 测试程序
 ### 3.1 `csi-test`
 
@@ -326,7 +327,7 @@ csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
 
 ### 4.1 板级 DTS 需要配置哪些内容
 
-板级 DTS 主要做三件事：
+板级 DTS 需要完成以下配置：
 
 #### 4.1.1 使能csi控制器对应的 `csiphy`
 
@@ -391,6 +392,62 @@ csi_test -n 5 -c 0,1 -l 2,2 -b 10,10 -s 0,1 -a 1 -f 500
   - 这个属性应和 `pinctrl-0` 一起理解，mux 控制脚的 pinmux 也属于 sensor 节点配置的一部分
 - `status`
   - 是否使能该 sensor
+
+#### 4.1.4 Sensor MCLK 配置
+
+使用 SoC 输出的 MCLK 时，在 sensor 节点中配置 `clocks`、`clock-names` 和对应的时钟引脚复用。K3 可选择以下四路输出：
+
+| DTS 时钟 ID | 对应 CSI 的 Sensor MCLK | 引脚复用组 |
+| --- | --- | --- |
+| `CLK_APMU_ISIM_VCLK0` | CSI0 MCLK | `cam0_0_cfg` / `cam0_1_cfg` / `cam0_2_cfg` |
+| `CLK_APMU_ISIM_VCLK1` | CSI1 MCLK | `cam1_0_cfg` / `cam1_1_cfg` / `cam1_2_cfg` |
+| `CLK_APMU_ISIM_VCLK2` | CSI2 MCLK | `cam2_0_cfg` / `cam2_1_cfg` / `cam2_2_cfg` |
+| `CLK_APMU_ISIM_VCLK3` | CSI3 MCLK | `cam3_0_cfg` / `cam3_1_cfg` / `cam3_2_cfg` |
+
+在 K3 的硬件命名中，`CLK_APMU_ISIM_VCLK0-3` 分别是 CSI0-3 对应 Sensor 的 MCLK 输出。
+
+上述复用组已在 `k3-pinctrl.dtsi` 中定义，包含引脚复用和驱动能力。板级 DTS 必须为所选引脚配置 `power-source`，用于指定该引脚所在的电压域；取值应与实际 I/O 供电电压一致。
+
+例如使用 CSI0 的 MCLK，在 `cam0_2_cfg` 中将 GPIO75 引脚通过 `K3_PADCONF(75, 2)` 复用为 MCLK 输出，且该引脚的 I/O 供电为 1.8 V，板级 DTS 配置如下：
+
+```dts
+&cam0_2_cfg {
+	cam0-0-pins {
+		power-source = <1800>;
+	};
+};
+
+/* 放在实际使用的 I2C 控制器节点内。 */
+sensor@xx {
+	...
+	clocks = <&syscon_apmu CLK_APMU_ISIM_VCLK0>;
+	clock-names = "mclk";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cam0_2_cfg>;
+	...
+};
+```
+
+驱动调用示例：
+
+```c
+/* 在 probe 中获取时钟并设置频率，mclk 保存到设备私有结构体。 */
+mclk = devm_clk_get(dev, "mclk");
+if (IS_ERR(mclk))
+	return PTR_ERR(mclk);
+
+ret = clk_set_rate(mclk, 24000000); /* 示例：24 MHz，单位 Hz */
+if (ret)
+	return ret;
+
+/* 在上电路径中使能时钟。 */
+ret = clk_prepare_enable(mclk);
+if (ret)
+	return ret;
+
+/* 在下电路径中关闭时钟。 */
+clk_disable_unprepare(mclk);
+```
 
 ### 4.2 在 `cam_sensor` 中添加 sensor 驱动
 
