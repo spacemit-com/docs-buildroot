@@ -323,7 +323,7 @@ This command starts two child processes simultaneously. For example:
 
 ### 4.1 Board-level DTS Configuration Overview
 
-The board-level DTS performs three main tasks:
+The board-level DTS must configure the following:
 
 #### 4.1.1 Enable the `csiphy` corresponding to the CSI controller
 
@@ -387,6 +387,62 @@ Here,
   - This attribute should be understood together with `pinctrl-0`; the pinmux of the mux control pin is also part of the sensor node configuration
 - `status`
   - Enables/disables this sensor
+
+#### 4.1.4 Sensor MCLK Configuration
+
+When using an MCLK output from the SoC, configure `clocks`, `clock-names`, and the corresponding clock pin multiplexing in the sensor node. K3 supports the following four outputs:
+
+| DTS clock ID | Sensor MCLK for the CSI port | Pin multiplexing group |
+| --- | --- | --- |
+| `CLK_APMU_ISIM_VCLK0` | CSI0 MCLK | `cam0_0_cfg` / `cam0_1_cfg` / `cam0_2_cfg` |
+| `CLK_APMU_ISIM_VCLK1` | CSI1 MCLK | `cam1_0_cfg` / `cam1_1_cfg` / `cam1_2_cfg` |
+| `CLK_APMU_ISIM_VCLK2` | CSI2 MCLK | `cam2_0_cfg` / `cam2_1_cfg` / `cam2_2_cfg` |
+| `CLK_APMU_ISIM_VCLK3` | CSI3 MCLK | `cam3_0_cfg` / `cam3_1_cfg` / `cam3_2_cfg` |
+
+In K3 hardware naming, `CLK_APMU_ISIM_VCLK0-3` are the MCLK outputs for the sensors connected to CSI0-3 respectively.
+
+The multiplexing groups above are already defined in `k3-pinctrl.dtsi`, including the pin multiplexing and drive strength. The board-level DTS must configure `power-source` for the selected pin to specify the voltage domain of that pin; the value must match the actual I/O supply voltage.
+
+For example, to use the CSI0 MCLK, multiplex GPIO75 as the MCLK output through `K3_PADCONF(75, 2)` in `cam0_2_cfg`, where that pin's I/O supply is 1.8 V. The board-level DTS configuration is as follows:
+
+```dts
+&cam0_2_cfg {
+	cam0-0-pins {
+		power-source = <1800>;
+	};
+};
+
+/* Place this inside the I2C controller node actually in use. */
+sensor@xx {
+	...
+	clocks = <&syscon_apmu CLK_APMU_ISIM_VCLK0>;
+	clock-names = "mclk";
+	pinctrl-names = "default";
+	pinctrl-0 = <&cam0_2_cfg>;
+	...
+};
+```
+
+Driver usage example:
+
+```c
+/* Obtain the clock in probe and set its rate; store mclk in the device private structure. */
+mclk = devm_clk_get(dev, "mclk");
+if (IS_ERR(mclk))
+	return PTR_ERR(mclk);
+
+ret = clk_set_rate(mclk, 24000000); /* Example: 24 MHz, in Hz */
+if (ret)
+	return ret;
+
+/* Enable the clock on the power-on path. */
+ret = clk_prepare_enable(mclk);
+if (ret)
+	return ret;
+
+/* Disable the clock on the power-off path. */
+clk_disable_unprepare(mclk);
+```
 
 ### 4.2 Add a New Sensor Driver in `cam_sensor`
 

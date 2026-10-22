@@ -152,11 +152,11 @@ The EtherCAT Master driver codes are located in the `drivers/net/ethercat` direc
 | Distributed Clock Synchronization | Achieves Distributed Clock (DC) synchronization with precision of less than 1 µs |
 | Multi-protocol Support | Supports protocols such as CoE, SoE, FoE, etc. |
 | High Real-time Performance | Supports a 500-us DC cycle, meeting the real-time requirements of most industrial applications |
-| Multi-master Combination | Supports configuring multiple masters, each of which can manage two network devices: a primary device and a backup device |
+| Multi-master Support | Supports configuring multiple EtherCAT master instances |
 
 ## Configuration
 
-It mainly includes **Kconfig configuration** and **DTS configuration**.
+It mainly includes **Kconfig configuration** and **DTS configuration**. For board types already supported by the current K3 SDK, EtherCAT works without changing the kernel configuration or modifying the DTS. Refer to this section when adapting a new board or when special configuration is required.
 
 ### Kconfig Configuration
 
@@ -239,35 +239,12 @@ config EC_K3_GMAC
           EtherCAT device support for Spacemit K3 GMAC controller.
 ```
 
-> **Note 1:** If you need to use EtherCAT functionality on K3, EtherCAT, EC_MASTER, EC_DEVICE and EC_K3_GMAC are required.
->
-> **Note 2:** On K3, the options EtherCAT, EC_MASTER, EC_DEVICE, EC_K3_GMAC and EC_MASTER_OF are enabled by default. Unless there are special requirements, users only need to enable the corresponding nodes in DTS to use the EtherCAT functions (see the next section).
-
-Besides, it is recommended to enable `CONFIG_PREEMPT_RT` in the kernel configuration for better real-time performance.
-
-```c
-config PREEMPT_RT
-        bool "Fully Preemptible Kernel (Real-Time)"
-        depends on EXPERT && ARCH_SUPPORTS_RT && !COMPILE_TEST
-        select PREEMPTION
-        help
-          This option turns the kernel into a real-time kernel by replacing
-          various locking primitives (spinlocks, rwlocks, etc.) with
-          preemptible priority-inheritance aware variants, enforcing
-          interrupt threading and introducing mechanisms to break up long
-          non-preemptible sections. This makes the kernel, except for very
-          low level and critical code paths (entry code, scheduler, low
-          level interrupt handling) fully preemptible and brings most
-          execution contexts under scheduler control.
-
-          Select this if you are building a kernel for systems which
-          require real-time guarantees.
-```
+> **Note:** On the K3 platform, the EtherCAT, EC_MASTER, EC_DEVICE, EC_K3_GMAC, and EC_MASTER_OF options are enabled by default.
 
 ### DTS Configuration
 
-In the DTS, the number of master can be configured via the `master-count`, and corresponding child nodes must be defined to match it. In each child node of the `master`, the primary and backup devices can be specified using `main-device` and `backup-device` respectively.
-Taking the default configurations in `k3.dtsi` as an example, one EtherCAT master instance `master0` is defined by default, with its `main-device` bound to `eth0` and the current node state is `disabled`:
+In the DTS, the number of masters can be configured via `master-count`, and corresponding `master` child nodes must be defined to match it. Each `master` child node can specify the primary and backup devices used to send EtherCAT frames through `main-device` and `backup-device`. Note that the `backup-device` feature is not yet implemented in the current version; the property is reserved for future use.
+Taking the default configuration in `k3.dtsi` as an example, one EtherCAT master instance `master0` is defined by default, with its main device specified as `eth0`, and the current node state is `disabled`:
 
 ```c
 ec_master: ethercat_master {
@@ -281,20 +258,16 @@ ec_master: ethercat_master {
 };
 ```
 
-The simplest way for users to enable EtherCAT functionality is to directly enable the `ec_master` node in the board-level DTS, and modify `compatible` of the corresponding network interface to `spacemit,k3-ec-gmac`. The configuration is as follows:
+To use the EtherCAT master, the simplest way is to directly enable the `ec_master` node in the board-level DTS:
 
 ```c
 &ec_master {
-    status = "okay";
+	status = "okay";
 };
 
-&eth0 {
-    compatible = "spacemit,k3-ec-gmac", "snps,dwmac-5.10a";
-}
 ```
 
-If further customization is required, other properties in `ec_master` can be overridden in the board-level DTS. For example, to configure two masters:
-`master0` and `master1`, where `master0` uses `eth1` and `master1` uses `eth0`:
+To modify the configuration, other properties in `ec_master` can be overridden in the board-level DTS. For example, to configure two masters, `master0` and `master1`, where `master0` uses `eth1` and `master1` uses `eth0`:
 
 ```c
 &ec_master {
@@ -308,14 +281,82 @@ If further customization is required, other properties in `ec_master` can be ove
                 main-device = <&eth0>;
         };
 };
+```
 
-&eth0 {
-    compatible = "spacemit,k3-ec-gmac", "snps,dwmac-5.10a";
-}
+## Usage
 
-&eth1 {
-    compatible = "spacemit,k3-ec-gmac", "snps,dwmac-5.10a";
-}
+This section provides a brief introduction to using EtherCAT on K3.
+
+### Installing the RT Kernel
+
+Before running EtherCAT applications, an RT kernel is recommended for better real-time performance:
+
+step1: Install the kernel package
+```bash
+sudo apt update
+sudo apt install linux-image-6.18.3-rt
+```
+
+step2: Reboot the system
+```bash
+sudo reboot
+```
+
+step3: Verify the kernel version
+```bash
+uname -r
+```
+
+The output should contain `rt`.
+
+### Switching the GMAC Driver
+
+The K3 GMAC is bound to the Ethernet driver by default and can be switched to the EtherCAT real-time NIC driver at runtime. The following example uses k3 deb1, whose GMAC platform device is `cac80000.ethernet`. The switching procedure is as follows:
+
+Step 1: Specify the EtherCAT driver
+```bash
+echo dwmac-spacemit-ethqos-ethercat > /sys/bus/platform/devices/cac80000.ethernet/driver_override
+```
+
+Step 2: Unbind the Ethernet driver
+```bash
+echo cac80000.ethernet > /sys/bus/platform/drivers/dwmac-spacemit-ethqos/unbind
+```
+
+Step 3: Bind the EtherCAT driver
+```bash
+echo cac80000.ethernet > /sys/bus/platform/drivers/dwmac-spacemit-ethqos-ethercat/bind
+```
+
+> **Note 1:** To switch back to the Ethernet driver, follow a similar sequence: first set `driver_override` to `dwmac-spacemit-ethqos`, then unbind the EtherCAT driver, and finally rebind the Ethernet driver.
+
+> **Note 2:** To switch to the EtherCAT driver automatically after system boot, create a systemd service as described below:
+
+Step1: Create the systemd service
+
+```bash
+cat > /etc/systemd/system/gmac-ethercat.service <<'EOF'
+[Unit]
+Description=Bind GMAC to EtherCAT driver
+After=systemd-udev-settle.service
+Before=NetworkManager.service systemd-networkd.service networking.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo dwmac-spacemit-ethqos-ethercat > /sys/bus/platform/devices/cac80000.ethernet/driver_override; echo cac80000.ethernet > /sys/bus/platform/drivers/dwmac-spacemit-ethqos/unbind; echo cac80000.ethernet > /sys/bus/platform/drivers/dwmac-spacemit-ethqos-ethercat/bind'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+Step2: Enable the service
+
+```bash
+systemctl daemon-reload
+systemctl enable gmac-ethercat.service
+systemctl start gmac-ethercat.service
 ```
 
 ## Interface
@@ -370,7 +411,7 @@ int ecrt_slave_config_pdos(ec_slave_config_t *sc, uint16_t sync_index, const ec_
 - Register PDO entries to the specified data domain.
 
 ```c
-int ecrt_slave_config_reg_pdo_entry(ec_slave_config_t *sc, uint16_t index, uint8_t subindex， ec_domain_t *domain, unsigned int *offset);
+int ecrt_slave_config_reg_pdo_entry(ec_slave_config_t *sc, uint16_t index, uint8_t subindex, ec_domain_t *domain, unsigned int *offset);
 
 ```
 
@@ -418,7 +459,6 @@ EtherCAT master test procedure:
 The startup log example is as follows:
 
 ```c
-[  966.525910] k1x_ec_emac cac80000.ethernet ecm0 (uninitialized): Link is Up - 100Mbps/Full - flow control off
 [  966.535906] EtherCAT 0: Link state of ecm0 changed to UP.
 [  966.552545] EtherCAT 0: 1 slave(s) responding on main device.
 [  966.558389] EtherCAT 0: Slave states on main device: INIT.
