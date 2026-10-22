@@ -218,7 +218,7 @@ K3方案定制根文件系统可通过修改`buildroot-ext/board/spacemit/k3/tar
 
 2. 把文件、目录放在target_overlay目录，目录结构按`output/xxx/target/`下面的子目录结构组织，buildroot打包target目录前会把target_overlay拷贝过去覆盖`output/xxx/target/`。
 
-## 添加新方案
+## 添加新构建方案
 
 1. 在`buildroot-ext/board/spacemit/`新建方案目录，一般命名方式：芯片名称-板子名称/。
 
@@ -235,3 +235,69 @@ K3方案定制根文件系统可通过修改`buildroot-ext/board/spacemit/k3/tar
   - 指向新的打包脚本prepare_image.sh。
 
 6. 编译。
+
+### 新方案刷机启动
+
+新增设备方案时，可参考[设备管理](./device_management.md)。
+
+**注意**：
+
+- 非首次编译时，新增设备树后需要重新执行 `make envconfig`，再执行 `make uboot-rebuild && make linux-rebuild && make` 重新编译并打包。
+
+
+
+板子首次刷机启动前，先确认以下信息：
+
+- DDR 型号。型号配置可参考<https://www.spacemit.com/community/document/info?lang=zh&nodepath=software/SDK/buildroot/k3_buildroot/device/peripheral_driver/ddr.md>。
+- 是否有新增 DTS 方案。
+- 板子上是否接入了 EEPROM。硬件 EEPROM 必须连接到 I2C6（GPIO 120/121 或 61/62）或 I2C2（GPIO 46/47）。
+
+![写号工具配置 DDR 料号](./peripheral_driver/static/ddr_part_number.png)
+
+
+#### 板子有接入 EEPROM
+
+参考写号工具文档<https://www.spacemit.com/community/document/info?lang=zh&nodepath=tools/user_guide/flasher_user_guide.md>，将 DDR 和设备树等信息写入 EEPROM。
+
+**注意**：
+
+- 需要先取消勾选才能修改，修改完后再勾选。对于不确定的配置项，不要勾选。
+- 如果没有新增设备树，则不要填写 `product_name`，默认会加载 `k3_deb1`；填写不存在的设备树名称会导致找不到 DTB。
+
+#### 板子没有或者不确定是否有 EEPROM
+
+修改 DDR 和默认方案配置后，重新编译 U-Boot 和镜像：
+
+```shell
+make uboot-rebuild && make
+```
+
+以下示例将 DDR 料号修改为单 rank、4 GB 的 `MT62F1G32D2DS`，并将默认方案设为 `k3_example`：
+
+```diff
+user:~/workspace/k3_buildroot_sdk_pub/bsp-src/uboot-2022.10$ git diff arch/riscv/dts/k3_spl.dts include/
+diff --git a/arch/riscv/dts/k3_spl.dts b/arch/riscv/dts/k3_spl.dts
+index d95d77886f..f4d79a8653 100644
+--- a/arch/riscv/dts/k3_spl.dts
++++ b/arch/riscv/dts/k3_spl.dts
+@@ -231,7 +231,7 @@
+                ddr@cb000000 {
+                        u-boot,dm-spl;
+                        compatible = "spacemit,snps-lp45";
+-                       part-number = "MT62F2G32D4DS";
++                       part-number = "MT62F1G32D2DS";
+                        reg = <0x00000000 0xcb000000 0x00000000 0x00400000>,
+                              <0x00000000 0xcc000000 0x00000000 0x00400000>;
+                        reg-names = "ddrc0", "ddrc1";
+diff --git a/include/configs/k3.h b/include/configs/k3.h
+index f106a03d7d..ab6905a9e4 100644
+--- a/include/configs/k3.h
++++ b/include/configs/k3.h
+@@ -102,10 +102,10 @@
+ #define K3_NOR_UFS_DEVNUM_DEFAULT      (0)
+ #define K3_NOR_EMMC_DEVNUM_DEFAULT     (MMC_DEV_EMMC)
+
+-#define DEFAULT_PRODUCT_NAME           "k3_deb1"
++#define DEFAULT_PRODUCT_NAME           "k3_example"
+ #define BOOTFS_NAME                    ("bootfs")
+```
