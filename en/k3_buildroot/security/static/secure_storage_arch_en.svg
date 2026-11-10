@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1760 1220" role="img" aria-labelledby="title desc">
+  <title id="title">K3 secure-storage component layers</title>
+  <desc id="desc">The secure world handles object permissions, encryption, decryption, and authentication; the normal world forwards requests and moves I/O. REE FS stores object ciphertext through tee-supplicant; RPMB FS uses in-kernel routing. A dashed line marks the optional REE directory-hash anchor.</desc>
+  <defs>
+    <marker id="gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#5d6976"/></marker>
+    <marker id="purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#6a4aa8"/></marker>
+  </defs>
+  <rect width="1760" height="1220" fill="#fff"/>
+  <!-- World panels -->
+  <g stroke-width="2.5">
+    <rect x="40" y="30" width="800" height="860" fill="#cedcf2" stroke="#5d7dad"/>
+    <rect x="920" y="30" width="800" height="860" fill="#c5e6d1" stroke="#4d9169"/>
+    <rect x="40" y="30" width="800" height="62" fill="#b4c9e8" stroke="#5d7dad"/>
+    <rect x="920" y="30" width="800" height="62" fill="#a7d7b9" stroke="#4d9169"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle">
+    <text x="440" y="71" fill="#183962">Normal World (REE)</text>
+    <text x="1320" y="71" fill="#174d32">Secure World (TEE)</text>
+  </g>
+  <!-- Boxes -->
+  <g stroke-width="2.5" fill="none">
+    <rect x="110" y="130" width="640" height="96" stroke="#5d7dad"/>
+    <rect x="110" y="430" width="640" height="96" stroke="#5d7dad"/>
+    <rect x="110" y="620" width="640" height="72" stroke="#5d7dad"/>
+    <rect x="110" y="750" width="640" height="72" stroke="#5d7dad"/>
+    <rect x="990" y="130" width="640" height="96" stroke="#4d9169"/>
+    <rect x="990" y="290" width="640" height="130" fill="#e1d0f0" stroke="#7a55b0"/>
+    <rect x="990" y="490" width="640" height="96" stroke="#4d9169"/>
+    <rect x="990" y="680" width="640" height="150" stroke="#4d9169"/>
+  </g>
+  <!-- Box text -->
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g font-size="24" font-weight="bold" fill="#183962">
+      <text x="430" y="170">CA / libteec</text>
+      <text x="430" y="470">tee-supplicant</text>
+      <text x="430" y="663">Linux regular file system</text>
+      <text x="430" y="793">Linux OP-TEE driver / RPMB subsystem</text>
+    </g>
+    <g font-size="20" fill="#445d79">
+      <text x="430" y="202">Issues application commands</text>
+      <text x="430" y="502">REE file RPC proxy</text>
+    </g>
+    <g font-size="24" font-weight="bold" fill="#174d32">
+      <text x="1310" y="170">TA / libutee</text>
+      <text x="1310" y="530">REE FS backend</text>
+    </g>
+    <g font-size="20" fill="#174d32">
+      <text x="1310" y="202">Permission checks · persistent-object API</text>
+      <text x="1310" y="562">Object ciphertext and logical directory</text>
+    </g>
+    <g fill="#3d2470">
+      <text x="1310" y="332" font-size="24" font-weight="bold">OP-TEE storage core</text>
+      <text x="1310" y="364" font-size="20">Object namespace · key management</text>
+      <text x="1310" y="392" font-size="20">Encryption · integrity · atomic updates</text>
+    </g>
+    <g fill="#174d32">
+      <text x="1310" y="722" font-size="24" font-weight="bold">RPMB FS backend</text>
+      <text x="1310" y="754" font-size="20">Stores objects directly / holds the REE directory hash</text>
+      <text x="1310" y="786" font-size="20">RPMB protocol authentication and write-counter checks</text>
+    </g>
+  </g>
+  <!-- Explanatory notes in the normal world -->
+  <g font-family="Arial, sans-serif" fill="#183962">
+    <text x="110" y="290" font-size="22" font-weight="bold">Object data and authentication are handled in the secure world</text>
+    <text x="110" y="326" font-size="20" fill="#445d79">The normal world forwards requests and moves I/O</text>
+    <text x="110" y="362" font-size="20" fill="#445d79">The diagram shows in-kernel RPMB routing</text>
+  </g>
+  <!-- Arrows -->
+  <g fill="none" stroke-width="2.5">
+    <path d="M750 178 H982" stroke="#5d6976" marker-end="url(#gray)"/>
+    <path d="M1310 226 V282" stroke="#5d6976" marker-end="url(#gray)"/>
+    <path d="M1310 420 V482" stroke="#5d6976" marker-end="url(#gray)"/>
+    <path d="M990 538 H758" stroke="#6a4aa8" marker-end="url(#purple)"/>
+    <path d="M990 755 H880 V786 H758" stroke="#6a4aa8" marker-end="url(#purple)"/>
+    <path d="M1310 586 V672" stroke="#6a4aa8" stroke-dasharray="8 7" marker-end="url(#purple)"/>
+    <path d="M1630 355 H1670 V755 H1634" stroke="#5d6976" marker-end="url(#gray)"/>
+    <path d="M430 526 V612" stroke="#5d6976" stroke-dasharray="7 6" marker-end="url(#gray)"/>
+    <path d="M110 656 H70 V932 H430 V938" stroke="#5d6976" marker-end="url(#gray)"/>
+    <path d="M430 822 V900 H1310 V938" stroke="#5d6976" marker-end="url(#gray)"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#6a4aa8" text-anchor="middle">
+    <text x="866" y="162" fill="#5d6976">Call</text>
+    <text x="874" y="522">File RPC</text>
+    <text x="890" y="739">RPMB RPC</text>
+    <text x="1340" y="646" text-anchor="start" font-size="16">Optional: directory-hash anchor</text>
+  </g>
+  <text x="130" y="590" font-family="Arial, sans-serif" font-size="18" fill="#445d79">User mode / kernel mode</text>
+  <path d="M340 596 H740" stroke="#8a97ab" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <!-- Storage media -->
+  <g stroke-width="2.5">
+    <rect x="40" y="940" width="1680" height="180" fill="#dddde1" stroke="#7c7c85"/>
+    <rect x="70" y="1026" width="760" height="64" fill="#fff" stroke="#7c7c85"/>
+    <rect x="930" y="1026" width="760" height="64" fill="#fff" stroke="#7c7c85"/>
+  </g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#292934">
+    <text x="880" y="986" font-size="24" font-weight="bold">Storage media: eMMC / UFS</text>
+    <text x="450" y="1064" font-size="20">Regular data area: /data/tee/ object ciphertext and dirf.db</text>
+    <text x="1310" y="1064" font-size="20">RPMB authenticated area: objects / dirfile.db.hash</text>
+  </g>
+  <text x="880" y="1168" font-family="Arial, sans-serif" font-size="18" fill="#445d79" text-anchor="middle">Solid lines: object calls and I/O paths; purple dashed line: the optional REE directory root-hash anchor.</text>
+</svg>

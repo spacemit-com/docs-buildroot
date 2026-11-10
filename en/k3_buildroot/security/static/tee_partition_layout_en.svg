@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 560" role="img" aria-labelledby="title desc">
+  <title id="title">Secure and non-secure firmware partition layouts</title>
+  <desc id="desc">Secure-image firmware layout on SPI-NOR / SPI-NAND MTD partitions: bootinfo 128K, fsbl 512K, env 64K, esos 1M, opensbi 320K, optee 512K, and uboot 2560K. Segment widths are normalized to the total capacity of the row.</desc>
+  <rect width="1560" height="560" fill="white"/>
+  <g font-family="Arial, sans-serif"><text x="72" y="82" font-size="21" font-weight="bold" fill="#1f2a36">Secure-image firmware layout (MTD partitions on SPI-NOR / SPI-NAND)</text><text x="72" y="116" font-size="16" fill="#5a6474">For offset and size differences per medium and against the non-secure image, see the partition tables in this section. Segment widths are normalized to the row's total capacity.</text></g>
+  <rect x="72" y="210" width="1426" height="78" fill="none" stroke="#a3aab4" stroke-width="2"/>
+  <g stroke-width="2">
+    <g fill="#dcdce0" stroke="#7a7d84"><rect x="74" y="212" width="130" height="74"/><rect x="209" y="212" width="164" height="74"/></g>
+    <rect x="377" y="212" width="104" height="74" fill="#f4f5f8" stroke="#a3aab4"/>
+    <g fill="#f3ddad" stroke="#c08a35"><rect x="486" y="212" width="233" height="74"/><rect x="724" y="212" width="156" height="74"/></g>
+    <rect x="885" y="212" width="163" height="74" fill="#c2e3cf" stroke="#4b8a5f"/>
+    <rect x="1054" y="212" width="441" height="74" fill="#c9d8f2" stroke="#6a80c0"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">
+    <g fill="#1f2a36"><text x="139" y="193">bootinfo</text><text x="291" y="193">fsbl</text><text x="429" y="193">env</text></g>
+    <g fill="#6b4510"><text x="602" y="193">esos</text><text x="802" y="193">opensbi</text></g>
+    <text x="966" y="193" fill="#1f4d30">optee</text><text x="1274" y="193" fill="#23406e">uboot</text>
+  </g>
+  <g font-family="Consolas, 'Courier New', monospace" font-size="14" fill="#5a6474" text-anchor="middle"><text x="139" y="320">128K</text><text x="291" y="320">512K</text><text x="429" y="320">64K</text><text x="602" y="320">1M</text><text x="802" y="320">320K</text><text x="966" y="320">512K</text><text x="1274" y="320">2560K</text></g>
+  <g stroke-width="2">
+    <rect x="72" y="357" width="34" height="24" fill="#dcdce0" stroke="#7a7d84"/><rect x="292" y="357" width="34" height="24" fill="#f4f5f8" stroke="#a3aab4"/><rect x="406" y="357" width="34" height="24" fill="#f3ddad" stroke="#c08a35"/><rect x="624" y="357" width="34" height="24" fill="#c2e3cf" stroke="#4b8a5f"/><rect x="772" y="357" width="34" height="24" fill="#c9d8f2" stroke="#6a80c0"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#43536a"><text x="118" y="375">FSBL / bootinfo</text><text x="338" y="375">env</text><text x="452" y="375">esos / OpenSBI</text><text x="670" y="375">OP-TEE</text><text x="818" y="375">U-Boot</text></g>
+</svg>

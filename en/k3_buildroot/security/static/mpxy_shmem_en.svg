@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 960" role="img" aria-labelledby="title desc">
+  <title id="title">MPXY and shared memory</title>
+  <desc id="desc">The normal world (CA and Linux kernel) and the secure world (OP-TEE OS and TA) interact through the MPXY SBI interface and OpenSBI in M-mode. The per-hart MPXY message buffers and the TA/CA shared buffers both come from the same TEE shared-memory pool (SHMEM) at 0x1_7200_0000 + 16 MB.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555c66"/></marker>
+  </defs>
+  <rect width="1560" height="960" fill="white"/>
+  <!-- Privilege-level dividers and labels -->
+  <g stroke="#b5bcc6" stroke-width="1.5" stroke-dasharray="8 6"><path d="M62 175 H1452 M62 455 H1452"/></g>
+  <g font-family="Arial, sans-serif" font-size="15" fill="#8a93a3"><text x="1476" y="137">U-mode</text><text x="1476" y="271">S-mode</text><text x="1476" y="543">M-mode</text></g>
+  <!-- U-mode: CAs and TAs -->
+  <g stroke-width="2">
+    <g fill="#c9d8f2" stroke="#6a80c0"><rect x="108" y="104" width="170" height="56"/><rect x="308" y="104" width="170" height="56"/></g>
+    <g fill="#c2e3cf" stroke="#4b8a5f"><rect x="830" y="104" width="170" height="56"/><rect x="1030" y="104" width="170" height="56"/></g>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="19" font-weight="bold" text-anchor="middle"><g fill="#23406e"><text x="193" y="139">CA</text><text x="393" y="139">CA</text></g><g fill="#1f4d30"><text x="915" y="139">TA</text><text x="1115" y="139">TA</text></g></g>
+  <!-- S-mode: Linux kernel and OP-TEE OS -->
+  <g stroke-width="2">
+    <rect x="62" y="212" width="661" height="108" fill="#c9d8f2" stroke="#6a80c0"/>
+    <rect x="785" y="212" width="660" height="108" fill="#c2e3cf" stroke="#4b8a5f"/>
+    <g fill="white" stroke-width="1.5"><rect x="93" y="252" width="599" height="52" stroke="#6a80c0"/><rect x="815" y="252" width="600" height="52" stroke="#4b8a5f"/></g>
+  </g>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g font-size="18" font-weight="bold"><text x="392" y="241" fill="#23406e">Linux kernel</text><text x="1115" y="241" fill="#1f4d30">OP-TEE OS (TEE kernel)</text></g>
+    <g font-size="17" fill="#263c53"><text x="392" y="284">OP-TEE driver (/dev/tee*)</text><text x="1115" y="284">Sessions · TA loading · Secure storage</text></g>
+  </g>
+  <!-- MPXY SBI interface -->
+  <rect x="62" y="360" width="1383" height="64" fill="#e9d7a6" stroke="#c8a046" stroke-width="2"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#6b4510"><text x="750" y="389" font-size="18" font-weight="bold">MPXY SBI (message proxy interface)</text><text x="750" y="412" font-size="15">S-mode ↔ M-mode message transfer</text></g>
+  <!-- M-mode: OpenSBI -->
+  <rect x="62" y="467" width="1383" height="141" fill="#c2e3cf" stroke="#4b8a5f" stroke-width="2"/>
+  <g fill="white" stroke="#4b8a5f" stroke-width="1.5"><rect x="108" y="538" width="385" height="48"/><rect x="538" y="538" width="385" height="48"/><rect x="968" y="538" width="431" height="48"/></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle"><text x="750" y="502" font-size="18" font-weight="bold" fill="#1f4d30">OpenSBI (M-mode)</text><g font-size="16" fill="#263c53"><text x="300" y="568">MPXY SBI Proxy</text><text x="730" y="568">OP-TEE dispatcher · Domain switch</text><text x="1183" y="568">RPMI TX/RX</text></g></g>
+  <!-- Memory -->
+  <rect x="62" y="642" width="1383" height="240" fill="#dcdde2" stroke="#8a8d94" stroke-width="2"/>
+  <rect x="93" y="691" width="1322" height="160" fill="#e1d0f0" stroke="#7a55b0" stroke-width="2"/>
+  <g fill="white" stroke="#7a55b0" stroke-width="1.5"><rect x="123" y="768" width="615" height="46"/><rect x="768" y="768" width="615" height="46"/></g>
+  <g font-family="Arial, sans-serif">
+    <text x="90" y="680" font-size="17" font-weight="bold" fill="#263c53">Memory</text>
+    <g text-anchor="end" fill="#3d2470"><text x="1383" y="728" font-size="18" font-weight="bold">TEE shared-memory pool (SHMEM): 0x1_7200_0000 + 16 MB</text><text x="1383" y="752" font-size="14" fill="#5a4a72">Injected as a reserved region by OP-TEE; the kernel memremaps it to create the tee_shm pool</text></g>
+    <g font-size="16" fill="#263c53" text-anchor="middle"><text x="430" y="797">Per-hart MPXY message buffer (Hart 0…15)</text><text x="1075" y="797">TA/CA shared buffer (tee_shm)</text></g>
+  </g>
+  <!-- Flows -->
+  <g fill="none" stroke="#555c66" stroke-width="2" marker-end="url(#arr)"><path d="M193 160 V248"/><path d="M392 304 V356"/><path d="M392 424 V532"/><path d="M915 212 V164"/><path d="M1076 460 V324"/></g>
+  <path d="M300 596 V764" fill="none" stroke="#555c66" stroke-width="2" stroke-dasharray="6 5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <g font-family="Arial, sans-serif" font-size="15" fill="#5a6474"><text x="205" y="200">Call</text><text x="405" y="337">ecall / message</text><text x="927" y="200">Dispatch</text><text x="1088" y="396">Domain switch</text><text x="315" y="672">Message buffer</text></g>
+  <!-- Legend -->
+  <g font-family="Arial, sans-serif" font-size="14" fill="#263c53">
+    <rect x="62" y="918" width="24" height="18" fill="#e9d7a6" stroke="#c8a046" stroke-width="1.5"/><text x="98" y="932">Interface</text>
+    <rect x="200" y="918" width="24" height="18" fill="#c2e3cf" stroke="#4b8a5f" stroke-width="1.5"/><text x="236" y="932">TCB</text>
+    <text x="323" y="925">The per-hart message buffers and the TA/CA shared buffers both come from the same SHMEM pool:</text>
+    <text x="323" y="945">the former carry messages between S-mode and M-mode, and the latter carry data between CAs and TAs.</text>
+  </g>
+</svg>

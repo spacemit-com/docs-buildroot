@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 1030" role="img" aria-labelledby="title desc">
+  <title id="title">Secure-storage layers and cross-world data transfer</title>
+  <desc id="desc">In the secure world, a TA calls the GP Internal API library (libutee), which crosses from user mode to kernel mode into the trusted storage service, the TEE file operation interface, the TEE file system and key manager, and the REE file operation interface. An RPC carries the request to tee-supplicant in the normal world, which reads and writes the Linux file system or the eMMC RPMB partition. Only ciphertext leaves the secure world.</desc>
+  <defs>
+    <marker id="gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555c66"/></marker>
+    <marker id="purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#6a4aa8"/></marker>
+  </defs>
+  <rect width="1560" height="1030" fill="white"/>
+  <!-- World headers and divider -->
+  <g font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle"><text x="372" y="77" fill="#23406e">Normal world (REE)</text><text x="1178" y="77" fill="#1f4d30">Secure world (TEE)</text></g>
+  <path d="M785 100 V745" stroke="#b5bcc6" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <!-- Secure-world stack -->
+  <g stroke-width="2">
+    <g fill="#c2e3cf" stroke="#4b8a5f"><rect x="881" y="115" width="604" height="63"/><rect x="881" y="209" width="604" height="63"/><rect x="881" y="303" width="604" height="63"/><rect x="881" y="397" width="604" height="63"/><rect x="881" y="623" width="604" height="63"/></g>
+    <rect x="881" y="491" width="604" height="101" fill="#e1d0f0" stroke="#7a55b0"/>
+  </g>
+  <!-- User mode / kernel mode boundary -->
+  <path d="M820 287 H1495" stroke="#a3aab4" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <rect x="1252" y="277" width="168" height="20" fill="white"/>
+  <text x="1336" y="293" font-family="Arial, sans-serif" font-size="15" fill="#5a6474" text-anchor="middle">User mode / Kernel mode</text>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g font-size="19" font-weight="bold" fill="#1f4d30"><text x="1183" y="153">TA (Trusted Application)</text><text x="1183" y="247">GP Internal API Library (libutee)</text><text x="1183" y="341">Trusted storage service call</text><text x="1183" y="435">TEE file operation interface</text><text x="1183" y="661">REE file operation interface</text></g>
+    <text x="1183" y="522" font-size="19" font-weight="bold" fill="#3d2470">TEE file system + key manager</text>
+    <g font-size="17" fill="#3d2470"><text x="1183" y="550">Encryption · Integrity · Atomic writes</text><text x="1183" y="577">Keys: HUK → SSK → TSK → FEK (one per object)</text></g>
+  </g>
+  <g fill="none" stroke="#555c66" stroke-width="2" marker-end="url(#gray)"><path d="M1183 178 V207"/><path d="M1183 272 V301"/><path d="M1183 366 V395"/><path d="M1183 460 V489"/><path d="M1183 592 V621"/></g>
+  <!-- Normal-world side -->
+  <g fill="#c9d8f2" stroke="#6a80c0" stroke-width="2"><rect x="76" y="623" width="604" height="63"/><rect x="76" y="731" width="604" height="80"/></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#23406e"><text x="378" y="661" font-size="19" font-weight="bold">tee-supplicant (REE-side proxy)</text><text x="378" y="764" font-size="19" font-weight="bold">Linux file system / storage device</text><text x="378" y="792" font-size="17" fill="#263c53">Regular file system · eMMC RPMB partition</text></g>
+  <!-- RPC and file access -->
+  <path d="M881 655 H684" fill="none" stroke="#6a4aa8" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#purple)"/>
+  <text x="742" y="639" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#6a4aa8" text-anchor="middle">RPC</text>
+  <path d="M378 692 V727" fill="none" stroke="#6a4aa8" stroke-width="2" stroke-dasharray="5 4" marker-start="url(#purple)" marker-end="url(#purple)"/>
+  <!-- Notes -->
+  <rect x="76" y="843" width="1409" height="62" fill="#f3f4f7" stroke="#a3aab4" stroke-width="2"/>
+  <rect x="76" y="920" width="1409" height="62" fill="#f3ddad" stroke="#c08a35" stroke-width="2"/>
+  <g font-family="Arial, sans-serif" font-size="17" text-anchor="middle"><text x="780" y="880" fill="#263c53">The secure world handles encryption, integrity, and atomic writes; the normal world and the storage media see only ciphertext.</text><text x="780" y="957" fill="#6b4510">GP defines two kinds of secure storage: the regular file system (default, no rollback protection) and the RPMB partition (with rollback protection).</text></g>
+</svg>

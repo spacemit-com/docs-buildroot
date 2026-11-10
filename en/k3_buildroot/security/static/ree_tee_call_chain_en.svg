@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 990" role="img" aria-labelledby="title desc">
+  <title id="title">REE-to-TEE call chain</title>
+  <desc id="desc">A request travels from the client application through libteec, the Linux TEE driver, MPXY and the OpenSBI dispatcher to OP-TEE OS and the trusted application. The response travels back along the same path.</desc>
+  <rect width="1240" height="990" fill="white"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#193967">
+    <g fill="#cbdaf0" stroke="#5876a8" stroke-width="2">
+      <rect x="235" y="48" width="660" height="88"/><rect x="235" y="164" width="660" height="88"/><rect x="235" y="280" width="660" height="88"/>
+    </g>
+    <g fill="#f4dfb0" stroke="#b38124" stroke-width="2"><rect x="235" y="428" width="660" height="88"/><rect x="235" y="544" width="660" height="88"/></g>
+    <g fill="#c0e3cd" stroke="#438c60" stroke-width="2"><rect x="235" y="692" width="660" height="88"/><rect x="235" y="808" width="660" height="88"/></g>
+    <g font-size="24" font-weight="bold">
+      <text x="565" y="91">CA (Client Application)</text><text x="565" y="207">libteec (TEE Client API)</text><text x="565" y="323">TEE driver (Linux kernel, /dev/tee0)</text>
+      <text x="565" y="471" fill="#573900">MPXY channel (per-hart shared memory)</text><text x="565" y="587" fill="#573900">OP-TEE dispatcher (OpenSBI)</text>
+      <text x="565" y="735" fill="#145239">OP-TEE OS (TEE kernel)</text><text x="565" y="851" fill="#145239">TA (Trusted Application)</text>
+    </g>
+    <g font-family="monospace" font-size="16"><text x="565" y="121">TEE_OpenSession · TEE_InvokeCommand</text><text x="565" y="237">TEE_IOC_OPEN_SESSION · TEE_IOC_INVOKE</text><text x="565" y="353">drivers/tee/optee/mpxy_sbi.c</text><text x="565" y="501">mboxes = &lt;&amp;mpxy_mbox 0x1000 0x2&gt;</text><text x="565" y="617">msg 0x01 / 0x02 · fdt_mpxy_opteed.c</text><text x="565" y="765">thread_std_abi_entry() → tee_entry_std()</text><text x="565" y="881">TEE Internal Core API (libutee)</text></g>
+    <g fill="#66798f" font-size="19"><text x="140" y="142">Normal world</text><text x="140" y="168">user space</text><text x="140" y="320">Normal world</text><text x="140" y="346">kernel space</text><text x="140" y="522">Firmware</text><text x="140" y="548">M-mode</text><text x="140" y="784">Secure world</text><text x="140" y="810">S-mode</text></g>
+    <g fill="#536276" font-size="20" font-weight="bold"><text x="565" y="406">1. ecall: S-mode → M-mode</text><text x="565" y="670">2. OpenSBI domain switch: M-mode → trusted domain (S-mode)</text><text x="960" y="32">Request</text><text x="1120" y="32">Response</text></g>
+  </g>
+  <g stroke="#aab9cb" stroke-width="2" stroke-dasharray="8 6"><path d="M20 398 H480 M650 398 H1220"/><path d="M20 662 H370 M860 662 H1220"/></g>
+  <g stroke="#9ba7b4" fill="#9ba7b4" stroke-width="3"><path d="M960 92 V855"/><path d="M950 846 L960 864 L970 846 Z"/><path d="M1120 864 V101"/><path d="M1110 110 L1120 92 L1130 110 Z"/></g>
+  <g fill="none" stroke="#9ba7b4" stroke-width="2"><path d="M220 56 H208 V244 H220 M220 288 H208 V360 H220 M220 436 H208 V624 H220 M220 700 H208 V888 H220"/></g>
+</svg>
