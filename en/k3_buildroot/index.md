@@ -14,4 +14,5 @@ sidebar_position: 2
 - [Graphics Development](./graphics/index.md)
 - [DPDK Development](./dpdk/index.md)
 - [Kernel Debug](./kernel_debug/index.md)
+- [Security](./security/index.md)
 - [FAQ](faqs.md)
