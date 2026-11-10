@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 780" role="img" aria-labelledby="title desc">
+  <title id="title">K3 secure-image physical address space and domain ownership</title>
+  <desc id="desc">From low to high addresses: the low-address region for M-mode firmware (OpenSBI, FSBL and so on), kernel-usable memory starting at 0x1_0200_0000, 16 MB TEE RAM at 0x1_7100_0000 (secure domain read/write/execute 0x3f, REE domain denied 0x00), 16 MB shared memory at 0x1_7200_0000 shared by both domains, and kernel-usable memory up to 0x3_0000_0000. The kernel memory node covers the range from 0x1_0200_0000 to 0x3_0000_0000.</desc>
+  <rect width="1560" height="780" fill="white"/>
+  <!-- Kernel memory node coverage bracket -->
+  <path d="M403 118 H390 V676 H403" fill="none" stroke="#8a93a3" stroke-width="2"/>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#5a6474" text-anchor="end"><text x="368" y="404">Kernel memory node</text><text x="368" y="430">coverage</text></g>
+  <!-- Address markers -->
+  <g font-family="Consolas, 'Courier New', monospace" font-size="15" fill="#5a6474" text-anchor="middle"><text x="482" y="112">0x3_0000_0000</text><text x="482" y="318">0x1_7200_0000</text><text x="482" y="379">0x1_7100_0000</text><text x="482" y="604">0x1_0200_0000</text></g>
+  <!-- Regions -->
+  <g stroke-width="2">
+    <g fill="#c9d8f2" stroke="#6a80c0"><rect x="569" y="118" width="451" height="185"/><rect x="569" y="425" width="451" height="165"/><rect x="569" y="590" width="451" height="58"/></g>
+    <g fill="#c2e3cf" stroke="#4b8a5f"><rect x="569" y="303" width="451" height="61"/><rect x="569" y="364" width="451" height="61"/></g>
+    <rect x="569" y="648" width="451" height="98" fill="#f3ddad" stroke="#c08a35"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="19" font-weight="bold" text-anchor="middle">
+    <g fill="#23406e"><text x="794" y="218" font-size="17">Kernel-usable memory (memory node upper bound)</text><text x="794" y="514">Kernel-usable memory</text><text x="794" y="611" font-size="17">Kernel-usable memory (memory node lower bound)</text></g>
+    <g fill="#1f4d30"><text x="794" y="326">Shared memory 16 MB</text><text x="794" y="387">TEE RAM 16 MB</text></g>
+    <text x="794" y="704" fill="#6b4510">Low-address region (OpenSBI, FSBL, etc.)</text>
+  </g>
+  <g font-family="Consolas, 'Courier New', monospace" font-size="14" text-anchor="middle"><g fill="#1f4d30"><text x="794" y="355">0x1_7200_0000</text><text x="794" y="416">0x1_7100_0000</text></g><text x="794" y="640" fill="#23406e">0x1_0200_0000</text></g>
+  <!-- Domain ownership -->
+  <g stroke="#8a93a3" stroke-width="2"><path d="M1033 335 H1058 M1033 384 H1058 M1033 508 H1058 M1033 699 H1058"/></g>
+  <g font-family="Arial, sans-serif" font-size="18" fill="#5a6474"><text x="1071" y="341">Shared by both domains</text><text x="1071" y="377" fill="#1f4d30">Secure domain: read/write/execute (0x3f)</text><text x="1071" y="407" fill="#7a2e1f">REE domain: denied (0x00)</text><text x="1071" y="514">Accessible to the REE domain</text><text x="1071" y="705">M-mode firmware</text></g>
+</svg>

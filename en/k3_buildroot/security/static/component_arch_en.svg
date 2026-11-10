@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1760 1010" role="img" aria-labelledby="title desc">
+  <title id="title">K3 TEE component architecture</title>
+  <desc id="desc">Normal-world and secure-world components interact through OpenSBI in M-mode. Dashed lines mark privilege-level boundaries; an RPC connects OP-TEE OS to tee-supplicant.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#5d6976"/></marker></defs>
+  <rect width="1760" height="1010" fill="#fff"/>
+  <g stroke-width="2.5"><rect x="50" y="78" width="683" height="615" fill="#cedcf2" stroke="#5d7dad"/><rect x="786" y="78" width="683" height="615" fill="#c5e6d1" stroke="#4d9169"/><rect x="50" y="78" width="683" height="58" fill="#b4c9e8" stroke="#5d7dad"/><rect x="786" y="78" width="683" height="58" fill="#a7d7b9" stroke="#4d9169"/>
+    <g fill="none" stroke="#5d7dad"><rect x="91" y="164" width="601" height="65"/><rect x="91" y="268" width="601" height="65"/><rect x="91" y="372" width="601" height="65"/><rect x="91" y="492" width="601" height="65"/><rect x="91" y="596" width="601" height="65"/></g>
+    <g fill="none" stroke="#4d9169"><rect x="827" y="164" width="601" height="65"/><rect x="827" y="372" width="601" height="65"/><rect x="827" y="492" width="601" height="169"/></g>
+    <rect x="51" y="740" width="1418" height="92" fill="#f4e1b4" stroke="#b88628"/><rect x="51" y="864" width="1418" height="76" fill="#dddde1" stroke="#7c7c85"/>
+  </g>
+  <g stroke="#b4c0d0" stroke-width="2" stroke-dasharray="10 9"><path d="M760 78 V693 M35 468 H1725 M35 708 H1725 M35 848 H1725"/></g>
+  <g stroke="#5d6976" stroke-width="2.5" fill="none" marker-end="url(#arrow)"><path d="M392 229 V267 M392 333 V371 M392 437 V491 M392 557 V595 M1128 229 V371 M1128 437 V491 M400 693 V739 M1120 740 V693"/><path d="M827 576 H746 V404 H692"/></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" font-size="26" font-weight="bold" fill="#183962">
+    <text x="392" y="117">Normal World (REE · Untrusted Domain)</text><text x="1128" y="117" fill="#174d32">Secure World (TEE · Trusted Domain)</text>
+    <text x="392" y="205">CA (Client Application)</text><text x="392" y="309">TEE Client API (libteec)</text><text x="392" y="413">tee-supplicant (REE Service Proxy)</text><text x="392" y="533">Generic TEE API (ioctl: TEE_IOC_*)</text><text x="392" y="637">OP-TEE Driver + TEE Subsystem (/dev/tee*)</text>
+    <g fill="#174d32"><text x="1128" y="205">TA (Trusted Application)</text><text x="1128" y="413">TEE Internal Core API (libutee)</text><text x="1128" y="568">OP-TEE OS (TEE Core)</text></g>
+    <text x="760" y="789" fill="#634508">OpenSBI (M-mode Security Monitor)</text><text x="760" y="912" fill="#292934">Hardware Platform: PMP · IOPMP · eFuse · TE200 Security Engine</text>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="22" fill="#445d79"><text x="766" y="500">RPC</text><text x="420" y="726">ecall</text><text x="1138" y="726">Domain switch / mret</text><text x="1532" y="309">U-mode</text><text x="1532" y="583">S-mode</text><text x="1532" y="794">M-mode</text><text x="1532" y="912">Hardware</text></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" font-size="23"><text x="1128" y="606" fill="#174d32">Secure storage · Cryptography · Keys</text><text x="760" y="821" fill="#634508">MPXY channels · Domain switching · PMP configuration</text></g>
+  <text x="36" y="987" font-family="Arial, sans-serif" font-size="20" fill="#445d79">Dashed lines mark privilege boundaries. The columns represent the REE and TEE domains; OpenSBI handles domain switches.</text>
+</svg>

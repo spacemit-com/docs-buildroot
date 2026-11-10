@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 1150" role="img" aria-labelledby="title desc">
+  <title id="title">TEE boot sequence and resident execution</title>
+  <desc id="desc">BootROM, SRAM, DDR firmware, secure TEE DDR and non-secure DDR lanes show image loading and verification, execution transfers, OpenSBI waiting for OP-TEE initialization, and OP-TEE remaining resident at runtime.</desc>
+  <defs>
+    <marker id="green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#328a55"/></marker>
+    <marker id="blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#35689e"/></marker>
+    <marker id="red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#c34b4b"/></marker>
+    <marker id="dark" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#1f2a36"/></marker>
+    <marker id="gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#8793a1"/></marker>
+  </defs>
+  <rect width="1560" height="1150" fill="white"/>
+  <!-- World headers -->
+  <g stroke="#1f2a36" stroke-width="2" fill="none" marker-start="url(#dark)" marker-end="url(#dark)"><path d="M68 40 H1172"/><path d="M1243 40 H1502"/></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" fill="#263c53">
+    <g font-size="18" font-weight="bold"><text x="620" y="28" fill="#2f6b45">Secure execution</text><text x="1372" y="28" fill="#2b4f80">Non-secure execution</text></g>
+    <g font-size="19" font-weight="bold"><text x="138" y="90">BootROM</text><text x="415" y="90">SRAM</text><text x="735" y="90">DDR · Firmware region</text><text x="1050" y="90">DDR · TEE secure region</text><text x="1365" y="90">DDR · Non-secure region</text></g>
+  </g>
+  <!-- Lane dividers -->
+  <g stroke="#9aa8ba" stroke-width="2" stroke-dasharray="8 8"><path d="M275 100 V985 M557 100 V985 M910 100 V985 M1192 100 V985"/></g>
+  <!-- Boxes -->
+  <g stroke-width="2"><g fill="#c4e6d0" stroke="#438c60"><rect x="47" y="188" width="173" height="72" rx="6"/><rect x="305" y="337" width="213" height="72" rx="6"/><rect x="596" y="478" width="275" height="72" rx="6"/><rect x="933" y="619" width="235" height="72" rx="6"/><rect x="596" y="768" width="275" height="72" rx="6"/><rect x="933" y="917" width="235" height="72" rx="6"/></g><g fill="#cbd9ef" stroke="#5b7cad"><rect x="1231" y="768" width="220" height="72" rx="6"/><rect x="1231" y="917" width="220" height="72" rx="6"/></g></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" font-size="22" font-weight="bold" fill="#173e30"><text x="133" y="232">ZSBL</text><text x="411" y="368">FSBL</text><text x="733" y="509">OpenSBI</text><text x="1050" y="650">OP-TEE</text><text x="733" y="799">OpenSBI</text><text x="1050" y="948">OP-TEE</text><g fill="#24466f"><text x="1341" y="799">U-Boot</text><text x="1341" y="948">Linux</text></g></g>
+  <g font-family="Arial, sans-serif" text-anchor="middle" font-size="16" fill="#314b5c"><text x="411" y="393">SPL</text><text x="733" y="534">Load and initialize</text><text x="1050" y="675">TEE kernel</text><text x="733" y="824">Continue boot</text><text x="1050" y="973">Resident (runtime)</text><text x="1341" y="973">Kernel</text></g>
+  <!-- Power-on / reset -->
+  <path d="M133 110 V188" stroke="#c34b4b" stroke-width="3" fill="none" marker-end="url(#red)"/>
+  <!-- Load and verify image -->
+  <g fill="none" stroke-width="3" stroke="#328a55" marker-end="url(#green)"><path d="M220 207 H384 V337"/><path d="M411 409 V452 H734 V478"/><path d="M518 390 H1050 V619"/><path d="M518 366 H1340 V768"/><path d="M1301 840 V917"/></g>
+  <!-- Execution transfer -->
+  <g fill="none" stroke-width="3" stroke="#35689e" marker-end="url(#blue)"><path d="M133 260 V373 H305"/><path d="M345 409 V514 H596"/><path d="M871 514 H897 V655 H933"/><path d="M1050 691 V734 H768 V768"/><path d="M871 804 H1231"/><path d="M1380 840 V917"/></g>
+  <!-- Wait / resident -->
+  <path d="M675 550 V768" stroke="#8793a1" stroke-width="2" stroke-dasharray="7 7" fill="none"/>
+  <path d="M1145 691 V912" stroke="#8793a1" stroke-width="2" stroke-dasharray="7 7" fill="none" marker-end="url(#gray)"/>
+  <!-- Step numbers -->
+  <g font-family="Arial, sans-serif" font-size="11" text-anchor="middle" stroke-width="1.3">
+    <g stroke="#328a55" fill="white"><circle cx="307" cy="196" r="7.5"/><circle cx="533" cy="441" r="7.5"/><circle cx="784" cy="380" r="7.5"/><circle cx="1098" cy="355" r="7.5"/><circle cx="1314" cy="880" r="7.5"/></g>
+    <g fill="#328a55"><text x="307" y="200">1</text><text x="533" y="445">2</text><text x="784" y="384">3</text><text x="1098" y="359">4</text><text x="1314" y="884">9</text></g>
+    <g stroke="#35689e" fill="white"><circle cx="470" cy="504" r="7.5"/><circle cx="906" cy="582" r="7.5"/><circle cx="926" cy="722" r="7.5"/><circle cx="1082" cy="794" r="7.5"/><circle cx="1392" cy="880" r="7.5"/></g>
+    <g fill="#35689e"><text x="470" y="508">5</text><text x="906" y="586">6</text><text x="926" y="726">7</text><text x="1082" y="798">8</text><text x="1392" y="884" font-size="9">10</text></g>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="15" fill="#5a6878" text-anchor="middle"><text x="702" y="671">Wait</text><text x="1112" y="743">Resident</text></g>
+  <!-- Legend -->
+  <g font-family="Arial, sans-serif" font-size="17" fill="#263c53">
+    <rect x="62" y="1025" width="25" height="20" fill="#c4e6d0" stroke="#438c60" stroke-width="2"/><text x="97" y="1041">Secure-world execution</text>
+    <path d="M62 1075 H106" stroke="#328a55" stroke-width="3" marker-end="url(#green)"/><text x="125" y="1081">Load and verify image</text>
+    <path d="M62 1116 H106" stroke="#c34b4b" stroke-width="3" marker-end="url(#red)"/><text x="125" y="1122">Power-on / reset</text>
+    <rect x="440" y="1025" width="25" height="20" fill="#cbd9ef" stroke="#5b7cad" stroke-width="2"/><text x="474" y="1041">Non-secure-world execution</text>
+    <path d="M440 1075 H484" stroke="#35689e" stroke-width="3" marker-end="url(#blue)"/><text x="502" y="1081">Execution transfer</text>
+    <path d="M440 1116 H490" stroke="#8793a1" stroke-width="2" stroke-dasharray="6 4"/><text x="502" y="1122">Wait / resident</text>
+  </g>
+</svg>
