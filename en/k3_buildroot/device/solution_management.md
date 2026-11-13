@@ -222,7 +222,7 @@ All final Buildroot output is placed in `output/xxx/target` and then packaged in
 
 2. Place files or directories in `target_overlay`, using the same directory structure as `output/xxx/target/`. Before packaging the `target` directory, Buildroot copies `target_overlay` into `output/xxx/target/` and overwrites any matching files.
 
-## Adding a New Solution
+## Adding a New Build Solution
 
 1. Create a new solution directory under `buildroot-ext/board/spacemit/`. A common naming convention is `chip-name-board-name/`.
 
@@ -241,3 +241,69 @@ All final Buildroot output is placed in `output/xxx/target` and then packaged in
    - Point to the new packaging script `prepare_image.sh`.
 
 6. Build the solution.
+
+### Flashing and Booting a New Solution
+
+When adding a device solution, see [Device Management](./device_management.md).
+
+**Note:** After adding a device tree to an existing build, rerun `make envconfig`, then run `make uboot-rebuild && make linux-rebuild && make` to rebuild and package the image.
+
+Before flashing and booting a board for the first time, check the following:
+
+- Consult the [K3 supported components list](https://spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k3/k3_hw/k3_hw_avl.md). Unsupported components may require adaptation using the peripheral documentation.
+- Determine whether a new DTS solution is present. A custom DTS solution requires the board name to be written as `product_name`.
+- Check the DDR model against the [DDR documentation](https://www.spacemit.com/community/document/info?lang=en&nodepath=software/SDK/buildroot/k3_buildroot/device/peripheral_driver/ddr.md). Unsupported models require driver adaptation.
+- Check the PMIC model against the [PMIC documentation](https://spacemit.com/community/document/info?lang=en&nodepath=software/SDK/buildroot/k3_buildroot/device/peripheral_driver/14-PMIC.md). Unsupported models require driver adaptation.
+- For UFS boot, check the UFS model against the [UFS documentation](https://spacemit.com/community/document/info?lang=en&nodepath=software/SDK/buildroot/k3_buildroot/device/peripheral_driver/ufs.md). Unsupported parts require driver adaptation. The flashing serial log can be used to check whether the block device is detected.
+- Check whether an EEPROM is connected and recognized. After programming it, power-cycle the board and read it back to verify. The EEPROM must be connected to I2C6 (GPIO 120/121 or 61/62) or I2C2 (GPIO 46/47). It stores board, DDR, and PMIC information used at boot. **Incorrect key information can cause flashing or boot failure.**
+
+#### Board With EEPROM
+
+Use the [programming tool](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md) to write the DDR model, device-tree board name, and PMIC information to the EEPROM. UFS does not require a key to be written.
+
+![Programming tool DDR part-number settings](./static/new-solution-k3_key.png)
+
+**Note:**
+
+- Clear a checkbox before changing its value, then select it again. Do not select configuration items whose values are uncertain.
+- If no new device tree has been added, do not select `product_name`; `k3_deb1` is loaded by default. A nonexistent device-tree name prevents the DTB from being found.
+
+#### Board Without EEPROM or With Unknown EEPROM Status
+
+**EEPROM adaptation is recommended first. The following default-value changes are for reference only.**
+
+After changing the DDR and default solution configuration, rebuild U-Boot and the image:
+
+```shell
+make uboot-rebuild && make
+```
+
+The following example changes the DDR part number to the single-rank, 4 GB `MT62F1G32D2DS` and sets the default solution to `k3_example`. Adapt it to the actual hardware:
+
+```diff
+user:~/workspace/k3_buildroot_sdk_pub/bsp-src/uboot-2022.10$ git diff arch/riscv/dts/k3_spl.dts include/
+diff --git a/arch/riscv/dts/k3_spl.dts b/arch/riscv/dts/k3_spl.dts
+index d95d77886f..f4d79a8653 100644
+--- a/arch/riscv/dts/k3_spl.dts
++++ b/arch/riscv/dts/k3_spl.dts
+@@ -231,7 +231,7 @@
+        ddr@cb000000 {
+        u-boot,dm-spl;
+        compatible = "spacemit,snps-lp45";
+-                       part-number = "MT62F2G32D4DS";
++                       part-number = "MT62F1G32D2DS";
+        reg = <0x00000000 0xcb000000 0x00000000 0x00400000>,
+          <0x00000000 0xcc000000 0x00000000 0x00400000>;
+        reg-names = "ddrc0", "ddrc1";
+diff --git a/include/configs/k3.h b/include/configs/k3.h
+index f106a03d7d..ab6905a9e4 100644
+--- a/include/configs/k3.h
++++ b/include/configs/k3.h
+@@ -102,10 +102,10 @@
+ #define K3_NOR_UFS_DEVNUM_DEFAULT      (0)
+ #define K3_NOR_EMMC_DEVNUM_DEFAULT     (MMC_DEV_EMMC)
+
+-#define DEFAULT_PRODUCT_NAME           "k3_deb1"
++#define DEFAULT_PRODUCT_NAME           "k3_example"
+ #define BOOTFS_NAME                    ("bootfs")
+```

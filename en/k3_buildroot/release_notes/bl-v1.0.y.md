@@ -4,6 +4,20 @@ sidebar_position: 1
 
 # Buildroot 1.0
 
+## v1.0.10 Release Notes
+
+Release Date: 2026-10-22
+
+### Major Updates
+
+- Added support for switching EtherCAT network modes
+- Added support for UFS WriteBooster and additional LPDDR5 data rates
+- Added support for recording the SSD serial number in the secondary boot device TLV
+- Fixed an issue where a Multi-MSI vector group was distributed across multiple CPUs
+- Fixed an issue where the eDP backlight remained on during suspend
+- Adjusted LPDDR5 timing to improve DDR bandwidth
+- Adjusted Pico fan speed levels and the hysteresis curve
+
 ## v1.0.9 Release Notes
 
 Release Date: 2026-09-18
