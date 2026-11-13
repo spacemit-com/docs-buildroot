@@ -140,6 +140,82 @@ bootfs and rootfs are stored in SSD, and configured according to the `partitions
 0K                                                         4M             260M           Capacity
 ```
 
-## Customizing Solutions
+## Adding a New DTS Solution
 
-## Adding New Solutions
+For information on adding a device solution based on Buildroot, see [Device Management](./device_management.md).
+
+**Note:**
+
+- For a quick flashing and boot test, you can use the default `deb1` solution.
+- After adding a device tree to an existing build, rerun `make envconfig`, then run `make uboot-rebuild && make linux-rebuild && make` to rebuild and package the image.
+
+## Flashing and Booting a New Board
+
+Before flashing and booting a board for the first time, consult the [supported components list](https://spacemit.com/community/document/info?lang=en&nodepath=hardware/key_stone/k1/k1_hw/k1_hw_avl.md). Unsupported components may require adaptation first. Check the following:
+
+- Whether a new DTS solution has been added.
+- Whether the DDR type is LPDDR4 or LPDDR4X. Compare the DDR part number against the supported components list; unsupported parts may require driver adaptation.
+- Whether the DDR uses one or two chip selects (CS).
+- Whether an EEPROM is connected and can be identified. After programming it, power-cycle the board and read it back to verify. The EEPROM stores board and DDR information used at boot. **Incorrect key information can cause flashing or boot failure.**
+
+### Board With EEPROM
+
+Use the [programming tool](https://www.spacemit.com/community/document/info?lang=en&nodepath=tools/user_guide/flasher_user_guide.md) to write the DDR model, DDR CS count, and device-tree board name to the EEPROM.
+
+**Note:**
+
+- Clear a checkbox before changing its value, then select it again. Do not select configuration items whose values are uncertain.
+- If no new device tree has been added, leave `product_name` empty; `k1-x_deb1` is loaded by default. A nonexistent device-tree name prevents the DTB from being found.
+- If the DDR CS count is unknown, enter 1 initially, then check whether the DDR capacity in the U-Boot serial output matches the hardware.
+
+![Programming tool DDR and device-tree settings](./static/new-solution-eeprom-writing.png)
+
+### Board Without EEPROM or With Unknown EEPROM Status
+
+**EEPROM adaptation is recommended first. The following default-value changes are for reference only.**
+
+After changing the DDR and default solution configuration, rebuild U-Boot and the image:
+
+```shell
+make uboot-rebuild && make
+```
+
+The following example configures single-CS LPDDR4 and sets the default board name to `k1-x_example`. Adapt it to the actual hardware:
+
+```diff
+user:~/workspace/bianbu-linux-pub/bsp-src/uboot-2022.10$ git diff arch/riscv/dts/k1-x_spl.dts include/
+diff --git a/arch/riscv/dts/k1-x_spl.dts b/arch/riscv/dts/k1-x_spl.dts
+index 42235de070..7f90add9c2 100644
+--- a/arch/riscv/dts/k1-x_spl.dts
++++ b/arch/riscv/dts/k1-x_spl.dts
+@@ -79,8 +79,8 @@
+	ddr@c0000000 {
+		/* dram data rate, should be 1200, 1600, or 2400 */
+		datarate = <2400>;
+-               cs-num = <2>;
+-               type = "LPDDR4X";
++               cs-num = <1>;
++               type = "LPDDR4";
+		tx-odt = <80>;
+		u-boot,dm-spl;
+	};
+diff --git a/include/configs/k1-x.h b/include/configs/k1-x.h
+index 1af9debcf1..2c63b90546 100644
+--- a/include/configs/k1-x.h
++++ b/include/configs/k1-x.h
+@@ -25,12 +25,12 @@
+ #define CONFIG_GATEWAYIP       10.0.92.1
+ #define CONFIG_NETMASK         255.255.255.0
+
+-#define DEFAULT_PRODUCT_NAME   "k1-x_deb1"
++#define DEFAULT_PRODUCT_NAME   "k1-x_example"
+
+ #define DDR_TRAINING_DATA_BASE (0xc0832000)
+ #define AUDIO_BUFFER_ADDRESS   (0xC08D0000)
+```
+
+### Flashing and Boot Checks
+
+Check the serial output to verify that the DDR type and capacity match the hardware and that the loaded device tree matches the board. The boot log below shows 8 GB of LPDDR4X and the `k1-x_MUSE-Pi-Pro` device tree.
+
+![U-Boot boot log](./static/new-solution-boot-log.png)
